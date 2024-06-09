@@ -15,6 +15,13 @@
 		1859A8A42BAB4C7000540E88 /* InspiredTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8A32BAB4C7000540E88 /* InspiredTests.swift */; };
 		1859A8AE2BAB4C7000540E88 /* InspiredUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8AD2BAB4C7000540E88 /* InspiredUITests.swift */; };
 		1859A8B02BAB4C7000540E88 /* InspiredUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8AF2BAB4C7000540E88 /* InspiredUITestsLaunchTests.swift */; };
+		1859A8BD2BC2D97400540E88 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8BC2BC2D97400540E88 /* FlowLayout.swift */; };
+		1859A8BF2BCC234E00540E88 /* SecurelyStoredTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8BE2BCC234E00540E88 /* SecurelyStoredTests.swift */; };
+		1859A8C12BCC235400540E88 /* KeychainAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8C02BCC235400540E88 /* KeychainAccessor.swift */; };
+		1859A8C32BCC341400540E88 /* SecurelyStored.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8C22BCC341400540E88 /* SecurelyStored.swift */; };
+		1859A8C52BCC3D4300540E88 /* ConcernedKeychainAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8C42BCC3D4300540E88 /* ConcernedKeychainAccessor.swift */; };
+		1859A8C72BD2AF3600540E88 /* CircularLoaderViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8C62BD2AF3600540E88 /* CircularLoaderViewTests.swift */; };
+		1859A8C92BD2AF4700540E88 /* CircularLoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8C82BD2AF4700540E88 /* CircularLoaderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +54,14 @@
 		1859A8A92BAB4C7000540E88 /* InspiredUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InspiredUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1859A8AD2BAB4C7000540E88 /* InspiredUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspiredUITests.swift; sourceTree = "<group>"; };
 		1859A8AF2BAB4C7000540E88 /* InspiredUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspiredUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		1859A8BC2BC2D97400540E88 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
+		1859A8BE2BCC234E00540E88 /* SecurelyStoredTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecurelyStoredTests.swift; sourceTree = "<group>"; };
+		1859A8C02BCC235400540E88 /* KeychainAccessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainAccessor.swift; sourceTree = "<group>"; };
+		1859A8C22BCC341400540E88 /* SecurelyStored.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecurelyStored.swift; sourceTree = "<group>"; };
+		1859A8C42BCC3D4300540E88 /* ConcernedKeychainAccessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConcernedKeychainAccessor.swift; sourceTree = "<group>"; };
+		1859A8C62BD2AF3600540E88 /* CircularLoaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularLoaderViewTests.swift; sourceTree = "<group>"; };
+		1859A8C82BD2AF4700540E88 /* CircularLoaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularLoaderView.swift; sourceTree = "<group>"; };
+		1859A8CA2BE56F6200540E88 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,12 +112,18 @@
 		1859A88E2BAB4C6E00540E88 /* Inspired */ = {
 			isa = PBXGroup;
 			children = (
+				1859A8CA2BE56F6200540E88 /* Info.plist */,
+				1859A8C42BCC3D4300540E88 /* ConcernedKeychainAccessor.swift */,
+				1859A8C22BCC341400540E88 /* SecurelyStored.swift */,
+				1859A8C02BCC235400540E88 /* KeychainAccessor.swift */,
 				1859A88F2BAB4C6E00540E88 /* InspiredApp.swift */,
 				1859A8912BAB4C6E00540E88 /* ContentView.swift */,
+				1859A8BC2BC2D97400540E88 /* FlowLayout.swift */,
 				1859A8932BAB4C6E00540E88 /* Item.swift */,
 				1859A8952BAB4C7000540E88 /* Assets.xcassets */,
 				1859A8972BAB4C7000540E88 /* Inspired.entitlements */,
 				1859A8982BAB4C7000540E88 /* Preview Content */,
+				1859A8C82BD2AF4700540E88 /* CircularLoaderView.swift */,
 			);
 			path = Inspired;
 			sourceTree = "<group>";
@@ -118,7 +139,9 @@
 		1859A8A22BAB4C7000540E88 /* InspiredTests */ = {
 			isa = PBXGroup;
 			children = (
+				1859A8BE2BCC234E00540E88 /* SecurelyStoredTests.swift */,
 				1859A8A32BAB4C7000540E88 /* InspiredTests.swift */,
+				1859A8C62BD2AF3600540E88 /* CircularLoaderViewTests.swift */,
 			);
 			path = InspiredTests;
 			sourceTree = "<group>";
@@ -262,8 +285,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1859A8C32BCC341400540E88 /* SecurelyStored.swift in Sources */,
 				1859A8922BAB4C6E00540E88 /* ContentView.swift in Sources */,
+				1859A8C92BD2AF4700540E88 /* CircularLoaderView.swift in Sources */,
+				1859A8BD2BC2D97400540E88 /* FlowLayout.swift in Sources */,
 				1859A8942BAB4C6E00540E88 /* Item.swift in Sources */,
+				1859A8C52BCC3D4300540E88 /* ConcernedKeychainAccessor.swift in Sources */,
+				1859A8C12BCC235400540E88 /* KeychainAccessor.swift in Sources */,
 				1859A8902BAB4C6E00540E88 /* InspiredApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -272,6 +300,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1859A8BF2BCC234E00540E88 /* SecurelyStoredTests.swift in Sources */,
+				1859A8C72BD2AF3600540E88 /* CircularLoaderViewTests.swift in Sources */,
 				1859A8A42BAB4C7000540E88 /* InspiredTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -426,6 +456,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Inspired/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Inspired/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -462,6 +493,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Inspired/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Inspired/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
