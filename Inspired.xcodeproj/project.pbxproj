@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		18260EB92C15F25F00247BDF /* CheckoutSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18260EB82C15F25F00247BDF /* CheckoutSlider.swift */; };
 		1859A8902BAB4C6E00540E88 /* InspiredApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A88F2BAB4C6E00540E88 /* InspiredApp.swift */; };
 		1859A8922BAB4C6E00540E88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8912BAB4C6E00540E88 /* ContentView.swift */; };
 		1859A8942BAB4C6E00540E88 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8932BAB4C6E00540E88 /* Item.swift */; };
@@ -42,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		18260EB82C15F25F00247BDF /* CheckoutSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutSlider.swift; sourceTree = "<group>"; };
 		1859A88C2BAB4C6E00540E88 /* Inspired.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Inspired.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1859A88F2BAB4C6E00540E88 /* InspiredApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspiredApp.swift; sourceTree = "<group>"; };
 		1859A8912BAB4C6E00540E88 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -120,10 +122,11 @@
 				1859A8912BAB4C6E00540E88 /* ContentView.swift */,
 				1859A8BC2BC2D97400540E88 /* FlowLayout.swift */,
 				1859A8932BAB4C6E00540E88 /* Item.swift */,
+				1859A8C82BD2AF4700540E88 /* CircularLoaderView.swift */,
+				18260EB82C15F25F00247BDF /* CheckoutSlider.swift */,
 				1859A8952BAB4C7000540E88 /* Assets.xcassets */,
 				1859A8972BAB4C7000540E88 /* Inspired.entitlements */,
 				1859A8982BAB4C7000540E88 /* Preview Content */,
-				1859A8C82BD2AF4700540E88 /* CircularLoaderView.swift */,
 			);
 			path = Inspired;
 			sourceTree = "<group>";
@@ -291,6 +294,7 @@
 				1859A8BD2BC2D97400540E88 /* FlowLayout.swift in Sources */,
 				1859A8942BAB4C6E00540E88 /* Item.swift in Sources */,
 				1859A8C52BCC3D4300540E88 /* ConcernedKeychainAccessor.swift in Sources */,
+				18260EB92C15F25F00247BDF /* CheckoutSlider.swift in Sources */,
 				1859A8C12BCC235400540E88 /* KeychainAccessor.swift in Sources */,
 				1859A8902BAB4C6E00540E88 /* InspiredApp.swift in Sources */,
 			);
@@ -467,7 +471,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
@@ -504,7 +508,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
@@ -527,7 +531,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.inspired-developers.InspiredTests";
@@ -549,7 +553,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.inspired-developers.InspiredTests";
