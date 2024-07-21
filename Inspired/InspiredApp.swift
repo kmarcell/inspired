@@ -25,7 +25,11 @@ struct InspiredApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            InteractiveMeshGradient(width: 3, height: 3) {[
+                .init(color: .red, position: .init(0, 0)), .init(color: .purple, position: .init(0.5, 0)), .init(color: .indigo, position: .init(1, 0)),
+                .init(color: .orange, position: .init(0, 0.5)), .init(color: .white, position: .init(0.5, 0.5)), .init(color: .blue, position: .init(1, 0.5)),
+                .init(color: .yellow, position: .init(0, 1)), .init(color: .green, position: .init(0.5, 1)), .init(color: .mint, position: .init(1, 1))
+            ]}
         }
         .modelContainer(sharedModelContainer)
     }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1803CBD82C30265B00EE1BF4 /* InteractiveMeshGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1803CBD72C30265B00EE1BF4 /* InteractiveMeshGradient.swift */; };
 		18260EB92C15F25F00247BDF /* CheckoutSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18260EB82C15F25F00247BDF /* CheckoutSlider.swift */; };
 		1859A8902BAB4C6E00540E88 /* InspiredApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A88F2BAB4C6E00540E88 /* InspiredApp.swift */; };
 		1859A8922BAB4C6E00540E88 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859A8912BAB4C6E00540E88 /* ContentView.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1803CBD72C30265B00EE1BF4 /* InteractiveMeshGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveMeshGradient.swift; sourceTree = "<group>"; };
 		18260EB82C15F25F00247BDF /* CheckoutSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutSlider.swift; sourceTree = "<group>"; };
 		1859A88C2BAB4C6E00540E88 /* Inspired.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Inspired.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1859A88F2BAB4C6E00540E88 /* InspiredApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspiredApp.swift; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 				1859A8932BAB4C6E00540E88 /* Item.swift */,
 				1859A8C82BD2AF4700540E88 /* CircularLoaderView.swift */,
 				18260EB82C15F25F00247BDF /* CheckoutSlider.swift */,
+				1803CBD72C30265B00EE1BF4 /* InteractiveMeshGradient.swift */,
 				1859A8952BAB4C7000540E88 /* Assets.xcassets */,
 				1859A8972BAB4C7000540E88 /* Inspired.entitlements */,
 				1859A8982BAB4C7000540E88 /* Preview Content */,
@@ -289,6 +292,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1859A8C32BCC341400540E88 /* SecurelyStored.swift in Sources */,
+				1803CBD82C30265B00EE1BF4 /* InteractiveMeshGradient.swift in Sources */,
 				1859A8922BAB4C6E00540E88 /* ContentView.swift in Sources */,
 				1859A8C92BD2AF4700540E88 /* CircularLoaderView.swift in Sources */,
 				1859A8BD2BC2D97400540E88 /* FlowLayout.swift in Sources */,

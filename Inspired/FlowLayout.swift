@@ -6,6 +6,7 @@
 //
 
 import Foundation
+#if canImport(UIKit)
 import UIKit
 import SwiftUI
 
@@ -210,3 +211,5 @@ struct CustomCollectionView: UIViewControllerRepresentable {
     CustomCollectionView()
         .modelContainer(for: Item.self, inMemory: true)
 }
+
+#endif
