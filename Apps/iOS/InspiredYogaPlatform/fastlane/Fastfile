@@ -1,0 +1,62 @@
+# fastlane/Fastfile
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Run all unit and snapshot tests"
+  lane :test do
+    scan(
+      scheme: "Inspired",
+      configuration: "Debug (Production)"
+    )
+  end
+
+  desc "Deploy a new version to Firebase App Distribution (Staging)"
+  lane :deploy_staging do
+    # 1. Fetch the correct Firebase config
+    sh("../../../scripts/fetch-config.sh staging")
+    
+    # 2. Re-generate project to ensure plist is included
+    sh("xcodegen generate")
+
+    # 3. Build the app
+    build_app(
+      scheme: "Inspired",
+      configuration: "Release (Staging)",
+      export_method: "ad-hoc"
+    )
+
+    # 4. Upload to Firebase
+    firebase_app_distribution(
+      app: "1:99296584767:ios:some_app_id", # We'll fill this in FEATURES.md later
+      groups: "staging-testers"
+    )
+  end
+
+  desc "Deploy a new version to TestFlight (Production)"
+  lane :deploy_prod do
+    # 1. Authenticate with App Store Connect
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"], # Base64 encoded .p8
+      is_key_content_base64: true
+    )
+
+    # 2. Fetch the correct Firebase config
+    sh("../../../scripts/fetch-config.sh prod")
+
+    # 3. Re-generate project
+    sh("xcodegen generate")
+
+    # 4. Build the app
+    build_app(
+      scheme: "Inspired",
+      configuration: "Release (Production)",
+      export_method: "app-store"
+    )
+
+    # 5. Upload to TestFlight
+    upload_to_testflight(api_key: api_key)
+  end
+end

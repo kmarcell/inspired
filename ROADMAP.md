@@ -8,14 +8,14 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 *The following items must be resolved before full-scale feature development begins.*
 
 ### 🛠 Technical Infrastructure (Architect & Dev Lead)
-- [ ] **Secret Management Strategy:** Define how the Google Places API Key and Firebase API keys will be injected into the app without committing them to Git (e.g., using `Secrets.xcconfig`).
-- [ ] **Xcode Target Configuration:** The project needs separate Build Targets or Schemes for **Staging** and **Production** to support environment-specific `GoogleService-Info.plist` fetching.
-- [ ] **Terraform State Management:** Create a dedicated GCS bucket in the staging project to hold the Terraform remote state (prevents state corruption).
-- [ ] **Fastlane Scaffolding:** Initialize the `Fastfile` and `Appfile` to support the `fastlane test` and `fastlane deploy_staging` commands.
+- [x] **Secret Management Strategy:** Sensitive keys (e.g., Google Places) managed exclusively on the backend (IaC).
+- [x] **Xcode Target Configuration:** Separate Staging/Production schemes managed via XcodeGen.
+- [x] **Terraform State Management:** GCS bucket `inspired-yoga-app-staging-tfstate` created for remote state.
+- [x] **Fastlane Scaffolding:** `Fastfile` and `Appfile` initialized with test and deploy lanes.
 
 ### 🧪 Validation Framework (Test Engineer)
 - [ ] **Firebase Emulator Setup:** Configure the local Firebase Emulator (Auth, Firestore, Functions) to allow TDD without hitting real backend quotas.
-- [ ] **Test Data Seed Script:** Create a script to populate the Staging/Emulator environments with deterministic "Yoga Studios" and "Test Teachers" for UI/Snapshot verification.
+- [ ] **Staging Data Seeding:** Develop a script/process to seed the `inspired-yoga-app-staging` environment with mock "Shadow Profiles" for testing.
 
 ### 📈 Business & Compliance (BA & PM)
 - [ ] **Monetization Strategy:** Clarify the long-term plan (e.g., "Free now, Premium later" vs. "Ad-supported") to ensure the database schema can support future billing entities.
@@ -35,7 +35,8 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 ### Phase 2: Feature Specification & Mockups
 *This phase begins once Phase 1 gaps are closed.*
 1.  **Draft Feature Requirements:** Describe User Stories in **@FEATURES.md**.
-2.  **Generate Mockups:** Create low-fidelity layout sketches for every UI component.
+2.  **Define Studio Claiming Flow:** Establish the verification process for studio owners to claim shadow profiles.
+3.  **Generate Mockups:** Create low-fidelity layout sketches for every UI component.
 3.  **Data Schema Finalization:** Update **@FEATURES.md** JSON examples based on mockups.
 
 ### Phase 3: TDD Development

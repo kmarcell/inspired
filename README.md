@@ -5,20 +5,18 @@
 ## Prerequisites
 - Xcode 16.0+
 - iOS 18.0+
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 - Bundle ID: `com.inspired-developers.Inspired`
 - [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
 - [Git LFS](https://git-lfs.com/)
 
 ---
 
-## 1. Install Firebase CLI
-
-Choose one of the following methods:
+## 1. Install CLI Tools
 
 ### Method A: Using Homebrew (Recommended for macOS)
 ```bash
-# Install Homebrew if you haven't already: https://brew.sh
-brew install firebase-cli
+brew install firebase-cli xcodegen fastlane
 ```
 
 ### Method B: Standalone Binary (Alternative)
@@ -43,7 +41,17 @@ sudo gem install fastlane -NV
 
 ---
 
-## 2. Set Up Your Backend (GCP / Firebase)
+## 2. Generate the iOS Project
+We use **XcodeGen** to manage the Xcode project file. 
+```bash
+cd Apps/iOS/InspiredYogaPlatform
+xcodegen generate
+```
+*Note: The `.xcodeproj` is generated from `project.yml` and should not be edited manually.*
+
+---
+
+## 3. Set Up Your Backend (GCP / Firebase)
 
 Follow these steps to set up a new backend environment for the project.
 
@@ -65,7 +73,25 @@ firebase init
 ```
 *Note: During initialization, select Firestore, Storage, and Cloud Functions. Use the IaC mandates in [GEMINI.md](./GEMINI.md) as a guide for your configuration.*
 
-### Step 2: Automated Environment Configuration
+#### Remote State Management (Terraform)
+We store our Terraform state in a **private Google Cloud Storage (GCS) bucket** instead of Git. This ensures that sensitive infrastructure data is never committed to version control and supports state locking.
+
+**How to create the bucket:**
+
+*   **Option A: CLI (Requires [Google Cloud SDK](https://cloud.google.com/sdk/docs/install))**
+    ```bash
+    # Replace 'your-project-id' with your actual staging project ID
+    gsutil mb -p your-project-id -l europe-west1 gs://your-project-id-tfstate/
+    ```
+*   **Option B: Manual (GCP Console)**
+    1.  Go to the [GCP Storage Browser](https://console.cloud.google.com/storage/browser).
+    2.  Click **Create** and name it `your-project-id-tfstate`.
+    3.  Select Location Type: **Region** and Location: **`europe-west1` (Belgium)**.
+    4.  Keep other defaults (Standard, Uniform access) and click **Create**.
+
+2.  The `backend "gcs"` block in your Terraform configuration will automatically point to this bucket.
+
+### Step 3: Automated Environment Configuration
 To keep the repository open-source friendly, `GoogleService-Info.plist` is **not** checked into Git. Fetch it automatically for your own backend:
 1.  **Register your iOS App** in the Firebase Console:
     - Go to [Firebase Console](https://console.firebase.google.com/) > Project Settings > General.
@@ -83,7 +109,7 @@ To keep the repository open-source friendly, `GoogleService-Info.plist` is **not
 
 ---
 
-## 3. Testing the Application
+## 4. Testing the Application
 
 ### 1. Deploy to Staging
 ```bash
@@ -111,11 +137,11 @@ fastlane deploy_prod
 
 ---
 
-## 4. Firebase App Distribution (Staging)
+## 5. Firebase App Distribution (Staging)
 
 For internal staging tests, we use Firebase App Distribution.
 
-### 4.1 Admin Setup
+### 5.1 Admin Setup
 1.  **Tester Group:** Go to the [Firebase Console](https://console.firebase.google.com/) > **Release & Monitor** > **App Distribution**.
 2.  **Testers & Groups:** Ensure you have a group named **Staging Testers** (ID: `staging-testers`).
 3.  Add the email addresses of your testers to this group.
@@ -145,11 +171,49 @@ If you are a tester, follow these steps to install the "Inspired" staging app on
 
 ---
 
+## 5. Data Management & Seeding
+
+We use automated scripts to ensure our environments have consistent data for testing and discovery.
+
+### 5.1 Staging Environment (Mock Data)
+To populate the staging environment with deterministic "Test Studios" and "Test Teachers" for UI verification:
+1.  **Switch to Staging:** `firebase use staging`
+2.  **Run Seeder:** `npm run seed:staging`
+*Note: This script generates mock shadow profiles based on the schemas in [FEATURES.md](./FEATURES.md).*
+
+### 5.2 Production Environment (Discovery Seeding)
+To "seed" the production database with real yoga studios discovered via the Google Places API:
+1.  **Switch to Production:** `firebase use prod`
+2.  **Run Discovery:** `npm run seed:prod`
+*Note: This script triggers a Cloud Function that searches for yoga studios in specific area codes and creates "Shadow Profiles" in Firestore.*
+
+---
+
+## 6. Developer Setup Checklist (Action Required)
+
+To complete your local environment setup, please perform the following tasks:
+
+### 🛠 immediate Setup
+- [ ] **Firebase Login:** Run `firebase login` to authenticate the CLI.
+- [ ] **Fetch Staging Config:** Run `./scripts/fetch-config.sh staging` to download the initial staging plist.
+- [ ] **Generate Project:** Run `xcodegen generate` inside `Apps/iOS/InspiredYogaPlatform`.
+
+### 🚀 Future Setup (Paid Apple Developer Account)
+- [ ] **App Store Connect API Key:** Generate a `.p8` key in the Apple Developer Portal.
+- [ ] **Fastlane Environment:** Create `Apps/iOS/InspiredYogaPlatform/fastlane/.env` based on `.env.template` and add your API Key credentials.
+- [ ] **Code Signing:** Initialize `fastlane match` to manage certificates and profiles.
+
+---
+
 ## Maintenance & Teardown
-To wipe the environment for a clean re-test:
+
+### Teardown & Rollback (Wiping the Environment)
+If you need to start from a clean state or zero out all costs, you can tear down the entire infrastructure. This will delete all Firestore data, Storage blobs, and Cloud Functions.
 ```bash
-./scripts/teardown.sh staging
+# Use the teardown script (requires confirmation)
+./scripts/teardown.sh [staging|prod]
 ```
+**Under the hood:** This script runs `terraform destroy`, which uses the remote state in GCS to identify and remove all managed resources. After a teardown, you can run `./scripts/deploy.sh` to redeploy the entire stack from scratch.
 
 ## Documentation
 - **[GEMINI.md](./GEMINI.md):** Architectural, security, and engineering mandates.

@@ -12,6 +12,7 @@ Pods/
 # Xcode
 *.xcuserdatad/
 DerivedData/
+*.xcodeproj/
 .env.*
 *.xcconfig
 GoogleService-Info.plist

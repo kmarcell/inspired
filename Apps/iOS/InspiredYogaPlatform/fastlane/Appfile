@@ -1,0 +1,2 @@
+app_identifier("com.inspired-developers.Inspired")
+# apple_id is not needed if we use the API Key

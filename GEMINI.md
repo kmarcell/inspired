@@ -32,18 +32,22 @@
     - **Storage Hygiene:** Ensure old blobs (thumbnails and standard versions) are deleted from Cloud Storage when a user replaces their media to maintain a clean environment and control costs.
     - **Implementation:** Use native iOS `ImageRenderer` or `UIImage` resizing capabilities. Use the **Firebase Storage SDK** for all upload operations.
 - **Image Processing:** Perform image downsampling and compression **locally on the device** before uploading to minimize bandwidth and storage costs.
-- **Studio Data:** Use **Google Places API** for discovery. Seed the database with manual entries or specific area-based discoveries to stay within free tier limits during early phases.
+- **Studio Data & Shadow Profiles:** 
+    - **Backend Seeding:** Use **Google Places API** via Cloud Functions to discover and "seed" yoga studios into Firestore as **Shadow Profiles**.
+    - **iOS Client:** The app fetches studio data exclusively from Firestore. Direct client-side calls to the Google Places API are forbidden to minimize costs and exposure.
+    - **Discovery:** Proximity searches are performed against indexed Firestore data using location fuzzing.
 - **Security & Integrity:**
-    - **Rate Limiting:** Implement logic-based rate limiting in Cloud Functions and client-side throttles to prevent DDoS/Brute-force attacks and control costs.
-    - **Firestore Security Rules:** Enforce strict "Least Privilege" access. No collection-wide reads; queries must be scoped to specific IDs or approved filters.
+    - **Secret Management:** 
+        - **Backend-Only Keys:** Sensitive keys like the Google Places API Key must live exclusively in Cloud Functions environment variables (IaC managed).
+        - **Frontend Keys:** Minimize or eliminate third-party API keys in the iOS binary. Configuration is fetched via `GoogleService-Info.plist` at build time.
     - **Location Privacy:** 
         - **Users:** Store only area-level data (e.g., postcode prefix or district). **Never store exact GPS coordinates for individual users.**
         - **Studios:** Store publicly available business addresses.
         - **Discovery:** Use Location Fuzzing for proximity searches to protect user/teacher privacy until a booking is confirmed.
 - **Compliance & Data Residency:**
     - **GDPR & UK-GDPR:** Adhere strictly to EU and UK data protection standards. 
-    - **Residency:** Prioritize European Google Cloud regions (e.g., `europe-west`) for data storage to align with EU/UK compliance.
-    - **User Rights:** Implement and support mechanisms for Data Access, Rectification, Portability, and the "Right to be Forgotten" (Hard Delete).
+    - **Regional Mandate:** All backend services (Firestore, Cloud Storage, Cloud Functions) must be deployed to the **`europe-west1` (Belgium)** region. This ensures data residency within the EU, minimizes inter-service latency, and reduces egress costs.
+    - **User Rights:** Implement mechanisms for Data Access, Rectification, and the "Right to be Forgotten".
     - **Future-proofing:** Design for future compliance with CCPA (US) and PIPL (Asia) as the platform scales.
 - **Logic:** Use Firebase Cloud Functions for server-side logic (e.g., complex group management or future payment processing).
 
@@ -89,8 +93,25 @@
     - **Production Phase:** Zero data loss. Once live, any structural changes must be performed via **versioned migration scripts** (using Cloud Functions or administrative CLI tools) to transform existing NoSQL documents.
     - **Indexes:** Manage all Firestore composite indexes via the Firebase CLI as part of the IaC mandate.
 
-## Architecture: TCA Integration
-- **Dependency Pattern:** All backend services must be abstracted into **TCA Clients** (e.g., `AuthenticationClient`, `FirestoreClient`, `MediaClient`).
+## Project Structure
+- **Root:** Contains project-wide documentation (`.md` files) and cross-platform configuration.
+- **Apps Path:** Frontend applications are located in `Apps/{Platform}/`.
+- **Universal Frontend Mandate:** All architectural, security, privacy, and data integrity mandates defined in this document apply to **all frontend clients** (e.g., iOS, React, Web) unless explicitly noted.
+- **Organization (iOS - InspiredYogaPlatform):** 
+    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
+    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
+    - `Apps/iOS/InspiredYogaPlatform/UI/`: Design system and mockups.
+
+## Architecture: Frontend Clients
+- **Dependency Pattern:** All backend services must be abstracted into platform-appropriate **Clients** (e.g., TCA Clients for iOS, Hooks/Services for React).
+- **Testing Requirements:** Every frontend client must implement:
+    - **TDD:** Test-driven development for all logic.
+    - **Snapshot Testing:** UI validation against **@FEATURES.md** mockups.
+    - **Offline Safety:** Mock implementations for all external dependencies.
+
+## Architecture: iOS Specifics (TCA Integration)
+- **Framework:** The Composable Architecture (TCA).
+- **Project Management:** Use **XcodeGen** to manage the `.xcodeproj`.
 - **Media Loading:** **Never** use `AsyncImage` directly with real URLs in core features. All image fetching, processing, and caching must be abstracted via a `MediaClient` to support deterministic testing.
 - **Interfaces:** Define clients with `async/await` interfaces.
 - **Testing:** Provide "live" and "test" (mock) implementations for every client to support TDD and Snapshot testing without network dependencies.
@@ -147,7 +168,10 @@
     - Documentation is **required** for any property holding PII data.
 - **Networking:** Do not implement network calls or API logic until specifically instructed. If a requirement implies API usage, state the intent and ask for permission first.
 - **Environment Configuration:**
-    - **No-Commit Mandate:** **Never** commit `GoogleService-Info.plist` to the repository.
+    - **No-Commit Mandate:** **Never** commit `GoogleService-Info.plist` or sensitive API keys to the repository.
+    - **Secret Management:** 
+        - **Backend-Only Keys:** Sensitive keys like the Google Places API Key must live exclusively in Cloud Functions environment variables (IaC managed).
+        - **Frontend Keys:** Minimize or eliminate third-party API keys in the iOS binary. Configuration is fetched via `GoogleService-Info.plist` at build time.
     - **Automated Fetching:** Use the Firebase CLI (`firebase apps:sdkconfig`) to fetch environment-specific configurations during the setup or pre-build phase.
     - **Isolation:** Each build configuration (Staging/Prod) must point to its respective fetched configuration file.
     - **Development Access:** Use local USB deployment for testing on physical devices (Free Tier provisioning).
@@ -158,6 +182,11 @@
 ## Project Structure
 - **Root:** Contains project-wide documentation (`.md` files) and cross-platform configuration.
 - **Apps Path:** The iOS application is located in `Apps/iOS/InspiredYogaPlatform/`.
+- **Project Management (XcodeGen):**
+    - **Mandate:** Use **XcodeGen** to manage the `.xcodeproj` file. 
+    - **Source of Truth:** The `project.yml` file is the canonical source for targets, configurations, and dependencies.
+    - **No Manual Edits:** **Never** manually edit the `.xcodeproj` or commit it to Git. 
+    - **Generation:** Run `xcodegen generate` after any structural or configuration changes.
 - **Organization:** 
     - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
     - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
@@ -172,14 +201,17 @@
     - **JSON Examples:** Provide representative JSON objects for key entities (e.g., User Profiles, Yoga Studio Profiles, Groups) to serve as the contract for encoding/decoding in the iOS app.
     - **Integrity:** This documentation drives the communication between the Firebase API and the TCA Clients to prevent data corruption and ensure type safety.
 - **Mockup-Driven Development (The Feedback Loop):**
-    - **Step 1: Mockup Generation:** For every UI component or screen described in **@FEATURES.md**, a "napkin sketch" (low-fidelity SVG or wireframe) must be generated first. These are layout-focused sketches (rectangles representing buttons, avatars, subtitles, etc.) used to validate positioning and structure.
+    - **Step 1: Mockup Generation:** For every UI component or screen described in **@FEATURES.md**, a "napkin sketch" (low-fidelity SVG or wireframe) must be generated first.
+    - **Synchronization Mandate:** Mockups **must** be updated synchronously whenever their corresponding feature description in **@FEATURES.md** is modified. The visual sketch and textual requirement must never drift.
+    - **Visual Language:** Use primitive shapes (circles, rectangles) with one or two letters to identify the intent of icons, buttons, and images.
     - **Step 2: Storage:** Mockups must be checked into the repository under `**/Mockups/` using **Git LFS**.
     - **Step 3: Implementation:** Use the mockup as the visual specification for the SwiftUI implementation.
     - **Step 4: Validation:** After implementing, generate a high-fidelity **Snapshot Test** (with native buttons, colors, etc.). Compare the snapshot's layout to the mockup's positioning/intent.
     - **Step 5: Iteration:** If the layout or logic deviates from the mockup, adjust the code, re-generate the snapshot, and repeat. Continuous maintenance of **@FEATURES.md** and its data sections is required as features evolve.
 
 ## Development Workflow
-- **Local-First Automation:** All CI/CD tasks (Testing, Building, and Deploying) are performed locally using **Fastlane**. This ensures 100% free execution and simplifies secret management.
+- **Roadmap Synchronization:** **@ROADMAP.md** must be updated at the conclusion of every significant task. Completed items must be ticked off, and any newly identified gaps or sub-tasks must be added to ensure the roadmap remains accurate and actionable.
+- **Local-First Automation:** All CI/CD tasks are performed locally using **Fastlane**.
 - **Verification:** Follow Apple's Human Interface Guidelines (HIG) for all UI work.
 - **Workflow:** Research and strategy must precede execution.
 - **Finality:** Always run tests and verify behavior before considering a task complete.

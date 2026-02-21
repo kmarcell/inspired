@@ -1,0 +1,51 @@
+name: Inspired
+options:
+  bundleIdPrefix: com.inspired-developers
+  deploymentTarget:
+    iOS: 18.0
+  indentWidth: 4
+  tabWidth: 4
+
+configs:
+  Debug (Staging): debug
+  Release (Staging): release
+  Debug (Production): debug
+  Release (Production): release
+
+targets:
+  Inspired:
+    type: application
+    platform: iOS
+    sources: 
+      - Inspired
+      - path: Inspired/GoogleService-Info.plist
+        optional: true
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        DEVELOPMENT_ASSET_PATHS: '"Inspired/Preview Content"'
+      configs:
+        Debug (Staging):
+          PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
+        Release (Staging):
+          PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
+
+  InspiredTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [InspiredTests]
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Inspired
+
+  InspiredUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [InspiredUITests]
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Inspired
