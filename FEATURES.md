@@ -7,13 +7,18 @@ This file serves as the canonical source for all feature requirements, UI compon
 ## 1. Feature Index
 *Index of all features currently planned or in development.*
 
-1.  **User Authentication & Onboarding** (Status: Planned - Google & Email/Password. *Login with Apple deferred.*)
-2.  **User Profiles** (TBD)
-3.  **Teacher Finder & Studio Discovery** (TBD)
-4.  **Yoga Studio Profiles** (TBD)
-5.  **Groups & Community** (TBD)
-6.  **Real-time Chat** (TBD)
-7.  **Class Scheduling & Booking** (TBD)
+1.  **User Authentication & Login** (Status: Planned - Google & Email/Password.)
+2.  **Landing Page Shell** (Navigation & Layout)
+3.  **Community Feed** (Unified Discovery & Mixed Content)
+4.  **User Profiles & Teacher Privacy** (TBD)
+5.  **Communities & Joined Groups** (TBD)
+6.  **Notifications & Alerts** (TBD)
+7.  **New Post Flow** (TBD)
+8.  **Teacher Finder & Studio Discovery** (Shadow Profile Seeding)
+9.  **Yoga Studio Profiles & Claiming Flow** (TBD)
+10. **Real-time Chat** (TBD)
+11. **Class Scheduling & Booking** (TBD)
+12. **Localization** (TBD)
 
 ---
 
@@ -28,10 +33,10 @@ This section documents the precise data contracts between the iOS application an
 ```json
 {
   "id": "user_abc_123",
-  "username": "yoga_explorer",
+  "username": "yoga_explorer#4521",
   "displayName": "Jane Doe",
   "bio": "Yoga enthusiast based in London.",
-  "areaCode": "SW1A",
+  "lastSearchArea": "Askew",
   "isTeacher": false,
   "profilePictureUrl": "https://storage.googleapis.com/.../profile_small.jpg",
   "privacySettings": {
@@ -47,10 +52,10 @@ This section documents the precise data contracts between the iOS application an
 | Field | Type | Description | PII? |
 | :--- | :--- | :--- | :--- |
 | `id` | `String` | Unique User ID (from Firebase Auth). | No |
-| `username` | `String` | Unique public handle (camelCase). | No |
-| `displayName` | `String` | User's full name (Optional). | **Yes** |
+| `username` | `String` | Public handle in `name#1234` format. | No |
+| `displayName` | `String` | User's full name. | **Yes** |
 | `bio` | `String` | Short biography (Max 280 chars). | No |
-| `areaCode` | `String` | Area-level location (Postcode prefix). | No |
+| `lastSearchArea`| `String` | Last area name searched or IP-detected (e.g., "Hammersmith"). | No |
 | `isTeacher` | `Boolean` | Flag identifying teacher accounts. | No |
 | `privacySettings` | `Map` | User's granular privacy toggles. | No |
 | `createdAt` | `Timestamp` | ISO 8601 creation date. | No |
@@ -60,6 +65,10 @@ This section documents the precise data contracts between the iOS application an
 ### 2.2 Yoga Studio Profile Schema
 *Collection: `/studios/{studioId}`*
 
+**Shadow vs. Claimed States:**
+- **Shadow State:** Seeded from Google Places API via Cloud Functions. Contains basic name, address, and location. `isClaimed: false`.
+- **Claimed State:** Verified by a studio owner. Unlocks management features (chat, scheduling, moderation). `isClaimed: true`.
+
 **JSON Example:**
 ```json
 {
@@ -68,6 +77,8 @@ This section documents the precise data contracts between the iOS application an
   "address": "123 Hyde Park St, London W2 2UH",
   "about": "A peaceful oasis in the heart of London.",
   "rating": 4.8,
+  "isClaimed": false,
+  "ownerId": null,
   "reviewCount": 125,
   "moderationSettings": {
     "autoApproveMemberComments": true,
@@ -85,6 +96,8 @@ This section documents the precise data contracts between the iOS application an
 | :--- | :--- | :--- | :--- |
 | `id` | `String` | Unique Studio ID. | No |
 | `name` | `String` | Business name of the studio. | No |
+| `isClaimed` | `Boolean` | Flag indicating if the profile has been verified by an owner. | No |
+| `ownerId` | `String` | User ID of the verified owner (if claimed). | No |
 | `address` | `String` | Public business address. | No |
 | `about` | `Markdown` | Formatted studio description (Max 500 chars). | No |
 | `rating` | `Number` | Average user rating (0-5.0). | No |
@@ -119,3 +132,38 @@ This section documents the precise data contracts between the iOS application an
 ---
 
 ## 5. Screen & Component Behaviors
+
+### 5.1 Login & Registration Screen
+**Goal:** Unified entry for Google Sign-In and Email/Password.
+**Mockup:** `Apps/iOS/InspiredYogaPlatform/UI/Mockups/5.1_LoginRegistrationScreen.svg`
+
+**Logic & Rules:**
+1.  **Direct Transition:** After successful authentication, the user is transitioned directly to the **Landing Page**.
+2.  **Username Logic (Backend):** Usernames follow the `name#1234` format.
+3.  **Legal Links:** Links to placeholder Terms and Privacy URLs at bottom.
+
+### 5.2 Landing Page Shell
+**Goal:** The primary application frame and global navigation.
+**Mockup:** `Apps/iOS/InspiredYogaPlatform/UI/Mockups/5.2_LandingPageShell.svg`
+
+**Visual Elements:**
+- **Navigation Bar (Inside):**
+    - **Top Left:** Circle 'P' (Profile leads to Profile Page).
+    - **Center Top:** Search Bar (Discovery).
+    - **Bottom Left:** Small, left-aligned area label. 
+        - **Format:** "You're currently viewing **[Area Name]**".
+        - **Adaptive Strategy:** If the area name is too long for the available space, omit the "You're currently viewing" prefix and display only the **bolded area name**.
+    - **Top Right 1:** Square 'JC' (Joined Communities page).
+    - **Top Right 2:** Square 'N' (Notifications Bell).
+- **Post Entry (Outside/Above Feed):** 
+    - Full-width bar: "What's on your mind?"
+- **Content Area:** 
+    - Hosts the **Community Feed** box (See 5.3).
+
+### 5.3 Community Feed
+**Goal:** A unified stream of local and community updates.
+
+**Logic & Rules:**
+1.  **Unified Feed:** Mixed chronological stream of posts from "Joined Communities" and the "Selected Area".
+2.  **Area Switching:** Changing the area in the Search Bar updates the navigation label and the feed content.
+3.  **Empty Feed Handling (TBD):** Logic for expanding discovery to neighboring areas.

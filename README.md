@@ -6,6 +6,7 @@
 - Xcode 16.0+
 - iOS 18.0+
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
+- [Java Runtime](https://www.java.com/) (`brew install openjdk`) - *Required for Firebase Emulator*
 - Bundle ID: `com.inspired-developers.Inspired`
 - [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
 - [Git LFS](https://git-lfs.com/)
