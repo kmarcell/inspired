@@ -1,3 +1,26 @@
 .DS_Store
 Inspired.xcodeproj/xcuserdata/*
 Inspired.xcodeproj/project.xcworkspace/xcuserdata/*
+
+# CocoaPods
+Pods/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Configuration and Secrets
+.env
+.env.*
+*.xcconfig
+GoogleService-Info.plist
+
+# Firebase / Infrastructure
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Scripts and Temporary Data
+scripts/local-config.json
+*.log

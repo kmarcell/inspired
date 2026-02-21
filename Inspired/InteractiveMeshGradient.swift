@@ -35,16 +35,18 @@ struct InteractiveMeshGradient: View {
 
     final class ViewModel: ObservableObject {
 
-        @Published var width: Int
-        @Published var height: Int
-        @Published var controls: [Control]
+        var width: Int
+        var height: Int
+        @Published var controls: [[Control]]
 
-        init(width: Int, height: Int, nodes: [Node]) {
+        init(width: Int, height: Int, nodes: [[Node]]) {
             self.width = width
             self.height = height
-            self.controls = nodes.map { node in
-                Control(node: node, location: .zero)
-            }
+            self.controls = nodes.map({
+                $0.map { node in
+                    Control(node: node, location: .zero)
+                }
+            })
         }
     }
 
@@ -57,7 +59,7 @@ struct InteractiveMeshGradient: View {
 
     private let controlSize = CGSize(width: 24, height: 24)
 
-    init(width: Int, height: Int, nodes: () -> [Node]) {
+    init(width: Int, height: Int, nodes: () -> [[Node]]) {
         let nodes = nodes()
         self._viewModel = .init(wrappedValue: ViewModel(
             width: width,
@@ -102,16 +104,7 @@ struct InteractiveMeshGradient: View {
     }
 
     var content: some View {
-        HStack {
-            if isEditing {
-                addButton { addRowBefore() }
-            }
-
-            VStack {
-                if isEditing {
-                    addButton { addRowAbove() }
-                }
-
+        EditMeshControls(isEditing: $isEditing) {
                 ZStack {
                     Rectangle()
                         .strokeBorder(style: StrokeStyle(lineWidth: 1.0, dash: [10.0, 10.0]))
@@ -124,55 +117,64 @@ struct InteractiveMeshGradient: View {
                     proxy.size
                 } action: { newValue in
                     viewSize = newValue
-                    for control in viewModel.controls {
-                        control.location = CGPoint(position: control.node.position, size: viewSize)
-                    }
+                    updateLocations()
                 }
-
-                if isEditing {
-                    addButton { addRowBelow() }
-                }
+        } add: { edge in
+            switch edge {
+            case .top:
+                addRowAbove()
+            case .leading:
+                addRowBefore()
+            case .bottom:
+                addRowBelow()
+            case .trailing:
+                addRowAfter()
             }
-            .padding()
+        } remove: { edge in
 
-            if isEditing {
-                addButton { addRowAfter() }
-            }
         }
     }
 
     var mesh: some View {
-        MeshGradient(
+        let controls = viewModel.controls.flatMap({ $0 })
+        return MeshGradient(
             width: viewModel.width,
             height: viewModel.height,
-            points: viewModel.controls.map { $0.node.position },
-            colors: viewModel.controls.map { $0.node.color }
+            points: controls.map { $0.node.position },
+            colors: controls.map { $0.node.color }
         )
     }
 
     var controls: some View {
         GeometryReader { proxy in
-            ForEach($viewModel.controls) { $control in
+            ForEach($viewModel.controls.flatMap({ $0 })) { $control in
                 DragControl(location: $control.location, node: control.node, coordinateSpaceSize: viewSize)
                     .frame(width: controlSize.width, height: controlSize.height)
             }
         }
     }
 
-    func addButton(_ action: @escaping () -> Void) -> some View {
-        Button {
-            action()
-        } label: {
-            Text("+")
+    func updateLocations() {
+        for control in viewModel.controls.flatMap({ $0 }) {
+            control.location = CGPoint(position: control.node.position, size: viewSize)
         }
-        .buttonStyle(BorderedProminentButtonStyle())
-        .foregroundColor(Color(white: 0.3))
-        .tint(Color(white: 0.8))
-        .padding(.vertical)
     }
 
     func addRowAbove() {
+        let new = viewModel.controls[0].map {
+            Control(node: Node(color: $0.node.color, position: .init(x: $0.node.position.x, y: 0)), location: .zero)
+        }
 
+        viewModel.height += 1
+        viewModel.controls.insert(new, at: 0)
+
+        viewModel.controls.enumerated().forEach { row, controls in
+            for control in controls {
+                control.node.position.y = Float(row) / Float(viewModel.height - 1)
+            }
+        }
+
+        updateLocations()
     }
 
     func addRowBelow() {
@@ -186,6 +188,68 @@ struct InteractiveMeshGradient: View {
     func addRowAfter() {
 
     }
+}
+
+extension InteractiveMeshGradient {
+
+    struct EditMeshControls<Content: View>: View {
+
+        @Binding var isEditing: Bool
+        
+        let content: Content
+        let add: (Edge) -> Void
+        let remove: (Edge) -> Void
+
+        init(isEditing: Binding<Bool>,
+             @ViewBuilder content: () -> Content,
+             add: @escaping (Edge) -> Void,
+             remove: @escaping (Edge) -> Void) {
+            self._isEditing = isEditing
+            self.content = content()
+            self.add = add
+            self.remove = remove
+        }
+
+        var body: some View {
+            HStack {
+                if isEditing {
+                    addButton { add(.leading) }
+                }
+
+                VStack {
+                    if isEditing {
+                        addButton { add(.top) }
+                    }
+
+                    content
+
+                    if isEditing {
+                        addButton { add(.bottom) }
+                    }
+                }
+                .padding()
+
+                if isEditing {
+                    addButton { add(.trailing) }
+                }
+            }
+        }
+
+        func addButton(_ action: @escaping () -> Void) -> some View {
+            Button {
+                action()
+            } label: {
+                Text("+")
+            }
+            .buttonStyle(BorderedProminentButtonStyle())
+            .foregroundColor(Color(white: 0.3))
+            .tint(Color(white: 0.8))
+            .padding(.vertical)
+        }
+    }
+}
+
+extension InteractiveMeshGradient {
 
     struct DragControl: View {
 
@@ -226,8 +290,8 @@ extension CGPoint {
 
 #Preview {
     InteractiveMeshGradient(width: 3, height: 3) {[
-        .init(color: .red, position: .init(0, 0)), .init(color: .purple, position: .init(0.5, 0)), .init(color: .indigo, position: .init(1, 0)),
-        .init(color: .orange, position: .init(0, 0.5)), .init(color: .white, position: .init(0.5, 0.5)), .init(color: .blue, position: .init(1, 0.5)),
-        .init(color: .yellow, position: .init(0, 1)), .init(color: .green, position: .init(0.5, 1)), .init(color: .mint, position: .init(1, 1))
+        [.init(color: .red, position: .init(0, 0)), .init(color: .purple, position: .init(0.5, 0)), .init(color: .indigo, position: .init(1, 0))],
+        [.init(color: .orange, position: .init(0, 0.5)), .init(color: .white, position: .init(0.5, 0.5)), .init(color: .blue, position: .init(1, 0.5))],
+        [.init(color: .yellow, position: .init(0, 1)), .init(color: .green, position: .init(0.5, 1)), .init(color: .mint, position: .init(1, 1))]
     ]}
 }
