@@ -35,7 +35,6 @@ Fastlane is used for building, testing, and deploying the iOS app.
 brew install fastlane
 
 # Or via RubyGems (if Homebrew is not available)
-# Note: You may need 'sudo' depending on your Ruby setup
 sudo gem install fastlane -NV
 ```
 
@@ -89,107 +88,112 @@ We store our Terraform state in a **private Google Cloud Storage (GCS) bucket** 
     3.  Select Location Type: **Region** and Location: **`europe-west1` (Belgium)**.
     4.  Keep other defaults (Standard, Uniform access) and click **Create**.
 
-2.  The `backend "gcs"` block in your Terraform configuration will automatically point to this bucket.
-
-### Step 3: Automated Environment Configuration
+### Step 2: Automated Environment Configuration
 To keep the repository open-source friendly, `GoogleService-Info.plist` is **not** checked into Git. Fetch it automatically for your own backend:
 1.  **Register your iOS App** in the Firebase Console:
     - Go to [Firebase Console](https://console.firebase.google.com/) > Project Settings > General.
     - Click the **iOS+** icon to add an app.
-    - **Bundle ID:** `com.inspired-developers.Inspired`.
+    - **Bundle ID:** `com.inspired-developers.Inspired.staging` (Staging) / `com.inspired-developers.Inspired` (Prod).
     - **App Nickname:** "Inspired Yoga Platform".
     - **Register app:** Click the button, then click **Next** through the manual download steps (do not download it manually).
 2.  **Fetch the configuration:**
 ```bash
-# Use the fetch script to download the plist directly from your Firebase project
-# This script uses 'firebase apps:sdkconfig ios' under the hood.
-./scripts/fetch-config.sh [staging|prod]
+# Fetch the staging plist (used for both Local and Staging tiers)
+./scripts/fetch-config.sh staging
 ```
 3.  The plist will be placed in the correct location for Xcode to use during the build phase.
 
 ---
 
-## 4. Testing the Application
+## 4. 3-Tier Environment Strategy
 
-### 1. Deploy to Staging
+We use a 3-tier environment structure to ensure safe development, thorough testing, and stable production releases.
+
+| Environment | Xcode Scheme | Target Backend | Configuration | Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| **Local** | `Inspired (Local)` | **Firebase Emulator** | `Debug (Local)` | Day-to-day TDD and UI coding. Zero cost. |
+| **Staging** | `Inspired (Staging)` | **Firebase Staging (GCP)**| `Debug/Release (Staging)` | Integration testing with real cloud services. |
+| **Production** | `Inspired (Production)` | **Firebase Production (GCP)** | `Debug/Release (Production)`| Real users, TestFlight, and App Store. |
+
+### 4.1 Working with the Local Emulator
+The Local environment uses the **Firebase Emulator Suite** to run a complete backend on your Mac.
+
+1.  **Start the Emulator:**
 ```bash
-firebase use staging
-./scripts/deploy.sh staging
+# Run this from the project root
+firebase emulators:start
+```
+2.  **Deploy Rules & Indexes:** 
+    Before running tests, ensure your local emulator has the latest security rules and indexes:
+```bash
+firebase deploy --only firestore:rules,firestore:indexes --export-on-exit ./emulator_data
+```
+3.  **View Emulator UI:** Open [http://localhost:4000](http://localhost:4000) to manage your local database and auth users.
+4.  **Xcode Setup:** Select the **`Inspired (Local)`** scheme. The app will automatically connect to your local machine.
+
+---
+
+## 5. Testing & Deployment (Fastlane)
+
+We use **Fastlane** to ensure consistent, automated test runs and builds across all tiers.
+
+### 5.1 Running Automated Tests
+The `test` lane runs all unit and snapshot tests against the **Local Emulator**.
+```bash
+# Ensure the emulator is running (Step 4.1) then:
+fastlane test
 ```
 
-### 2. Manage Test Users
-1.  Go to **Authentication > Users** in the Firebase Console.
-2.  Add a dedicated Google test account.
-3.  Log in to the app on your simulator or device using this account.
+### 5.2 Deploying to Staging (Firebase)
+1.  **Deploy Infrastructure:** `./scripts/deploy.sh staging` (Deploys Cloud Functions/Rules to GCP).
+2.  **Distribute App:** `fastlane deploy_staging` (Builds and uploads IPA to testers).
+3.  **Manage Testers:** Go to **Authentication > Users** in the Firebase Console to manage staging identities.
 
-### 3. Running Automated Tests & Builds
-We use **Fastlane** to ensure consistent, automated test runs and builds.
+### 5.3 Deploying to Production (TestFlight)
 ```bash
-# Run all unit and snapshot tests
-fastlane test
-
-# Build and upload the IPA to Firebase App Distribution (Staging)
-fastlane deploy_staging
-
-# Build and upload the IPA to TestFlight (Production)
+# Build and upload the IPA to TestFlight
 fastlane deploy_prod
 ```
 
 ---
 
-## 5. Firebase App Distribution (Staging)
+## 6. Firebase App Distribution (Staging)
 
 For internal staging tests, we use Firebase App Distribution.
 
-### 5.1 Admin Setup
+### 6.1 Admin Setup
 1.  **Tester Group:** Go to the [Firebase Console](https://console.firebase.google.com/) > **Release & Monitor** > **App Distribution**.
 2.  **Testers & Groups:** Ensure you have a group named **Staging Testers** (ID: `staging-testers`).
 3.  Add the email addresses of your testers to this group.
 4.  **Register Device UDIDs:** For ad-hoc distribution, you must register your testers' device UDIDs in the [Apple Developer Portal](https://developer.apple.com/account/resources/devices/list) and update your provisioning profile via `fastlane match`.
 5.  **Distribute:** Run `fastlane deploy_staging` to build and upload the IPA to your testers automatically.
 
-### 4.2 Tester Installation Guide (Step-by-Step)
-If you are a tester, follow these steps to install the "Inspired" staging app on your iPhone:
-
-1.  **Provide your UDID:** 
-    - Connect your iPhone to a Mac and find the UDID in Finder.
-    - Or, visit [showmyudid.com](https://showmyudid.com) on your device.
-    - Send this ID to the project admin for registration.
-2.  **Accept the Invitation:** 
-    - You will receive an email from **Firebase App Distribution**. 
-    - Open it on your iPhone and tap **Get Started**.
-3.  **Install the Profile:** 
-    - Firebase will ask to install a configuration profile. Tap **Allow** and then follow the prompts in **Settings > Profile Downloaded**. 
-    - *Note: This profile allows Firebase to securely identify your device for ad-hoc distribution.*
-4.  **Download the App:** 
-    - Once the profile is installed, open the **App Distribution** web app (or the App Tester app if prompted).
-    - Find "Inspired Yoga Platform" and tap **Download/Install**.
-5.  **Trust the Developer (if required):**
-    - Go to **Settings > General > VPN & Device Management**.
-    - Under "Enterprise App" or "Developer App", tap the profile and select **Trust**.
-6.  **Launch the App:** You can now open the "Inspired" app from your home screen!
+### 6.2 Tester Installation Guide (Step-by-Step)
+1.  **Provide your UDID:** Visit [showmyudid.com](https://showmyudid.com) on your device and send it to the admin.
+2.  **Accept the Invitation:** Open the email from Firebase and tap **Get Started**.
+3.  **Install the Profile:** Tap **Allow** and then follow prompts in **Settings > Profile Downloaded**. 
+4.  **Download the App:** Open the App Distribution web app and tap **Download/Install**.
+5.  **Trust the Developer:** Go to **Settings > General > VPN & Device Management** and select **Trust** for the developer profile.
 
 ---
 
-## 5. Data Management & Seeding
+## 7. Data Management & Seeding
 
 We use automated scripts to ensure our environments have consistent data for testing and discovery.
 
-### 5.1 Staging Environment (Mock Data)
+### 7.1 Staging Environment (Mock Data)
 To populate the staging environment with deterministic "Test Studios" and "Test Teachers" for UI verification:
 1.  **Switch to Staging:** `firebase use staging`
 2.  **Run Seeder:** `npm run seed:staging`
-*Note: This script generates mock shadow profiles based on the schemas in [FEATURES.md](./FEATURES.md).*
 
-### 5.2 Production Environment (Discovery Seeding)
+### 7.2 Production Environment (Discovery Seeding)
 To "seed" the production database with real yoga studios discovered via the Google Places API:
 1.  **Switch to Production:** `firebase use prod`
 2.  **Run Discovery:** `npm run seed:prod`
-*Note: This script triggers a Cloud Function that searches for yoga studios in specific area codes and creates "Shadow Profiles" in Firestore.*
 
 ---
 
-## 6. Developer Setup Checklist (Action Required)
+## 8. Developer Setup Checklist (Action Required)
 
 To complete your local environment setup, please perform the following tasks:
 
@@ -215,7 +219,10 @@ If you need to start from a clean state or zero out all costs, you can tear down
 ```
 **Under the hood:** This script runs `terraform destroy`, which uses the remote state in GCS to identify and remove all managed resources. After a teardown, you can run `./scripts/deploy.sh` to redeploy the entire stack from scratch.
 
+---
+
 ## Documentation
 - **[GEMINI.md](./GEMINI.md):** Architectural, security, and engineering mandates.
 - **[ARCHITECTURE.md](./ARCHITECTURE.md):** High-level technical specification, service interactions, and usage estimates (intended for architect review).
 - **[FEATURES.md](./FEATURES.md):** UI components, screen behaviors, and precise NoSQL data schemas.
+- **[ROADMAP.md](./ROADMAP.md):** Strategic plan and task tracking.

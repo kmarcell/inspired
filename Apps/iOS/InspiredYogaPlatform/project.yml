@@ -7,6 +7,7 @@ options:
   tabWidth: 4
 
 configs:
+  Debug (Local): debug
   Debug (Staging): debug
   Release (Staging): release
   Debug (Production): debug
@@ -27,10 +28,16 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         DEVELOPMENT_ASSET_PATHS: '"Inspired/Preview Content"'
       configs:
+        Debug (Local):
+          PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
+          OTHER_SWIFT_FLAGS: $(inherited) -DFIREBASE_EMULATOR
         Debug (Staging):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
         Release (Staging):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
+    dependencies:
+      - target: InspiredTests
+      - target: InspiredUITests
 
   InspiredTests:
     type: bundle.unit-test
@@ -49,3 +56,31 @@ targets:
       GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: Inspired
+
+schemes:
+  Inspired (Local):
+    build:
+      targets:
+        Inspired: [run, test, profile, analyze, archive]
+    run:
+      config: Debug (Local)
+    test:
+      config: Debug (Local)
+  
+  Inspired (Staging):
+    build:
+      targets:
+        Inspired: [run, test, profile, analyze, archive]
+    run:
+      config: Debug (Staging)
+    test:
+      config: Debug (Staging)
+
+  Inspired (Production):
+    build:
+      targets:
+        Inspired: [run, test, profile, analyze, archive]
+    run:
+      config: Debug (Production)
+    test:
+      config: Debug (Production)

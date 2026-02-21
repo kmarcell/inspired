@@ -14,6 +14,7 @@ elif [ "$ENVIRONMENT" == "prod" ]; then
     PROJECT_ID="inspired-yoga-app"
 else
     echo "Usage: ./scripts/fetch-config.sh [staging|prod]"
+    echo "Note: Local development uses the 'staging' configuration."
     exit 1
 fi
 
@@ -23,7 +24,6 @@ echo "Fetching Firebase configuration for $ENVIRONMENT ($PROJECT_ID)..."
 mkdir -p "$TARGET_DIR"
 
 # Fetch the configuration using Firebase CLI
-# Note: This requires you to be logged in via 'firebase login'
 firebase apps:sdkconfig ios --project "$PROJECT_ID" > "$TARGET_DIR/$PLIST_NAME"
 
 if [ $? -eq 0 ]; then

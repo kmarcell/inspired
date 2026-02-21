@@ -69,9 +69,12 @@
     - **Versioned Config:** All IaC configurations must be committed to Git. To revert a failed deployment, check out the previous known good state and re-deploy.
     - **State Management:** Use remote state with locking (e.g., GCS bucket) for Terraform to prevent concurrent modification and ensure a consistent source of truth.
 - **Environment Strategy:**
-    - **Multi-Project Setup:** Maintain two separate Firebase/GCP projects: `inspired-staging` and `inspired-prod`.
-    - **Deployment Flow:** All changes must be deployed and verified in **Staging** before being promoted to **Production**.
-    - **Environment Switching:** Use the Firebase CLI (`firebase use staging` / `firebase use prod`) to manage environment-specific deployments.
+    - **3-Tier Setup:**
+        - **Local:** Targeted at the Firebase Emulator. Uses the `Debug (Local)` configuration and `-DFIREBASE_EMULATOR` flag.
+        - **Staging:** Targeted at the `inspired-yoga-app-staging` cloud project.
+        - **Production:** Targeted at the `inspired-yoga-app` cloud project.
+    - **Deployment Flow:** All changes must be verified in **Local** (Emulator) and **Staging** before being promoted to **Production**.
+    - **Environment Switching:** Use the Firebase CLI and the `scripts/fetch-config.sh` script to manage configurations.
 - **Scripts & Maintenance:**
     - **Deployment:** Maintain a `scripts/deploy.sh [environment]` script to handle the full IaC deployment pipeline.
     - **Teardown:** Maintain a `scripts/teardown.sh [environment]` script to safely remove all resources from a specific environment (e.g., wiping Staging for a clean re-test).

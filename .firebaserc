@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "inspired-yoga-app-staging",
+    "staging": "inspired-yoga-app-staging",
+    "prod": "inspired-yoga-app"
+  }
+}

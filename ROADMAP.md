@@ -8,14 +8,14 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 *The following items must be resolved before full-scale feature development begins.*
 
 ### 🛠 Technical Infrastructure (Architect & Dev Lead)
-- [x] **Secret Management Strategy:** Sensitive keys (e.g., Google Places) managed exclusively on the backend (IaC).
-- [x] **Xcode Target Configuration:** Separate Staging/Production schemes managed via XcodeGen.
+- [x] **Secret Management Strategy:** backend-only keys managed via Cloud Functions environment variables (IaC).
+- [x] **Xcode Target Configuration:** 3-Tier setup (Local, Staging, Production) managed via XcodeGen.
 - [x] **Terraform State Management:** GCS bucket `inspired-yoga-app-staging-tfstate` created for remote state.
-- [x] **Fastlane Scaffolding:** `Fastfile` and `Appfile` initialized with test and deploy lanes.
+- [x] **Fastlane Scaffolding:** Updated to support 3-tier testing and deployment.
 
 ### 🧪 Validation Framework (Test Engineer)
-- [ ] **Firebase Emulator Setup:** Configure the local Firebase Emulator (Auth, Firestore, Functions) to allow TDD without hitting real backend quotas.
-- [ ] **Staging Data Seeding:** Develop a script/process to seed the `inspired-yoga-app-staging` environment with mock "Shadow Profiles" for testing.
+- [ ] **Firebase Emulator Initialization:** Run `firebase init emulators` and finalize local ports.
+- [ ] **Staging Data Seeding:** Develop a script/process to seed the `inspired-yoga-app-staging` environment.
 
 ### 📈 Business & Compliance (BA & PM)
 - [ ] **Monetization Strategy:** Clarify the long-term plan (e.g., "Free now, Premium later" vs. "Ad-supported") to ensure the database schema can support future billing entities.
