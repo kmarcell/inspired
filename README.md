@@ -180,17 +180,28 @@ For internal staging tests, we use Firebase App Distribution.
 
 ## 7. Data Management & Seeding
 
-We use automated scripts to ensure our environments have consistent data for testing and discovery.
+We use deterministic JSON files in `infrastructure/seeds/` to manage our test data.
 
-### 7.1 Staging Environment (Mock Data)
-To populate the staging environment with deterministic "Test Studios" and "Test Teachers" for UI verification:
-1.  **Switch to Staging:** `firebase use staging`
-2.  **Run Seeder:** `npm run seed:staging`
+### 7.1 Seeding the Local Emulator
+This populates the local database running on your Mac.
+1.  Ensure the emulator is running (`firebase emulators:start`).
+2.  Run the seeder targeting localhost:
+```bash
+npm run seed:local
+```
 
-### 7.2 Production Environment (Discovery Seeding)
-To "seed" the production database with real yoga studios discovered via the Google Places API:
-1.  **Switch to Production:** `firebase use prod`
-2.  **Run Discovery:** `npm run seed:prod`
+### 7.2 Seeding the Staging Environment (Cloud)
+This populates the real Google Cloud database for shared testing.
+1.  Switch to staging: `firebase use staging`
+2.  Run the cloud seeder:
+```bash
+npm run seed:staging
+```
+
+### 7.3 Wipe & Reset (Clean State)
+To delete all data and start over:
+*   **Local:** Simply stop the emulator and restart it (if not using `--import`).
+*   **Staging:** `firebase firestore:delete --all-collections`
 
 ---
 
