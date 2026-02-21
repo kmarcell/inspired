@@ -155,6 +155,15 @@
     - No debug logs unless requested.
     - All API calls, identifiers, and user data in logs **must be obfuscated**.
 
+## Project Structure
+- **Root:** Contains project-wide documentation (`.md` files) and cross-platform configuration.
+- **Apps Path:** The iOS application is located in `Apps/iOS/InspiredYogaPlatform/`.
+- **Organization:** 
+    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
+    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
+    - `Apps/iOS/InspiredYogaPlatform/InspiredUITests/`: UI tests (following UserFlows.md).
+    - `Apps/iOS/InspiredYogaPlatform/UI/`: Design system and mockups.
+
 ## Feature & Data Documentation
 - **Canonical Source:** All feature requirements, UI components, screen behaviors, and navigation flows are documented in **[@FEATURES.md](./FEATURES.md)**. This file must be treated as the primary context for all feature-related tasks.
 - **Data Schemas & Contracts:**

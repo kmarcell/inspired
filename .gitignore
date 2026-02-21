@@ -9,8 +9,9 @@ Pods/
 .build/
 .swiftpm/
 
-# Configuration and Secrets
-.env
+# Xcode
+*.xcuserdatad/
+DerivedData/
 .env.*
 *.xcconfig
 GoogleService-Info.plist
