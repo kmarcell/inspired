@@ -181,7 +181,7 @@ This section documents the precise data contracts between the iOS application an
 
 ### 5.1 Login & Registration Screen
 **Goal:** Unified entry for Google Sign-In and Email/Password.
-**Mockup:** `Apps/iOS/InspiredYogaPlatform/UI/Mockups/5.1_LoginRegistrationScreen.svg`
+**Mockup:** `UI/Mockups/5.1_LoginRegistrationScreen.svg`
 
 **Logic & Rules:**
 1.  **Direct Transition:** After successful authentication, the user is transitioned directly to the **Landing Page**.
@@ -192,7 +192,7 @@ This section documents the precise data contracts between the iOS application an
 
 ### 5.2 Landing Page Shell
 **Goal:** The primary application frame and global navigation.
-**Mockup:** `Apps/iOS/InspiredYogaPlatform/UI/Mockups/5.2_LandingPageShell.svg`
+**Mockup:** `UI/Mockups/5.2_LandingPageShell.svg`
 
 **Visual Elements:**
 - **Navigation Bar (Inside):**
@@ -211,7 +211,7 @@ This section documents the precise data contracts between the iOS application an
 
 ### 5.3 Community Feed & Post Card
 **Goal:** A unified chronological stream of local and community updates.
-**Mockup:** `Apps/iOS/InspiredYogaPlatform/UI/Mockups/5.3_CommunityFeedPost.svg`
+**Mockup:** `UI/Mockups/5.3_CommunityFeedPost.svg`
 
 **Logic & Rules:**
 1.  **Unified Feed:** Mixed chronological stream of posts from "Joined Communities" and the "Selected Area".

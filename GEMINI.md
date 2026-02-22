@@ -198,8 +198,12 @@
     - All API calls, identifiers, and user data in logs **must be obfuscated**.
 
 ## Project Structure
-- **Root:** Contains project-wide documentation (`.md` files) and cross-platform configuration.
-- **Apps Path:** The iOS application is located in `Apps/iOS/InspiredYogaPlatform/`.
+- **Root:** Contains project-wide documentation (`.md` files), centralized design assets (`UI/Mockups/`), and cross-platform configuration.
+- **Apps Path:** Frontend applications are located in `Apps/{Platform}/`.
+- **Universal Frontend Mandate:** All architectural, security, privacy, and data integrity mandates defined in this document apply to **all frontend clients** (e.g., iOS, React, Web) unless explicitly noted.
+- **Organization (iOS - InspiredYogaPlatform):** 
+    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
+    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
 - **Project Management (XcodeGen):**
     - **Mandate:** Use **XcodeGen** to manage the `.xcodeproj` file. 
     - **Source of Truth:** The `project.yml` file is the canonical source for targets, configurations, and dependencies.
@@ -226,7 +230,7 @@
     - **Step 1: Mockup Generation:** For every UI component or screen described in **@FEATURES.md**, a "napkin sketch" (low-fidelity SVG or wireframe) must be generated first.
     - **Synchronization Mandate:** Mockups **must** be updated synchronously whenever their corresponding feature description in **@FEATURES.md** is modified. The visual sketch and textual requirement must never drift.
     - **Visual Language:** Use primitive shapes (circles, rectangles) with one or two letters to identify the intent of icons, buttons, and images.
-    - **Step 2: Storage:** Mockups must be checked into the repository under `**/Mockups/` using **Git LFS**.
+    - **Step 2: Storage:** Mockups must be checked into the repository under the root **`UI/Mockups/`** directory using **Git LFS**.
     - **Step 3: Implementation:** Use the mockup as the visual specification for the SwiftUI implementation.
     - **Step 4: Validation:** After implementing, generate a high-fidelity **Snapshot Test** (with native buttons, colors, etc.). Compare the snapshot's layout to the mockup's positioning/intent.
     - **Step 5: Iteration:** If the layout or logic deviates from the mockup, adjust the code, re-generate the snapshot, and repeat. Continuous maintenance of **@FEATURES.md** and its data sections is required as features evolve.

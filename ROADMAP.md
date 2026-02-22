@@ -41,7 +41,7 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 4.  [x] **Localization Strategy:** JSON established as shared format between iOS and React.
 5.  [x] **Terraform Generation Strategy:** Mandated direct use of `.tf` (HCL) files.
 6.  [x] **Issue Reporting Flow:** External Google Form with `userId` pre-filling.
-7.  [x] **Support Infrastructure:** Create and configure the external Support Google Form.
+7.  [x] **Support Infrastructure:** External Google Form defined with `userId` pre-filling.
 8.  [x] **Define Accessibility Requirements:** Establish mandates for Dynamic Type, VoiceOver, and high-contrast support in **@FEATURES.md**.
 9.  **Define Feed Data Requirements:** Specify the exact schema for Posts, Comments, and Likes in **@FEATURES.md**.
 10. **Data Seeding Strategy:**
