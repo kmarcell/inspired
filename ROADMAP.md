@@ -53,12 +53,35 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Functions Scaffolding:** `functions/` directory verified.
 - [x] **Seeding Implementation:** `infrastructure/scripts/seeder.js` verified.
 - [x] **Security Review:** Initial review and automated testing of privacy rules completed.
-#### 3.1 iOS Feature Implementation (Target: Local Emulator)
-1.  **Client Implementation:** Build `AuthenticationClient` and `FirestoreClient` (Mock & Live).
-2.  **Fastlane Lane Implementation:** Develop and verify the `test` lane (Emulator-based).
-3.  **Accessibility Analysis Lane:** Implement the `analyze_accessibility` lane.
-4.  **UI Implementation:** Develop SwiftUI views driven by TCA Reducers.
-5.  **Snapshot Verification:** Compare high-fidelity snapshots against low-fidelity mockups.
+#### 3.1 iOS Feature Implementation (TDD Cycle - Target: Local Emulator)
+
+**Step 1: Core Client Foundations (Interfaces & Mocks)**
+- [ ] **AuthenticationClient:** Complete interface and `testValue` (using `users.json` logic).
+- [ ] **FirestoreClient:** Define interface for fetching Feeds and Studios; implement `testValue`.
+- [ ] **MediaClient:** Define interface for image loading; implement `testValue` (returning local assets).
+
+**Step 2: Authentication Logic (TDD)**
+- [ ] **Auth Unit Tests:** Write `Swift Testing` suites to verify login/logout state transitions using the mock client.
+- [ ] **Login Screen UI:** Implement SwiftUI view driven by TCA LoginReducer.
+- [ ] **Login Snapshots:** Generate snapshots and verify against `UI/Mockups/5.1_LoginRegistrationScreen.svg`.
+
+**Step 3: Landing Page & Feed (TDD)**
+- [ ] **Feed Unit Tests:** Write tests for chronological sorting and area filtering using the mock Firestore client.
+- [ ] **Landing Shell UI:** Implement the global navigation and area label.
+- [ ] **Community Feed UI:** Implement the post-card list and "What's on your mind?" bar.
+- [ ] **Landing Snapshots:** Generate snapshots and verify against `UI/Mockups/5.2_LandingPageShell.svg` and `5.3_CommunityFeedPost.svg`.
+
+#### 3.2 Advanced Feature Design & Specification (Prerequisite for Phase 4)
+*Phase 3.2 must be complete before moving to Phase 4 Staging Deployment.*
+- [ ] **Email Registration Flow:** Design the "Create Account" screen for non-Google users.
+- [ ] **Write Post Flow:** Define the full-screen composer UI, Markdown support, and Area/Community tagging.
+- [ ] **Search UI & Experience:** Define how search results (Areas, Communities, Teachers) are displayed and navigated.
+- [ ] **Yoga Studio & Community Profiles:** Define the full UI and data requirements for claimed studio pages.
+- [ ] **Shadow Profile Claiming:** Define the technical and UI flow for verifying studio ownership.
+- [ ] **Hashtags & Mentions:** Define interaction logic, search behavior, and rendering mandates.
+- [ ] **Real-time Chat:** Define the UI for group messaging and the FCM notification logic.
+- [ ] **Share Post (Deferred):** Define the technical goal and UI for sharing (e.g., Deep linking vs. Image generation).
+- [ ] **Mockup Generation:** Ensure all above features have corresponding sketches in `UI/Mockups/`.
 
 ### Phase 4: Staging & Deployment
 1.  **Terraform Foundations:** Write the initial `.tf` files for Auth and Firestore to enable cloud deployment.
