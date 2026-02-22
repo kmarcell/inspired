@@ -30,5 +30,15 @@ scripts/local-config.json
 node_modules/
 **/node_modules/
 
+# Generated Artifacts (Source of Truth is JSON/Asset Catalog)
+**/Localizable.strings
+**/DesignSystem+Assets.swift
+
+# Fastlane & Testing
+**/fastlane/test_output/
+**/fastlane/report.xml
+**/fastlane/*.log
+**/fastlane/report.junit
+
 # Blog Posts
 BLOG_*.md

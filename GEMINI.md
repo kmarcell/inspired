@@ -63,7 +63,7 @@
     - **Performance Auditing:** Regularly audit Firestore query efficiency to minimize unnecessary read/write operations and costs.
 
 ## Infrastructure as Code (IaC) & Deployment
-- **Mandate:** All backend infrastructure (Firestore indexes, Storage buckets, Cloud Functions, IAM roles) must be defined and deployed via **Infrastructure as Code using Terraform (.tf) files directly**.
+- **Mandate:** All backend infrastructure must be defined and deployed via **Infrastructure as Code using Terraform (.tf) files directly**.
 - **Rationale:** Direct HCL (HashiCorp Configuration Language) is chosen to maintain industry standard compatibility, ensure full access to GCP provider features, and simplify debugging by avoiding unnecessary abstraction layers.
 - **Validation & Correctness:**
     - **Syntax Check:** Always run `terraform validate` (or `firebase deploy --only firestore:indexes --dry-run` where applicable) before any deployment.
@@ -83,6 +83,7 @@
     - **Teardown:** Maintain a `scripts/teardown.sh [environment]` script to safely remove all resources from a specific environment (e.g., wiping Staging for a clean re-test).
 - **iOS Automation (Fastlane):**
     - **Mandate:** Use **Fastlane** for all iOS CI/CD tasks including running tests, managing code signing (`match`), and uploading to TestFlight (`pilot`).
+    - **Macro Validation:** All Fastlane lanes must be configured to **auto-accept Swift Package Macros** (e.g., via `-skipMacroValidation` or `IDEDLSKipPackageMacroValidation`) to ensure non-interactive execution.
     - **Lanes:** Maintain lanes for `test`, `build_staging`, and `deploy_prod`.
     - **Firebase Integration:** Use Fastlane plugins to automate IPA uploads to Firebase App Distribution for staging.
 - **Test User Management (Staging):**
@@ -106,12 +107,21 @@
 - **Idea Tracking & Action Items:** Whenever an idea or requirement is introduced with triggers like "remember" or "take note," it must be immediately codified as a **To-Do** item in the relevant section of **@FEATURES.md**. If it is a new feature, a new section must be created. The **@ROADMAP.md** must also be updated to ensure these items are tracked to completion.
 
 ## Project Structure
-- **Root:** Contains project-wide documentation (`.md` files) and cross-platform configuration.
+- **Root:** Contains project-wide documentation (`.md` files), centralized design assets (`UI/Mockups/`), and cross-platform configuration.
 - **Apps Path:** Frontend applications are located in `Apps/{Platform}/`.
 - **Universal Frontend Mandate:** All architectural, security, privacy, and data integrity mandates defined in this document apply to **all frontend clients** (e.g., iOS, React, Web) unless explicitly noted.
 - **Organization (iOS - InspiredYogaPlatform):** 
     - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
     - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
+- **Project Management (XcodeGen):**
+    - **Mandate:** Use **XcodeGen** to manage the `.xcodeproj` file. 
+    - **Source of Truth:** The `project.yml` file is the canonical source for targets, configurations, and dependencies.
+    - **No Manual Edits:** **Never** manually edit the `.xcodeproj` or commit it to Git. 
+    - **Generation:** Run `xcodegen generate` after any structural or configuration changes.
+- **Organization:** 
+    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
+    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
+    - `Apps/iOS/InspiredYogaPlatform/InspiredUITests/`: UI tests (following UserFlows.md).
     - `Apps/iOS/InspiredYogaPlatform/UI/`: Design system and mockups.
 
 ## Architecture: Frontend Clients
@@ -128,12 +138,10 @@
 - **Interfaces:** Define clients with `async/await` interfaces.
 - **Testing:** Provide "live" and "test" (mock) implementations for every client to support TDD and Snapshot testing without network dependencies.
 
-## Coding Standards & Style
-- **Formatting:** Use Xcode's built-in `swift-format` (4 spaces indentation, 120 character line limit enforced by `swift-format`).
-- **Naming:** 
-    - `camelCase` for variables and functions.
-    - `PascalCase` for classes, structs, and enums.
-    - Follow TCA naming conventions and standard Swift API Design Guidelines.
+- **Coding Standards & Style:**
+    - **Formatting:** Use Xcode's built-in `swift-format` (4 spaces indentation, 120 character line limit).
+    - **No Trivial Comments:** **Never** add comments that describe obvious logic, self-explanatory color mappings (e.g., `// Light: Black`), or hardcoded layout values (e.g., `// iPhone size`). Code should be expressive enough to stand alone.
+    - **Naming:** Follow standard Swift API Design Guidelines and TCA naming conventions.
 - **Concurrency:** Prefer `async/await` over Combine and GCD for all asynchronous operations.
 - **Documentation:** Do not add documentation to code unless explicitly requested, **except for PII data** (see Security).
 - **Engineering Principles:**
@@ -141,7 +149,22 @@
     - Keep methods short and focused on a single task.
     - Prefer polymorphism or multiple function overloads instead of `Boolean` or `Enum` input parameters.
     - **No force unwrapping.** Use `guard` statements for early exits.
-    - **Error Handling:** Prefer throwing exceptions over returning `Boolean` for success. Avoid `try?`; bubble up errors to the appropriate handling level to avoid silent failures.
+    - **Error Handling:** Prefer throwing exceptions over returning `Boolean` for success. Avoid `try?`; bubble up errors to the appropriate handling level. Use native **`Swift.Error`** instead of `NSError` wherever possible to maintain Swift-native idiomatic quality.
+    - **Localization-First Workflow:** **Never** use hardcoded static strings (labels, buttons, error messages) in the codebase.
+        1. Add the English string to `Resources/Localization/en/strings.json`.
+        2. Run the sync script to generate the iOS `.xcstrings`.
+        3. Use the localized key in the Swift code.
+    - **Semantic Color Assets:** **Never** use system colors (e.g., `.white`, `.black`, `.blue`) or inline ternary logic for theme-aware colors.
+        1. All colors must be defined in `Resources/Assets.xcassets` using semantic names.
+        2. **Explicit Slots (Xcode Standard):** Every color asset **must** have explicit slots for "Any Appearance" (Light) and "Dark Appearance". 
+        3. **Dark Mode Key:** The Dark variant must use `"appearance" : "luminosity"` and `"value" : "dark"` in its `Contents.json` to be recognized by the system.
+        4. **Access:** Use the generated Swift extension on `Color` (e.g., `Color.primaryText`) for all UI code.
+    - **Type-Safe Assets:** All images and colors must be accessed through type-safe generated enums or extensions.
+    - **Consistent Button Design:** Maintain a cohesive button hierarchy:
+        - **Primary (Filled):** High contrast. Light mode: Black fill/White text. Dark mode: White fill/Black text.
+        - **Secondary (Outlined):** Light mode: Clear fill/Black border & text. Dark mode: Clear fill/White border & text.
+    - **Dependency Hygiene:** If a 3rd-party framework is no longer used in the code, it **must** be removed from `project.yml` immediately.
+    - **Dependency Management:** Link necessary products explicitly in `project.yml` to resolve linker issues.
     - Organize files into folders based on functionality.
 
 ## Testing Strategy
@@ -162,7 +185,10 @@
         - `Array`: Test empty, single-item, and multi-item collections.
 - **Snapshot Tests (SnapshotTesting):**
     - **Framework:** Use the **Point-Free SnapshotTesting** framework.
-    - **Method:** Snapshots must be generated using **Swift code** to programmatically capture UI states.
+    - **Method:** Snapshots must be generated using **Swift code**.
+    - **Re-recording Mandate:** Always re-record reference snapshots (`record: true`) immediately after any UI code change. This ensures that the repository's reference images are always in sync with the latest implementation.
+    - **Parameterized Themes:** Use Swift Testing's `@Test(arguments:)` to verify screens in both **Light** and **Dark** modes within a single test function.
+    - **Theme Awareness:** Ensure the test environment correctly overrides the `colorScheme` so that Dark Mode snapshots are visually distinct from Light Mode.
     - **Scope:** Test entire screens in various configurations.
     - **States:** Generate snapshots for **Empty**, **Minimal Data**, and **Full Data** (all optionals populated) scenarios.
     - **Stress Testing:** Use exceptionally long strings to verify `SwiftUI.Text` behavior (truncation, multi-line wrapping, and layout integrity).
@@ -205,24 +231,6 @@
     - No debug logs unless requested.
     - All API calls, identifiers, and user data in logs **must be obfuscated**.
 
-## Project Structure
-- **Root:** Contains project-wide documentation (`.md` files), centralized design assets (`UI/Mockups/`), and cross-platform configuration.
-- **Apps Path:** Frontend applications are located in `Apps/{Platform}/`.
-- **Universal Frontend Mandate:** All architectural, security, privacy, and data integrity mandates defined in this document apply to **all frontend clients** (e.g., iOS, React, Web) unless explicitly noted.
-- **Organization (iOS - InspiredYogaPlatform):** 
-    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
-    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
-- **Project Management (XcodeGen):**
-    - **Mandate:** Use **XcodeGen** to manage the `.xcodeproj` file. 
-    - **Source of Truth:** The `project.yml` file is the canonical source for targets, configurations, and dependencies.
-    - **No Manual Edits:** **Never** manually edit the `.xcodeproj` or commit it to Git. 
-    - **Generation:** Run `xcodegen generate` after any structural or configuration changes.
-- **Organization:** 
-    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
-    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
-    - `Apps/iOS/InspiredYogaPlatform/InspiredUITests/`: UI tests (following UserFlows.md).
-    - `Apps/iOS/InspiredYogaPlatform/UI/`: Design system and mockups.
-
 ## Feature & Data Documentation
 - **Canonical Source:** All feature requirements, UI components, screen behaviors, and navigation flows are documented in **[@FEATURES.md](./FEATURES.md)**. This file must be treated as the primary context for all feature-related tasks.
 - **Requirement Preservation Mandate:** 
@@ -246,6 +254,15 @@
 ## Development Workflow
 - **Roadmap Synchronization:** **@ROADMAP.md** must be updated at the conclusion of every significant task. Completed items must be ticked off, and any newly identified gaps or sub-tasks must be added to ensure the roadmap remains accurate and actionable.
 - **Local-First Automation:** All CI/CD tasks are performed locally using **Fastlane**.
+- **Pre-build Automation:** The `fastlane test` and `fastlane build` lanes must automatically execute:
+    1. `scripts/sync-strings.sh`: Synchronizes JSON translations to iOS.
+    2. `scripts/generate-assets.sh`: Generates type-safe Swift interfaces for Colors and Images.
 - **Verification:** Follow Apple's Human Interface Guidelines (HIG) for all UI work.
 - **Workflow:** Research and strategy must precede execution.
 - **Finality:** Always run tests and verify behavior before considering a task complete.
+
+## Implementation Learnings
+- **Foundation Imports:** Always ensure `import Foundation` is present when using types like `Date`, `URL`, or `Data` to avoid compilation errors.
+- **XcodeGen Synchronization:** After any file move or addition, `xcodegen generate` must be executed before running tests or builds.
+- **Sendable Conformance:** All models and actions used within TCA must explicitly conform to `Sendable` to comply with Swift 6 strict concurrency requirements.
+- **TestStore Syntax:** When using `TestStore` in TCA, ensure state mutation closures use the `{ state in ... }` or `{ $0.isLoading = true }` syntax correctly based on the TCA version.

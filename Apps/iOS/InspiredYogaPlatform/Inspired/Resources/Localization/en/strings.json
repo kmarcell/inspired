@@ -1,0 +1,14 @@
+{
+    "login.title": "Inspired",
+    "login.subtitle": "Yoga Platform",
+    "login.googleButton": "Sign in with Google",
+    "login.emailButton": "Log in with Email",
+    "login.createAccountButton": "Create Account",
+    "login.orDivider": "or",
+    "login.footer.legalPrefix": "By logging in or creating an account, you accept our",
+    "login.footer.privacyPolicy": "Privacy Policy",
+    "login.footer.and": "&",
+    "login.footer.terms": "Terms and Conditions",
+    "login.footer.support": "Support",
+    "login.error.generic": "An unexpected error occurred. Please try again."
+}

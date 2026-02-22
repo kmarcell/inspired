@@ -55,15 +55,27 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Security Review:** Initial review and automated testing of privacy rules completed.
 #### 3.1 iOS Feature Implementation (TDD Cycle - Target: Local Emulator)
 
+**Step 0: Technical Refinements & Mandates (Prerequisite)**
+- [x] **Dependency Cleanup:** Refine `project.yml` to link whole packages.
+- [x] **Localization-First Workflow:** Mandate and initial JSON strings implemented.
+- [x] **Error Handling Refinement:** All reducers use native `Swift.Error`.
+- [x] **Parameterized Testing:** Snapshot tests refactored for argument-based themes.
+- [x] **Theme-Aware Snapshots:** Dark mode rendering verified.
+- [x] **Initial Screen Fix:** Entry point set to LoginView.
+- [x] **Google Sign-In Button:** Integrated native SDK button.
+- [ ] **Loading State Strategy:** Define global pattern (Pending discussion).
+- [x] **Implementation Learnings:** Added Learnings section to **@GEMINI.md**.
+
 **Step 1: Core Client Foundations (Interfaces & Mocks)**
-- [ ] **AuthenticationClient:** Complete interface and `testValue` (using `users.json` logic).
-- [ ] **FirestoreClient:** Define interface for fetching Feeds and Studios; implement `testValue`.
-- [ ] **MediaClient:** Define interface for image loading; implement `testValue` (returning local assets).
+- [x] **AuthenticationClient:** Complete interface and `testValue` (using `users.json` logic).
+- [x] **FirestoreClient:** Define interface for fetching Feeds and Studios; implement `testValue`.
+- [x] **MediaClient:** Define interface for image loading; implement `testValue` (returning local assets).
 
 **Step 2: Authentication Logic (TDD)**
-- [ ] **Auth Unit Tests:** Write `Swift Testing` suites to verify login/logout state transitions using the mock client.
-- [ ] **Login Screen UI:** Implement SwiftUI view driven by TCA LoginReducer.
-- [ ] **Login Snapshots:** Generate snapshots and verify against `UI/Mockups/5.1_LoginRegistrationScreen.svg`.
+- [x] **Auth Unit Tests:** Swift Testing suites verified and passing.
+- [ ] **Fastlane Lane Implementation:** Develop and verify the `test` lane (Emulator-based), ensuring **auto-acceptance of Swift macros**.
+- [x] **Login Screen UI:** LoginView implemented using TCA.
+- [x] **Login Snapshots:** Snapshots recorded and verified.
 
 **Step 3: Landing Page & Feed (TDD)**
 - [ ] **Feed Unit Tests:** Write tests for chronological sorting and area filtering using the mock Firestore client.

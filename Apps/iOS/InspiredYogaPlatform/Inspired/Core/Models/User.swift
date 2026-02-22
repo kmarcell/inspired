@@ -1,6 +1,6 @@
 import Foundation
 
-public struct User: Equatable, Identifiable, Codable {
+public struct User: Equatable, Identifiable, Codable, Sendable {
     public let id: String
     public let username: String
     public let displayName: String?
@@ -13,12 +13,12 @@ public struct User: Equatable, Identifiable, Codable {
     public let createdAt: Date
     public let updatedAt: Date
 
-    public struct PrivacySettings: Equatable, Codable {
+    public struct PrivacySettings: Equatable, Codable, Sendable {
         public var isProfilePublic: Bool
         public var avatarPrivacy: VisibilityLevel
         public var showJoinedGroups: VisibilityLevel
 
-        public enum VisibilityLevel: String, Codable {
+        public enum VisibilityLevel: String, Codable, Sendable {
             case `public`
             case groupsOnly = "groups-only"
             case membersOnly = "members-only"

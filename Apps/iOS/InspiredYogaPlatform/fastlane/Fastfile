@@ -3,11 +3,13 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Run all unit and snapshot tests (Local Emulator)"
-  lane :test do
-    scan(
-      scheme: "Inspired (Local)",
-      configuration: "Debug (Local)"
+              desc "Run all unit and snapshot tests (Local Emulator)"
+              lane :test do
+                sh("cd ../../../.. && ./scripts/sync-strings.sh")
+                sh("cd ../../../.. && ./scripts/generate-assets.sh")
+                scan(
+                  scheme: "Inspired (Local)",
+              configuration: "Debug (Local)"
     )
   end
 

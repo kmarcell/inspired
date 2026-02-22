@@ -1,0 +1,139 @@
+import ComposableArchitecture
+import SwiftUI
+
+public struct LoginView: View {
+    let store: StoreOf<LoginReducer>
+
+    public init(store: StoreOf<LoginReducer>) {
+        self.store = store
+    }
+
+    public var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+
+            VStack(spacing: 16) {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.secondary.opacity(0.2))
+                    .frame(width: 100, height: 100)
+                    .overlay(
+                        Text("LOGO")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    )
+                
+                VStack(spacing: 4) {
+                    Text("login.title")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primaryText)
+                    
+                    Text("login.subtitle")
+                        .font(.headline)
+                        .foregroundColor(.secondaryText)
+                }
+            }
+            .padding(.bottom, 60)
+
+            VStack(spacing: 16) {
+                Button {
+                    store.send(.googleLoginButtonTapped)
+                } label: {
+                    HStack {
+                        Image(systemName: "g.circle.fill")
+                        Text("login.googleButton")
+                    }
+                    .fontWeight(.medium)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.primarySurfaceInverted, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundColor(.primaryText)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.primaryText.opacity(0.2), lineWidth: 1)
+                    )
+                }
+                .accessibilityIdentifier("login.googleButton")
+
+                Button {
+                } label: {
+                    Text("login.emailButton")
+                        .fontWeight(.medium)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.primarySurface, in: RoundedRectangle(cornerRadius: 12))
+                        .foregroundColor(Color.primarySurfaceInverted)
+                }
+                .accessibilityIdentifier("login.emailButton")
+
+                HStack {
+                    VStack { Divider().background(Color.secondaryText.opacity(0.3)) }
+                    Text("login.orDivider")
+                        .font(.footnote)
+                        .foregroundColor(Color.secondaryText)
+                    VStack { Divider().background(Color.secondaryText.opacity(0.3)) }
+                }
+                .padding(.vertical, 8)
+
+                Button {
+                } label: {
+                    Text("login.createAccountButton")
+                        .fontWeight(.medium)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.clear)
+                        .foregroundColor(Color.primaryText)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.primaryText, lineWidth: 1)
+                        )
+                }
+                .accessibilityIdentifier("login.createAccountButton")
+            }
+            .padding(.horizontal, 40)
+
+            VStack(spacing: 4) {
+                Text("login.footer.legalPrefix")
+                    .font(.caption2)
+                    .foregroundColor(Color.secondaryText)
+                
+                HStack(spacing: 4) {
+                    Text("login.footer.privacyPolicy")
+                        .fontWeight(.bold)
+                    Text("login.footer.and")
+                    Text("login.footer.terms")
+                        .fontWeight(.bold)
+                }
+                .font(.caption2)
+                .foregroundColor(Color.primaryText)
+            }
+            .padding(.top, 40)
+            .multilineTextAlignment(.center)
+
+            Spacer()
+
+            HStack(spacing: 16) {
+                Button { } label: { Text("login.footer.privacyPolicy") }
+                Circle().frame(width: 4, height: 4).foregroundColor(Color.secondaryText)
+                Button { } label: { Text("login.footer.terms") }
+                Circle().frame(width: 4, height: 4).foregroundColor(Color.secondaryText)
+                Button { } label: { Text("login.footer.support") }
+                    .accessibilityIdentifier("login.supportButton")
+            }
+            .font(.footnote)
+            .foregroundColor(Color.secondaryText)
+            .padding(.bottom, 20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.primaryBackground)
+        .ignoresSafeArea()
+    }
+}
+
+#Preview {
+    LoginView(
+        store: Store(initialState: LoginReducer.State()) {
+            LoginReducer()
+        }
+    )
+}

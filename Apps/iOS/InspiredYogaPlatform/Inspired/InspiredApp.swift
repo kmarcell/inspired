@@ -1,36 +1,40 @@
-//
-//  InspiredApp.swift
-//  Inspired
-//
-//  Created by Marcell Kresz on 20/03/2024.
-//
-
 import SwiftUI
-import SwiftData
+import FirebaseCore
+import FirebaseFirestore
+import FirebaseAuth
+import FirebaseStorage
+import ComposableArchitecture
 
 @main
 struct InspiredApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    init() {
+        FirebaseApp.configure()
+        
+        #if FIREBASE_EMULATOR
+        print("🚀 Connecting to Firebase Emulator...")
+        setupEmulator()
+        #endif
+    }
 
     var body: some Scene {
         WindowGroup {
-            InteractiveMeshGradient(width: 3, height: 3) {[
-                [.init(color: .red, position: .init(0, 0)), .init(color: .purple, position: .init(0.5, 0)), .init(color: .indigo, position: .init(1, 0))],
-                [.init(color: .orange, position: .init(0, 0.5)), .init(color: .white, position: .init(0.5, 0.5)), .init(color: .blue, position: .init(1, 0.5))],
-                [.init(color: .yellow, position: .init(0, 1)), .init(color: .green, position: .init(0.5, 1)), .init(color: .mint, position: .init(1, 1))]
-            ]}
+            LoginView(
+                store: Store(initialState: LoginReducer.State()) {
+                    LoginReducer()
+                }
+            )
         }
-        .modelContainer(sharedModelContainer)
     }
+
+    #if FIREBASE_EMULATOR
+    private func setupEmulator() {
+        let settings = Firestore.firestore().settings
+        settings.host = "localhost:8081"
+        settings.isSSLEnabled = false
+        Firestore.firestore().settings = settings
+        
+        Auth.auth().useEmulator(withHost: "localhost", port: 9099)
+        Storage.storage().useEmulator(withHost: "localhost", port: 9199)
+    }
+    #endif
 }

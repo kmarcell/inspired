@@ -28,31 +28,29 @@ curl -sL https://firebase.tools | bash
 
 # Verify installation
 firebase --version
-```
+## 1. Getting Started (The Bootstrap)
+We provide a single command to initialize your environment, install dependencies, sync translations, and generate the Xcode project.
 
-### Method C: Fastlane (iOS Automation)
-Fastlane is used for building, testing, and deploying the iOS app.
 ```bash
-# Install Fastlane via Homebrew (recommended)
-brew install fastlane
-
-# Or via RubyGems (if Homebrew is not available)
-sudo gem install fastlane -NV
+# Run from the project root
+./scripts/bootstrap.sh
 ```
 
 ---
 
-## 2. Generate the iOS Project
-We use **XcodeGen** to manage the Xcode project file. 
-```bash
-cd Apps/iOS/InspiredYogaPlatform
-xcodegen generate
-```
-*Note: The `.xcodeproj` is generated from `project.yml` and should not be edited manually.*
+## 2. Prerequisites
+Ensure you have the following tools installed on your system:
+*   **Xcode 16+**
+*   **Homebrew**
+*   **Node.js (v20+)**
+*   **XcodeGen:** `brew install xcodegen`
+*   **Fastlane:** `brew install fastlane`
+*   **Firebase CLI:** `npm install -g firebase-tools`
+*   **Java Runtime (JRE):** Required for the Firebase Emulator.
 
 ---
 
-## 3. Set Up Your Backend (GCP / Firebase)
+## 3. Local Development (The Emulator)
 
 Follow these steps to set up a new backend environment for the project.
 
