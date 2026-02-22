@@ -134,9 +134,13 @@ schemes:
         Inspired: [run, test, profile, analyze, archive]
     run:
       config: Debug (Local)
+      environmentVariables:
+        IS_EMULATOR: "YES"
     test:
       config: Debug (Local)
       targets: [InspiredTests, InspiredUITests]
+      environmentVariables:
+        IS_EMULATOR: "YES"
   
   Inspired (Staging):
     build:

@@ -7,10 +7,12 @@ platform :ios do
               lane :test do
                 sh("cd ../../../.. && ./scripts/sync-strings.sh")
                 sh("cd ../../../.. && ./scripts/generate-assets.sh")
-                scan(
-                  scheme: "Inspired (Local)",
-              configuration: "Debug (Local)"
-    )
+                        scan(
+                          scheme: "Inspired (Local)",
+                          configuration: "Debug (Local)",
+                          xcargs: "-skipMacroValidation"
+                        )
+                
   end
 
   desc "Deploy a new version to Firebase App Distribution (Staging)"
