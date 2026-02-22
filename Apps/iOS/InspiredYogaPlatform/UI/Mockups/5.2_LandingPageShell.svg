@@ -2,7 +2,7 @@
   <!-- Device Frame -->
   <rect width="393" height="852" fill="#F9FAFB"/>
   
-  <!-- Navigation Bar (Tightened) -->
+  <!-- Navigation Bar -->
   <rect x="0" y="0" width="393" height="115" fill="white" stroke="#E5E7EB" stroke-width="1"/>
   
   <!-- Profile Icon (P) -->
@@ -28,6 +28,10 @@
   <rect x="0" y="130" width="393" height="60" fill="white" stroke="#E5E7EB" stroke-width="1"/>
   <rect x="20" y="140" width="353" height="40" rx="20" fill="#F3F4F6"/>
   <text x="45" y="165" font-family="Arial" font-size="14" fill="#6B7280">What's on your mind?</text>
+  
+  <!-- SF Symbol Placeholder: square.and.pencil (SP) -->
+  <rect x="335" y="145" width="30" height="30" rx="6" fill="white" stroke="#9CA3AF" stroke-width="1"/>
+  <text x="350" y="165" font-family="Arial" font-size="10" fill="#4B5563" text-anchor="middle">SP</text>
 
   <!-- Feed Content Box -->
   <rect x="0" y="205" width="393" height="647" fill="white" stroke="#E5E7EB" stroke-width="1"/>

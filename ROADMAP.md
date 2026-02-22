@@ -34,18 +34,27 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 4.  [x] **IaC Foundation:** Initialize GCS state bucket.
 
 ### Phase 2: Feature Specification & Mockups
+*Phase 2 is considered complete only when all feature To-Dos/Ideas in @FEATURES.md are clarified.*
 1.  **Draft Feature Requirements:** Describe User Stories in **@FEATURES.md**. (In Progress: Login & Landing Shell done).
 2.  **Define Studio Claiming Flow:** Establish the verification process for studio owners to claim shadow profiles.
 3.  **Generate Mockups:** Create low-fidelity layout sketches for every UI component. (In Progress).
-4.  **Data Seeding Strategy:**
+4.  [x] **Localization Strategy:** JSON established as shared format between iOS and React.
+5.  [x] **Terraform Generation Strategy:** Mandated direct use of `.tf` (HCL) files.
+6.  [x] **Issue Reporting Flow:** External Google Form with `userId` pre-filling.
+7.  [x] **Support Infrastructure:** Create and configure the external Support Google Form.
+8.  [x] **Define Accessibility Requirements:** Establish mandates for Dynamic Type, VoiceOver, and high-contrast support in **@FEATURES.md**.
+9.  **Define Feed Data Requirements:** Specify the exact schema for Posts, Comments, and Likes in **@FEATURES.md**.
+10. **Data Seeding Strategy:**
     - [ ] **JSON Seed Data:** Define deterministic `infrastructure/seeds/*.json` files.
     - [ ] **Seeding Automation:** Implement `scripts/seed-data.sh` to populate environments.
     - [ ] **Wipe & Re-seed:** Add command to clear Firestore data before fresh seeding.
 
 ### Phase 3: TDD Development
 1.  **Client Implementation:** Build `AuthenticationClient` and `FirestoreClient` (Mock & Live).
-2.  **UI Implementation:** Develop SwiftUI views driven by TCA Reducers.
-3.  **Snapshot Verification:** Compare high-fidelity snapshots against low-fidelity mockups.
+2.  **Fastlane Lane Implementation:** Develop and verify the `test`, `deploy_staging`, and `deploy_prod` lanes, including automated localization synchronization.
+3.  **Accessibility Analysis Lane:** Implement the `analyze_accessibility` lane to trigger the Gemini-based VoiceOver review loop.
+4.  **UI Implementation:** Develop SwiftUI views driven by TCA Reducers.
+5.  **Snapshot Verification:** Compare high-fidelity snapshots against low-fidelity mockups.
 
 ### Phase 4: Staging & Deployment
 1.  **IaC Deployment:** Push infrastructure to `inspired-yoga-app-staging`.

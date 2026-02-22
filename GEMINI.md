@@ -61,7 +61,8 @@
     - **Performance Auditing:** Regularly audit Firestore query efficiency to minimize unnecessary read/write operations and costs.
 
 ## Infrastructure as Code (IaC) & Deployment
-- **Mandate:** All backend infrastructure (Firestore indexes, Storage buckets, Cloud Functions, IAM roles) must be defined and deployed via **Infrastructure as Code** (e.g., Terraform or Firebase CLI Config) to ensure versioning, reproducibility, and rollback capabilities.
+- **Mandate:** All backend infrastructure (Firestore indexes, Storage buckets, Cloud Functions, IAM roles) must be defined and deployed via **Infrastructure as Code using Terraform (.tf) files directly**.
+- **Rationale:** Direct HCL (HashiCorp Configuration Language) is chosen to maintain industry standard compatibility, ensure full access to GCP provider features, and simplify debugging by avoiding unnecessary abstraction layers.
 - **Validation & Correctness:**
     - **Syntax Check:** Always run `terraform validate` (or `firebase deploy --only firestore:indexes --dry-run` where applicable) before any deployment.
     - **Logical Check:** Review the `terraform plan` output to ensure only intended resources are modified/deleted.
@@ -95,6 +96,12 @@
     - **Development Phase:** Data loss is acceptable. Schema changes (renaming, merging, or dropping fields) may involve wiping the database and re-seeding to maintain velocity.
     - **Production Phase:** Zero data loss. Once live, any structural changes must be performed via **versioned migration scripts** (using Cloud Functions or administrative CLI tools) to transform existing NoSQL documents.
     - **Indexes:** Manage all Firestore composite indexes via the Firebase CLI as part of the IaC mandate.
+- **Localization Synchronization:** 
+    - **Structure:** `Resources/Localization/{locale}/strings.json` (e.g., `/en/strings.json`, `/pt/strings.json`).
+    - **Automated Sync:** Use `scripts/sync-strings.sh` to transform these JSON files into iOS `.xcstrings` and React translation files. 
+    - **Automation:** This script must be automatically called as a **pre-build step** in the Fastlane `deploy` and `test` lanes to ensure string consistency.
+- **Iconography:** Use **SF Symbols** and **Emojis** as the primary visual language for the iOS application.
+- **Idea Tracking & Action Items:** Whenever an idea or requirement is introduced with triggers like "remember" or "take note," it must be immediately codified as a **To-Do** item in the relevant section of **@FEATURES.md**. If it is a new feature, a new section must be created. The **@ROADMAP.md** must also be updated to ensure these items are tracked to completion.
 
 ## Project Structure
 - **Root:** Contains project-wide documentation (`.md` files) and cross-platform configuration.
@@ -140,6 +147,9 @@
     - 1. Write a test for intended behavior.
     - 2. Confirm the test fails.
     - 3. Implement minimal code to pass the test.
+- **Environment Distinction (Crucial):**
+    - **Unit & Snapshot Tests:** Must use **in-code Swift mocks** (via TCA `.testValue`). These tests must be 100% offline and deterministic, relying zero on the Firebase Emulator or network.
+    - **UI Tests:** Must run against the **Firebase Emulator**. This ensures we test the integration between the app and the backend logic (Rules, Functions) without hitting cloud quotas.
 - **Unit Tests (Swift Testing):**
     - **Scope:** Target public interfaces and functions. Avoid testing internal/private logic.
     - **Scenarios:** Cover all requirement-driven scenarios and input variants.
@@ -156,7 +166,12 @@
     - **Storage (Git LFS):** All generated reference images (`.png`) must be tracked using **Git LFS** to keep the repository size manageable. Ensure `**/__Snapshots__/*.png` is configured in `.gitattributes`.
 - **UI Tests:**
     - **Source of Truth:** Scenarios are defined in the `UserFlows.md` file.
-    - **Scope:** Generate UI tests *only* for the flows and scenarios explicitly documented in `UserFlows.md`.
+    - **Semantic Identifiers:** All UI components must have descriptive `accessibilityIdentifier`s following the pattern `feature.{id}.element` (e.g., `posts.123.share`, `login.emailField`).
+    - **High-Performance Mandate:** UI Tests must be designed for speed. Use NSPredicate-based expectations rather than hard `sleep()` waits. Optimize for zero-wait execution where possible.
+    - **VoiceOver Feedback Loop:** 
+        - **Snapshot:** UI Tests must capture the full accessibility tree (labels, values, traits) of each screen into a text file (e.g., `Accessibility/ScreenName.txt`).
+        - **Analysis:** A dedicated Fastlane lane (`analyze_accessibility`) will trigger an automated review of these files using Gemini.
+        - **Improvement:** Insights from this analysis must be converted into **@FEATURES.md** updates and code refinements to ensure the app embodies the inclusive ethos of the yoga community.
 
 ## Security & Privacy (High Priority)
 - **Data Protection:** Security takes precedence over UX and performance. No data is shared without explicit user approval.
@@ -198,6 +213,10 @@
 
 ## Feature & Data Documentation
 - **Canonical Source:** All feature requirements, UI components, screen behaviors, and navigation flows are documented in **[@FEATURES.md](./FEATURES.md)**. This file must be treated as the primary context for all feature-related tasks.
+- **Requirement Preservation Mandate:** 
+    - **Never Reduce:** Existing requirements, schemas, or visual definitions in **@FEATURES.md** must never be removed or replaced with "see previous" references. All sections must remain self-contained and fully descriptive.
+    - **Add & Refine:** New requirements must be added as additive refinements.
+    - **Conflict Resolution:** If a new requirement conflicts with an existing one, the developer must stop and consult the user for resolution before updating the file.
 - **Data Schemas & Contracts:**
     - **NoSQL Documentation:** **@FEATURES.md** must maintain a precise specification for all Firestore documents and collections.
     - **Fields & Types:** Every field must be documented with its data type (e.g., `String`, `Timestamp`, `Geopoint`), formatting rules, and purpose.

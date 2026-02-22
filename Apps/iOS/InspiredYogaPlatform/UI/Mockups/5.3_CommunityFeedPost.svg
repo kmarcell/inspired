@@ -1,0 +1,39 @@
+<svg width="393" height="300" viewBox="0 0 393 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Post Card Frame -->
+  <rect width="393" height="300" fill="white" stroke="#E5E7EB" stroke-width="1"/>
+  
+  <!-- Header -->
+  <!-- Author Avatar (A) -->
+  <circle cx="35" cy="40" r="18" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="1.5"/>
+  <text x="35" y="45" font-family="Arial" font-size="14" fill="#4B5563" text-anchor="middle">A</text>
+  
+  <!-- Author Name & Time -->
+  <text x="65" y="38" font-family="Arial" font-size="14" font-weight="bold" fill="#111827">yoga_teacher#8821</text>
+  <text x="65" y="55" font-family="Arial" font-size="12" fill="#6B7280">2h ago</text>
+  
+  <!-- Source Tag (ST) -->
+  <rect x="300" y="30" width="73" height="24" rx="12" fill="#F3F4F6"/>
+  <text x="336" y="46" font-family="Arial" font-size="10" fill="#4B5563" text-anchor="middle">Askew</text>
+
+  <!-- Body (Text Content) -->
+  <text x="20" y="90" font-family="Arial" font-size="15" fill="#374151">Just finished a great morning flow! #yoga #zen</text>
+  <text x="20" y="115" font-family="Arial" font-size="15" fill="#374151">Excited to see everyone in class today.</text>
+
+  <!-- Divider -->
+  <line x1="20" y1="240" x2="373" y2="240" stroke="#F3F4F6" stroke-width="1"/>
+
+  <!-- Footer (Buttons) -->
+  <!-- Like (L) -->
+  <rect x="20" y="255" width="24" height="24" rx="4" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="1"/>
+  <text x="32" y="272" font-family="Arial" font-size="10" fill="#4B5563" text-anchor="middle">L</text>
+  <text x="50" y="272" font-family="Arial" font-size="14" fill="#6B7280">12</text>
+
+  <!-- Comment (C) -->
+  <rect x="184" y="255" width="24" height="24" rx="4" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="1"/>
+  <text x="196" y="272" font-family="Arial" font-size="10" fill="#4B5563" text-anchor="middle">C</text>
+  <text x="214" y="272" font-family="Arial" font-size="14" fill="#6B7280">3</text>
+
+  <!-- Share (S) -->
+  <rect x="349" y="255" width="24" height="24" rx="4" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="1"/>
+  <text x="361" y="272" font-family="Arial" font-size="10" fill="#4B5563" text-anchor="middle">S</text>
+</svg>

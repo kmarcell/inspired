@@ -1,0 +1,14 @@
+{
+  "name": "inspired-yoga-platform",
+  "version": "1.0.0",
+  "description": "Inspired Yoga Platform Backend Tooling",
+  "main": "index.js",
+  "scripts": {
+    "seed:local": "cross-env FIRESTORE_EMULATOR_HOST=localhost:8080 node infrastructure/scripts/seeder.js local",
+    "seed:staging": "node infrastructure/scripts/seeder.js staging"
+  },
+  "devDependencies": {
+    "firebase-admin": "^12.0.0",
+    "cross-env": "^7.0.3"
+  }
+}

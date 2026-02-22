@@ -121,10 +121,11 @@ The Local environment uses the **Firebase Emulator Suite** to run a complete bac
 
 1.  **Start the Emulator:**
 ```bash
-# Run this from the project root
+# Run this from a DEDICATED system terminal (not via the Gemini CLI shell)
 firebase emulators:start
 ```
-2.  **Deploy Rules & Indexes:** 
+2.  **Stop the Emulator:** Press **`Ctrl + C`** in your terminal window.
+3.  **Deploy Rules & Indexes:** 
     Before running tests, ensure your local emulator has the latest security rules and indexes:
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes --export-on-exit ./emulator_data
@@ -203,9 +204,24 @@ To delete all data and start over:
 *   **Local:** Simply stop the emulator and restart it (if not using `--import`).
 *   **Staging:** `firebase firestore:delete --all-collections`
 
+## 8. Support & Issue Reporting Setup
+
+We use an external Google Form to manage bug reports and support requests.
+
+### 8.1 Create the Form
+1.  Go to [Google Forms](https://forms.google.com).
+2.  Create a new form with the following fields:
+    - **Issue Category** (Dropdown: Bug, Content, Account, Other).
+    - **Description** (Paragraph).
+    - **User ID** (Short Answer - *This will be automated*).
+3.  **Get Pre-filled Link:**
+    - Click the vertical three-dot menu (top right) > **Get pre-filled link**.
+    - Type a placeholder `USER_ID_GOES_HERE` in the User ID field and click **Get link**.
+    - The app will use this URL format to inject the actual `userId` (or `nil`) when the user taps "Report an Issue".
+
 ---
 
-## 8. Developer Setup Checklist (Action Required)
+## 9. Developer Setup Checklist
 
 To complete your local environment setup, please perform the following tasks:
 
