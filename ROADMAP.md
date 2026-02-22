@@ -53,19 +53,18 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Functions Scaffolding:** `functions/` directory verified.
 - [x] **Seeding Implementation:** `infrastructure/scripts/seeder.js` verified.
 - [x] **Security Review:** Initial review and automated testing of privacy rules completed.
-- [ ] **Terraform Foundations:** Write the initial `.tf` files for Auth and Firestore.
-
-#### 3.1 iOS Feature Implementation
+#### 3.1 iOS Feature Implementation (Target: Local Emulator)
 1.  **Client Implementation:** Build `AuthenticationClient` and `FirestoreClient` (Mock & Live).
-2.  **Fastlane Lane Implementation:** Develop and verify the `test`, `deploy_staging`, and `deploy_prod` lanes, including automated localization synchronization.
-3.  **Accessibility Analysis Lane:** Implement the `analyze_accessibility` lane to trigger the Gemini-based VoiceOver review loop.
+2.  **Fastlane Lane Implementation:** Develop and verify the `test` lane (Emulator-based).
+3.  **Accessibility Analysis Lane:** Implement the `analyze_accessibility` lane.
 4.  **UI Implementation:** Develop SwiftUI views driven by TCA Reducers.
 5.  **Snapshot Verification:** Compare high-fidelity snapshots against low-fidelity mockups.
 
 ### Phase 4: Staging & Deployment
-1.  **IaC Deployment:** Push infrastructure to `inspired-yoga-app-staging`.
-2.  **Beta Testing:** Distribute build to "Staging Testers" via Firebase App Distribution.
-3.  **Bug Scrub:** Resolve issues identified during staging.
+1.  **Terraform Foundations:** Write the initial `.tf` files for Auth and Firestore to enable cloud deployment.
+2.  **IaC Deployment:** Push infrastructure to `inspired-yoga-app-staging`.
+3.  **Fastlane Cloud Scaffolding:** Implement `deploy_staging` and `deploy_prod` lanes.
+4.  **Beta Testing:** Distribute build to "Staging Testers" via Firebase App Distribution.
 
 ---
 

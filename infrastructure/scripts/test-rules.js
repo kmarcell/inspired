@@ -6,7 +6,7 @@ const {
 const fs = require('fs');
 
 async function runTests() {
-  const rules = fs.readFileSync('firestore.rules', 'utf8');
+  const rules = fs.readFileSync('infrastructure/backend/firestore.rules', 'utf8');
   const testEnv = await initializeTestEnvironment({
     projectId: 'inspired-yoga-app-staging',
     firestore: {
