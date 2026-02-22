@@ -40,7 +40,7 @@ struct LoginSnapshotTests {
             of: vc,
             as: .image(on: .iPhone13Pro),
             named: theme.rawValue,
-            record: true,
+            record: false,
             testName: "LoginView"
         )
     }

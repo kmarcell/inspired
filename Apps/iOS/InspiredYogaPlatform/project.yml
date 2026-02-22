@@ -141,6 +141,7 @@ schemes:
       targets: [InspiredTests, InspiredUITests]
       environmentVariables:
         IS_EMULATOR: "YES"
+        PROJECT_DIR: "$(PROJECT_DIR)"
   
   Inspired (Staging):
     build:

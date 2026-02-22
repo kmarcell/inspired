@@ -39,6 +39,8 @@ node_modules/
 **/fastlane/report.xml
 **/fastlane/*.log
 **/fastlane/report.junit
+result.json
+Apps/iOS/InspiredYogaPlatform/Accessibility/
 
 # Blog Posts
 BLOG_*.md

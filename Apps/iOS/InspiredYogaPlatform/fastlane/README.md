@@ -31,6 +31,14 @@ Run all unit and snapshot tests (Local Emulator)
 
 Deploy a new version to Firebase App Distribution (Staging)
 
+### ios analyze_accessibility
+
+```sh
+[bundle exec] fastlane ios analyze_accessibility
+```
+
+Analyze Accessibility (Generate Hierarchy & Screenshots)
+
 ### ios deploy_prod
 
 ```sh

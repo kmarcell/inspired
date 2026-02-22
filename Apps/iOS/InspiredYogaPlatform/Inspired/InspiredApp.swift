@@ -18,12 +18,32 @@ struct InspiredApp: App {
 
     var body: some Scene {
         WindowGroup {
-            LoginView(
-                store: Store(initialState: LoginReducer.State()) {
-                    LoginReducer()
+            if let testScreen = testScreenName {
+                switch testScreen {
+                case "Login": loginView
+                case "Landing": ContentView()
+                default: Text("Unknown test screen: \(testScreen)")
                 }
-            )
+            } else {
+                loginView
+            }
         }
+    }
+
+    private var loginView: some View {
+        LoginView(
+            store: Store(initialState: LoginReducer.State()) {
+                LoginReducer()
+            }
+        )
+    }
+
+    private var testScreenName: String? {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["TEST_SCREEN"]
+        #else
+        return nil
+        #endif
     }
 
     #if FIREBASE_EMULATOR

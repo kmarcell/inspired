@@ -29,10 +29,24 @@ platform :ios do
     firebase_app_distribution(
       app: "1:99296584767:ios:some_app_id",
       groups: "staging-testers"
-    )
-  end
-
-  desc "Deploy a new version to TestFlight (Production)"
+            )
+          end
+    
+                desc "Analyze Accessibility (Generate Hierarchy & Screenshots)"
+                lane :analyze_accessibility do
+                  sh("mkdir -p ../Accessibility")
+                  sh("rm -f ../Accessibility/*")
+                  scan(
+                    scheme: "Inspired (Local)",
+                    configuration: "Debug (Local)",
+                    only_testing: "InspiredUITests/LoginUITests/testLoginScreenVoiceOver",
+                    xcargs: "-skipMacroValidation"
+                  )
+                  # Read the generated hierarchy files for AI analysis
+                  sh("cat ../Accessibility/*.txt")
+                end
+          
+      desc "Deploy a new version to TestFlight (Production)"
   lane :deploy_prod do
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],

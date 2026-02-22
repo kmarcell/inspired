@@ -197,10 +197,12 @@
     - **Source of Truth:** Scenarios are defined in the `UserFlows.md` file.
     - **Semantic Identifiers:** All UI components must have descriptive `accessibilityIdentifier`s following the pattern `feature.{id}.element` (e.g., `posts.123.share`, `login.emailField`).
     - **High-Performance Mandate:** UI Tests must be designed for speed. Use NSPredicate-based expectations rather than hard `sleep()` waits. Optimize for zero-wait execution where possible.
-    - **VoiceOver Feedback Loop:** 
-        - **Snapshot:** UI Tests must capture the full accessibility tree (labels, values, traits) of each screen into a text file (e.g., `Accessibility/ScreenName.txt`).
-        - **Analysis:** A dedicated Fastlane lane (`analyze_accessibility`) will trigger an automated review of these files using Gemini.
-        - **Improvement:** Insights from this analysis must be converted into **@FEATURES.md** updates and code refinements to ensure the app embodies the inclusive ethos of the yoga community.
+    - **VoiceOver Feedback Loop (Mandatory):**
+    - **Capture:** Every significant screen state in UI Tests must call `app.captureAccessibilityHierarchy(name:)` with a unique name.
+    - **Artifacts:** This call must generate a paired **.txt** (hierarchy) and **.png** (screenshot) in the root `Accessibility/` directory.
+    - **Analysis:** The `fastlane analyze_accessibility` lane will expose these artifacts. The developer/AI must analyze the paired data to ensure the hierarchy matches the visual intent.
+    - **Logging:** All findings must be recorded in `ACCESSIBILITY_IMPROVEMENTS.md` following the pattern: `[Screen Name] -> [Issue] -> [Action]`.
+    - **Finality:** A feature is only complete once its accessibility log items are closed and verified via a fresh analysis run.
 
 ## Security & Privacy (High Priority)
 - **Data Protection:** Security takes precedence over UX and performance. No data is shared without explicit user approval.

@@ -21,6 +21,7 @@ public struct LoginView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                     )
+                    .accessibilityHidden(true)
                 
                 VStack(spacing: 4) {
                     Text("login.title")
@@ -54,6 +55,7 @@ public struct LoginView: View {
                     )
                 }
                 .accessibilityIdentifier("login.googleButton")
+                .accessibilityHint("Sign in with your Google account")
 
                 Button {
                 } label: {
@@ -65,15 +67,18 @@ public struct LoginView: View {
                         .foregroundColor(Color.primarySurfaceInverted)
                 }
                 .accessibilityIdentifier("login.emailButton")
+                .accessibilityHint("Sign in with your email address")
 
                 HStack {
                     VStack { Divider().background(Color.secondaryText.opacity(0.3)) }
                     Text("login.orDivider")
                         .font(.footnote)
                         .foregroundColor(Color.secondaryText)
+                        .accessibilityHidden(true)
                     VStack { Divider().background(Color.secondaryText.opacity(0.3)) }
                 }
                 .padding(.vertical, 8)
+                .accessibilityHidden(true)
 
                 Button {
                 } label: {
@@ -89,6 +94,7 @@ public struct LoginView: View {
                         )
                 }
                 .accessibilityIdentifier("login.createAccountButton")
+                .accessibilityHint("Create a new account")
             }
             .padding(.horizontal, 40)
 
@@ -109,6 +115,8 @@ public struct LoginView: View {
             }
             .padding(.top, 40)
             .multilineTextAlignment(.center)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("By logging in or creating an account, you accept our Privacy Policy and Terms and Conditions.")
 
             Spacer()
 
