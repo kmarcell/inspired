@@ -7,7 +7,9 @@
 - **Canonical Specification:** Detailed service descriptions, inter-service communication, throughput estimates, and system limitations are documented in **[@ARCHITECTURE.md](./ARCHITECTURE.md)**. This file must be reviewed and validated by a system architect.
 - **Maintenance Mandate:** **@ARCHITECTURE.md** must be updated and maintained in synchronization with **@FEATURES.md** and **@GEMINI.md** as new features are added or system behavior changes.
 - **Service Provider:** Google Cloud Platform via **Firebase iOS SDK**.
-- **Tooling Strategy:** Use the **Firebase CLI** as the primary tool for all infrastructure, deployment, and environment management. The full **Google Cloud SDK (gcloud)** will be evaluated and installed only if strictly required for advanced IAM configurations or specific Terraform provider dependencies.
+- **Tooling Strategy:** Use the **Firebase CLI** as the primary tool. 
+    - **Prerequisites:** **Java Runtime** (for Emulators), **Node.js** (for Seeding/Testing), **XcodeGen**, and **Fastlane**.
+- **Security Rules Synchronization:** All data privacy and access control logic must be defined in **@ARCHITECTURE.md**. The automated rules test suite (`infrastructure/scripts/test-rules.js`) must be kept in perfect synchronization with these architectural mandates.
 - **Authentication:** Firebase Auth (supporting Google, Apple, and Email/Password).
     - **Note:** "Login with Apple" is **deferred** until a paid Apple Developer account is available. Initial development will focus on Google Login and Email/Password.
 - **Database:** **Cloud Firestore (NoSQL)**. 
@@ -152,6 +154,7 @@
     - **UI Tests:** Must run against the **Firebase Emulator**. This ensures we test the integration between the app and the backend logic (Rules, Functions) without hitting cloud quotas.
 - **Unit Tests (Swift Testing):**
     - **Scope:** Target public interfaces and functions. Avoid testing internal/private logic.
+    - **Security Testing:** Every TDD cycle must include **Negative Tests** to verify that "Permission Denied" scenarios are handled gracefully and that the backend properly rejects unauthorized requests.
     - **Scenarios:** Cover all requirement-driven scenarios and input variants.
     - **Edge Cases:**
         - `Int`: Test negative, zero, positive, and index-out-of-range. Test large numbers for performance/overflow but keep test execution time reasonable (avoid huge loops).
@@ -175,9 +178,14 @@
 
 ## Security & Privacy (High Priority)
 - **Data Protection:** Security takes precedence over UX and performance. No data is shared without explicit user approval.
+- **Security Audits:** Conduct periodic **Security Reviews and Penetration Testing** of Firestore and Storage rules to ensure strict adherence to the "Least Privilege" mandate.
 - **Data Lifecycle (Hard Delete):**
     - Users must have the "Right to be Forgotten." 
     - Upon account deletion, an automated **Data Scrubbing** process (Cloud Function) must purge all associated PII from Auth, Firestore, and Storage.
+- **Community-based Visibility:** 
+    - **Connection Definition:** Two users are considered "connected" if they share at least one **Joined Community** (includes Groups or Area communities).
+    - **Avatar Privacy:** Support `public` and `members-only` visibility settings. 
+    - **Enforcement:** Privacy must be enforced at the database level. If a user is not authorized, the `profilePictureUrl` must not be accessible.
 - **Deferred Choice & Reversibility:**
     - No unsolicited system pop-ups (e.g., location sharing, push notifications). All such requests must be initiated by the user or deferred for later.
     - All user privacy decisions and information sharing must be fully reversible and granularly controllable from the app's settings at any time (e.g., toggling profile visibility from public to private).

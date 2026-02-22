@@ -1,0 +1,38 @@
+[
+  {
+    "id": "studio_askew_001",
+    "name": "Askew Road Zen Den",
+    "address": "123 Askew Rd, London W12 9AU",
+    "about": "A cozy, community-focused space for all levels.",
+    "rating": 4.9,
+    "isClaimed": true,
+    "ownerId": "user_teacher_001",
+    "reviewCount": 42,
+    "moderationSettings": {
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": false
+    },
+    "location": {
+      "lat": 51.5033,
+      "lng": -0.2445
+    }
+  },
+  {
+    "id": "studio_hammersmith_shadow_001",
+    "name": "Riverside Yoga Hub",
+    "address": "45 King St, London W6 9HW",
+    "about": "Boutique studio with views of the Thames.",
+    "rating": 4.5,
+    "isClaimed": false,
+    "ownerId": null,
+    "reviewCount": 12,
+    "moderationSettings": {
+      "autoApproveMemberComments": false,
+      "guestCommentsEnabled": false
+    },
+    "location": {
+      "lat": 51.4912,
+      "lng": -0.2234
+    }
+  }
+]

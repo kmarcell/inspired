@@ -41,6 +41,11 @@ graph TD
 ### 2.2 Cloud Firestore (NoSQL)
 *   **Purpose:** Core database for profiles, groups, and real-time chat.
 *   **Architecture:** Document-Collection model.
+*   **Relationship Resolution (Client-side Join):** To maintain performance and minimize document size, many-to-many relationships (e.g., "Has user liked this post?") are resolved via **Client-side Joins**.
+*   **Security & Privacy:** Access control is governed by the **Community-based Privacy** model. See [Section 3](#3-security--privacy-architecture) for details.
+*   **Optimization Strategy (Future):** At extreme scale (millions of users), the `get()` call in security rules may impact costs. Future optimizations include:
+        - **Local Session Cache:** Mirroring the user's `joinedCommunities` in local app state to predict visibility.
+        - **Cloud Function Aggregation:** Pre-filtering feeds via server-side logic to reduce individual document security checks.
 *   **Inter-service Comm:** Triggers Cloud Functions for server-side moderation or notifications.
 *   **Limitations:**
     *   **Document Size:** Max 1 MiB per document.
@@ -90,6 +95,30 @@ Based on a starting community of 10,000 active users:
 | **Throughput (FCM)** | ~50k / Day | Real-time notifications for chat/groups. |
 | **Data Growth** | ~1-5 GB / Month | Primarily user-generated content (images) after downsampling. |
 | **Places API** | ~5,000 requests / Month | Discovery-based studio searches. |
+
+---
+
+## 3. Security & Privacy Architecture
+
+This section serves as the canonical source for all backend access control and data privacy logic.
+
+### 3.1 Least Privilege Principle
+All Firebase services must adhere to the principle of Least Privilege. No collection-wide reads are permitted; queries must be scoped by specific IDs or approved filters.
+
+### 3.2 Community-based Visibility (Privacy Model)
+Access to sensitive user fields (e.g., `profilePictureUrl`) is controlled by **Visibility Levels** (`public` vs. `members-only`).
+*   **Definition:** Two users are "connected" if they share at least one ID in their `joinedCommunities` array.
+*   **Enforcement:** Handled via `firestore.rules` using `get()` and `hasAny()`.
+*   **Joined Communities List:** By default, a user's list of joined groups is **`members-only`** visibility.
+*   **Group Chat:** Message history is restricted to **active members** of the community. Non-members (even authenticated ones) are blocked from reading or writing to chat sub-collections.
+*   **Issue Reports:** All support data is **`admin-only`**. No user can read data submitted by another user.
+*   **Optimization:** Review performance once scale exceeds 100k active users (see optimization strategy in Section 2.2).
+
+### 3.3 Automated Validation
+Security rules are verified using an automated Node.js test suite (`infrastructure/scripts/test-rules.js`). This suite must be executed before any deployment to verify:
+1.  Public access to non-sensitive data (Studios, Posts).
+2.  Owner-only access to PII (Profiles).
+3.  Community-based restriction logic.
 
 ---
 

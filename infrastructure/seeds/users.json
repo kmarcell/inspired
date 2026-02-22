@@ -1,0 +1,34 @@
+[
+  {
+    "id": "user_teacher_001",
+    "username": "yoga_maya#1001",
+    "displayName": "Maya Sharma",
+    "bio": "Certified Vinyasa teacher. Finding peace in movement.",
+    "lastSearchArea": "Askew",
+    "isTeacher": true,
+    "joinedCommunities": ["area_askew", "studio_askew_001"],
+    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_std.jpg",
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "all"
+    },
+    "createdAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_student_001",
+    "username": "zen_explorer#2002",
+    "displayName": "Jane Doe",
+    "bio": "Learning to breathe one day at a time.",
+    "lastSearchArea": "Askew",
+    "isTeacher": false,
+    "joinedCommunities": ["area_askew"],
+    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_std.jpg",
+    "privacySettings": {
+      "isProfilePublic": false,
+      "avatarPrivacy": "groups-only",
+      "showJoinedGroups": "members-only"
+    },
+    "createdAt": "2026-02-15T14:30:00Z"
+  }
+]

@@ -27,6 +27,8 @@ ui-debug.log
 # Scripts and Temporary Data
 scripts/local-config.json
 *.log
+node_modules/
+**/node_modules/
 
 # Blog Posts
 BLOG_*.md

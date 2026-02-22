@@ -43,8 +43,10 @@ This section documents the precise data contracts between the iOS application an
   "profilePictureUrl": "https://storage.googleapis.com/.../profile_small.jpg",
   "privacySettings": {
     "isProfilePublic": true,
-    "showJoinedGroups": "connections_only"
+    "avatarPrivacy": "groups-only",
+    "showJoinedGroups": "members-only"
   },
+  "joinedCommunities": ["area_askew", "studio_123"],
   "createdAt": "2026-02-18T10:00:00Z",
   "updatedAt": "2026-02-18T11:30:00Z"
 }
@@ -142,6 +144,39 @@ This section documents the precise data contracts between the iOS application an
 | `stats` | `Map` | Denormalized counts for likes and comments. | No |
 | `createdAt` | `Timestamp`| Chronological sort key. | No |
 
+#### 2.3.1 Post Comments (Sub-collection)
+*Collection: `/posts/{postId}/comments/{commentId}`*
+
+**JSON Example:**
+```json
+{
+  "id": "comment_789",
+  "author": {
+    "id": "user_xyz",
+    "username": "yogi_fan#1234",
+    "thumbnailUrl": "https://storage.googleapis.com/.../thumb.jpg"
+  },
+  "text": "This looks like a great spot! I'll be there.",
+  "createdAt": "2026-02-18T19:30:00Z"
+}
+```
+
+#### 2.3.2 Post Likes (Global Query Path)
+*Collection: `/posts/{postId}/likes/{userId}`*
+
+**JSON Example:**
+```json
+{
+  "userId": "user_abc",
+  "createdAt": "2026-02-18T19:00:00Z"
+}
+```
+
+**Client-side Join Logic:**
+- **Mechanism:** To determine if the current user has liked a post without bloating data, the client must perform a **batched query** for every new page of feed posts.
+- **Batching:** Query the `likes` sub-collections where `userId == currentUser.id` for the specific `postIds` in the current view.
+- **Consistency:** Storing by `userId` as the document ID in the sub-collection ensures a user can only like a post once.
+
 ---
 
 ## 4. Technical Implementation Details
@@ -220,6 +255,10 @@ This section documents the precise data contracts between the iOS application an
 4.  - [ ] **To-Do (remember):** Define the exact data schema for Posts, Comments, and Likes.
 5.  - [ ] **To-Do (remember):** Define #mentions and hashtags behavior (tapping to search, rendering styles, and indexing).
 
+**Developer Notes (TCA):**
+- **FeedReducer Side-effects:** Upon receiving a successful page fetch of posts, the reducer should immediately trigger a `fetchUserLikes(postIds:)` action. This batched query populates the user's specific "liked" state for the visible cards.
+- **Like Action:** Use a **Firestore Transaction** to atomically increment the `likeCount` on the Post document while creating the individual Like document in the sub-collection.
+
 **Visual Elements (Post Card):**
 - **Header:**
     - Circle 'A' (Author Avatar).
@@ -235,8 +274,9 @@ This section documents the precise data contracts between the iOS application an
 ### 5.4 Localization
 **Goal:** Ensure the platform can be translated and culturally adapted.
 - **Source of Truth:** Locale-based JSON files stored in `Resources/Localization/{locale}/strings.json`.
+- **Initial Languages:** English (en), German (de), French (fr), Italian (it), Portuguese (pt), Spanish (es), Hungarian (hu).
 - **Shared Strategy:** A single source of truth for both iOS and React, synchronized via script during the build process.
-- [ ] **To-Do (remember):** Define initial set of supported Languages and Regions.
+- [ ] **To-Do (remember):** Identify the primary **Regions** for initial launch to inform currency and date formatting.
 
 ### 5.5 Issue Reporting & Support
 **Goal:** Provide a zero-maintenance way for users to report bugs or content issues.
@@ -244,3 +284,27 @@ This section documents the precise data contracts between the iOS application an
 - **Unified Flow:** Both authenticated and unauthenticated users use the same form.
 - **Pre-filling Logic:** If the user is logged in, the app must append the `userId` to the Google Form URL as a pre-filled parameter (e.g., `?entry.12345=user_uid`).
 - **Field Requirements:** The form must collect: Issue Category, Description, and the (Automated) User ID.
+
+### 5.6 Security & Access Control
+- **Canonical Source:** All data privacy and access control logic is defined in **[@ARCHITECTURE.md](./ARCHITECTURE.md)**.
+- [ ] **To-Do (remember):** Conduct initial Security Review and Penetration Testing of Firestore and Storage rules.
+- [ ] **To-Do (remember):** Implement TDD suites specifically for "Permission Denied" scenarios across all Firestore collections.
+- [x] **Technical Implementation:** "Community Overlap" logic implemented in `firestore.rules`. Verified via `test-rules.js`.
+- [ ] **To-Do (remember):** Conduct a "Scaling Audit" once the platform reaches significant scale (>100k users) to evaluate the cost/performance impact of the `get()` calls in Firestore rules and implement the optimization strategy defined in **@ARCHITECTURE.md**.
+
+**Mandatory Security Test Cases (TDD):**
+1.  **Scenario: Public Avatar**
+    - User A (Privacy: `public`)
+    - User B (Any status)
+    - **Result:** User B can successfully read User A's `profilePictureUrl`.
+2.  **Scenario: Community Member Access**
+    - User A (Privacy: `groups-only`, Joined: `[area_askew]`)
+    - User B (Joined: `[area_askew]`)
+    - **Result:** User B can successfully read User A's `profilePictureUrl` due to community overlap.
+3.  **Scenario: Unauthorized Access (No Overlap)**
+    - User A (Privacy: `groups-only`, Joined: `[area_askew]`)
+    - User B (Joined: `[area_chelsea]`)
+    - **Result:** Firestore must return **Permission Denied** for User B attempting to read User A's profile.
+4.  **Scenario: Unauthenticated Access**
+    - Requester (Not logged in)
+    - **Result:** **Permission Denied** for any profile read.

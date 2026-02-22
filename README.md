@@ -7,6 +7,7 @@
 - iOS 18.0+
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 - [Java Runtime](https://www.java.com/) (`brew install openjdk`) - *Required for Firebase Emulator*
+- [Node.js](https://nodejs.org/) (v20+) - *Required for Firebase CLI and Seeding* (Recommended: [NVM](https://github.com/nvm-sh/nvm))
 - Bundle ID: `com.inspired-developers.Inspired`
 - [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
 - [Git LFS](https://git-lfs.com/)
@@ -140,10 +141,16 @@ firebase deploy --only firestore:rules,firestore:indexes --export-on-exit ./emul
 We use **Fastlane** to ensure consistent, automated test runs and builds across all tiers.
 
 ### 5.1 Running Automated Tests
-The `test` lane runs all unit and snapshot tests against the **Local Emulator**.
+We use multiple test suites to ensure system integrity:
+
+*   **iOS Tests:** `fastlane test` (Runs unit and snapshot tests).
+*   **Security Rules:** `npm run test:rules` (Verifies Firestore access control logic).
+
+#### Running Rules Tests
+Before deploying any backend changes, verify the security rules against the local emulator:
 ```bash
-# Ensure the emulator is running (Step 4.1) then:
-fastlane test
+# Ensure emulator is running first (Step 4.1) then:
+npm run test:rules
 ```
 
 ### 5.2 Deploying to Staging (Firebase)

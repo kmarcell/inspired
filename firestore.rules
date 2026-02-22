@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if two users share a community
+    function isConnected(userA, userB) {
+      return userA.joinedCommunities.hasAny(userB.joinedCommunities);
+    }
+
+    // 1. User Profiles
+    match /users/{userId} {
+      // Full access for the owner
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Restricted read for others based on avatar privacy
+      allow get: if request.auth != null && (
+        resource.data.privacySettings.avatarPrivacy == "public" ||
+        (resource.data.privacySettings.avatarPrivacy == "groups-only" && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities.hasAny(resource.data.joinedCommunities))
+      );
+    }
+    
+    // 2. Yoga Studios
+    match /studios/{studioId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+    }
+    
+    // 3. Community Posts
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.author.id == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.author.id == request.auth.uid;
+    }
+    
+    // 4. Comments (Sub-collection)
+    match /posts/{postId}/comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && resource.data.author.id == request.auth.uid;
+    }
+    
+    // 5. Likes (Sub-collection)
+    match /posts/{postId}/likes/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

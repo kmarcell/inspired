@@ -38,18 +38,24 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 1.  **Draft Feature Requirements:** Describe User Stories in **@FEATURES.md**. (In Progress: Login & Landing Shell done).
 2.  **Define Studio Claiming Flow:** Establish the verification process for studio owners to claim shadow profiles.
 3.  **Generate Mockups:** Create low-fidelity layout sketches for every UI component. (In Progress).
-4.  [x] **Localization Strategy:** JSON established as shared format between iOS and React.
+4.  [x] **Localization Strategy:** JSON established as shared format; initial languages (en, de, fr, it, pt, es, hu) chosen.
 5.  [x] **Terraform Generation Strategy:** Mandated direct use of `.tf` (HCL) files.
 6.  [x] **Issue Reporting Flow:** External Google Form with `userId` pre-filling.
 7.  [x] **Support Infrastructure:** External Google Form defined with `userId` pre-filling.
 8.  [x] **Define Accessibility Requirements:** Establish mandates for Dynamic Type, VoiceOver, and high-contrast support in **@FEATURES.md**.
-9.  **Define Feed Data Requirements:** Specify the exact schema for Posts, Comments, and Likes in **@FEATURES.md**.
-10. **Data Seeding Strategy:**
-    - [ ] **JSON Seed Data:** Define deterministic `infrastructure/seeds/*.json` files.
-    - [ ] **Seeding Automation:** Implement `scripts/seed-data.sh` to populate environments.
-    - [ ] **Wipe & Re-seed:** Add command to clear Firestore data before fresh seeding.
+9.  [x] **Define Feed Data Requirements:** Schema for Posts, Comments, and Likes finalized in **@FEATURES.md**.
+10. [x] **Data Seeding Strategy:** Deterministic JSON files created in `infrastructure/seeds/`.
 
 ### Phase 3: TDD Development
+
+#### 3.0 Local Infrastructure Alignment (Prerequisite)
+- [x] **Security Rules & Indexes:** Firestore rules verified with automated tests.
+- [x] **Functions Scaffolding:** `functions/` directory verified.
+- [x] **Seeding Implementation:** `infrastructure/scripts/seeder.js` verified.
+- [x] **Security Review:** Initial review and automated testing of privacy rules completed.
+- [ ] **Terraform Foundations:** Write the initial `.tf` files for Auth and Firestore.
+
+#### 3.1 iOS Feature Implementation
 1.  **Client Implementation:** Build `AuthenticationClient` and `FirestoreClient` (Mock & Live).
 2.  **Fastlane Lane Implementation:** Develop and verify the `test`, `deploy_staging`, and `deploy_prod` lanes, including automated localization synchronization.
 3.  **Accessibility Analysis Lane:** Implement the `analyze_accessibility` lane to trigger the Gemini-based VoiceOver review loop.
