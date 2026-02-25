@@ -15,6 +15,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
+### ios seed_emulator
+
+```sh
+[bundle exec] fastlane ios seed_emulator
+```
+
+Seed the local emulator with initial data
+
 ### ios test
 
 ```sh

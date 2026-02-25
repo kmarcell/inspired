@@ -61,6 +61,8 @@ This section documents the precise data contracts between the iOS application an
 | `bio` | `String` | Short biography (Max 280 chars). | No |
 | `lastSearchArea`| `String` | Last area name searched or IP-detected (e.g., "Hammersmith"). | No |
 | `isTeacher` | `Boolean` | Flag identifying teacher accounts. | No |
+| `profilePictureUrl` | `String` | URL for the **standard-resolution** (1024px) avatar. | **Yes** (Subject to Privacy Rules) |
+| `thumbnailUrl` | `String` | URL for the **thumbnail-resolution** (150px) avatar. | **Yes** (Subject to Privacy Rules) |
 | `privacySettings` | `Map` | User's granular privacy toggles. | No |
 | `createdAt` | `Timestamp` | ISO 8601 creation date. | No |
 

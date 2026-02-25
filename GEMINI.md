@@ -3,9 +3,20 @@
 ## Project Vision
 **Inspired Yoga Platform** is a free-to-use yoga class platform designed to connect teachers and students. It features location-based services, group management, teacher discovery, user profiles, and community engagement tools.
 
+## Personal Mandates (User-Specific)
+- **Local Customization:** Users of this repository are encouraged to define their own personal mandates in **[@PERSONAL_MANDATES.md](./PERSONAL_MANDATES.md)**. 
+- **Privacy:** This file is listed in `.gitignore` and is intended for local use only. It will never be committed to the repository.
+- **Precedence:** Instructions in `@PERSONAL_MANDATES.md` should be treated as supplemental to the core mandates defined in `@GEMINI.md`.
+- **Mandate Consistency:** When adding or updating any mandate or rule (in `@GEMINI.md` or `@PERSONAL_MANDATES.md`), it must be rigorously checked for consistency against all existing mandates. If a conflict is identified, the user must be consulted to provide a resolution that maintains a consistent and non-contradictory set of rules before the change is applied.
+
 ## Backend & Data Architecture
 - **Canonical Specification:** Detailed service descriptions, inter-service communication, throughput estimates, and system limitations are documented in **[@ARCHITECTURE.md](./ARCHITECTURE.md)**. This file must be reviewed and validated by a system architect.
-- **Maintenance Mandate:** **@ARCHITECTURE.md** must be updated and maintained in synchronization with **@FEATURES.md** and **@GEMINI.md** as new features are added or system behavior changes.
+- **Synchronization & Integrity Mandate:** **@FEATURES.md**, **@ARCHITECTURE.md**, and **@GEMINI.md** must be kept in perfect synchronization. 
+    - **Feature Updates:** When adding or changing a feature in **@FEATURES.md**, the developer must check, document, and provide JSON examples for data usage. 
+    - **Impact Review:** Review the implications for service and data usage (e.g., throughput, cost, latency).
+    - **Architecture Sync:** If a feature change or security review impacts service or data usage, **@ARCHITECTURE.md** must be updated immediately, including all relevant architectural diagrams.
+    - **Data Seeding:** If data structures change, the backend seeding files (e.g., in `infrastructure/seeds/`) and the seeder script (`infrastructure/scripts/seeder.js`) must be updated to reflect the new requirements.
+    - **Security & Validation:** Any change to data or service usage requires an update to the Security Rules (`firestore.rules`, `storage.rules`). This must be followed by a security check, rule analysis, and an update to the automated rules test suite (`infrastructure/scripts/test-rules.js`) to ensure 100% coverage and compliance.
 - **Service Provider:** Google Cloud Platform via **Firebase iOS SDK**.
 - **Tooling Strategy:** Use the **Firebase CLI** as the primary tool. 
     - **Prerequisites:** **Java Runtime** (for Emulators), **Node.js** (for Seeding/Testing), **XcodeGen**, and **Fastlane**.
@@ -201,7 +212,7 @@
     - **Capture:** Every significant screen state in UI Tests must call `app.captureAccessibilityHierarchy(name:)` with a unique name.
     - **Artifacts:** This call must generate a paired **.txt** (hierarchy) and **.png** (screenshot) in the root `Accessibility/` directory.
     - **Analysis:** The `fastlane analyze_accessibility` lane will expose these artifacts. The developer/AI must analyze the paired data to ensure the hierarchy matches the visual intent.
-    - **Logging:** All findings must be recorded in `ACCESSIBILITY_IMPROVEMENTS.md` following the pattern: `[Screen Name] -> [Issue] -> [Action]`.
+    - **Logging:** All findings must be recorded in `ACCESSIBILITY_IMPROVEMENTS.md` following the pattern: `[Platform] -> [Screen Name] -> [Issue] -> [Action]`. This ensures that improvements on one platform (e.g., iOS) can be systematically reviewed for applicability on others (e.g., React).
     - **Finality:** A feature is only complete once its accessibility log items are closed and verified via a fresh analysis run.
 
 ## Security & Privacy (High Priority)
@@ -268,3 +279,5 @@
 - **XcodeGen Synchronization:** After any file move or addition, `xcodegen generate` must be executed before running tests or builds.
 - **Sendable Conformance:** All models and actions used within TCA must explicitly conform to `Sendable` to comply with Swift 6 strict concurrency requirements.
 - **TestStore Syntax:** When using `TestStore` in TCA, ensure state mutation closures use the `{ state in ... }` or `{ $0.isLoading = true }` syntax correctly based on the TCA version.
+- **Full-Screen Support (Letterboxing):** Always ensure `INFOPLIST_KEY_UILaunchScreen_Generation` is set to `YES` in the `project.yml` settings. Without this, iOS will "letterbox" the app, failing to fill the screen on modern iPhone models.
+- **Safe Area Best Practices:** Never apply `.ignoresSafeArea()` to a container holding interactive content. Instead, use a `ZStack` with a background `Color` that ignores the safe area, allowing the content `VStack` to naturally respect safe boundaries (notch/home indicator).

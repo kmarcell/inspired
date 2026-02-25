@@ -63,6 +63,7 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Theme-Aware Snapshots:** Dark mode rendering verified.
 - [x] **Initial Screen Fix:** Entry point set to LoginView.
 - [x] **Google Sign-In Button:** Integrated native SDK button.
+- [x] **Test Workflow Improvements:** Added emulator verification and optional re-seeding to `fastlane test`.
 - [ ] **Loading State Strategy:** Define global pattern (Pending discussion).
 - [x] **Implementation Learnings:** Added Learnings section to **@GEMINI.md**.
 

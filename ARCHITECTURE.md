@@ -122,7 +122,49 @@ Security rules are verified using an automated Node.js test suite (`infrastructu
 
 ---
 
-## 4. Cost Estimation & Budget Alignment ($50/Month Cap)
+## 4. Security Risk Assessment & Testing Guidelines
+
+This section defines the strategy for identifying, testing, and mitigating security vulnerabilities and attack vectors.
+
+### 4.1 Risk Dimensions & Attack Vectors
+| Risk Category | Attack Vector | Mitigation Strategy |
+| :--- | :--- | :--- |
+| **Data Leakage** | Insecure Firestore/Storage rules allowing unauthorized `list` or `get` operations. | Strict **Least Privilege** rules; automated negative testing in `test-rules.js`. |
+| **Privacy Violation** | PII (emails, names) being exposed in public profiles or leaked through logs. | Explicit PII marking in code; mandatory obfuscation in `os.log`; server-side PII scrubbing. |
+| **Data Corruption** | Malicious or accidental malformed writes bypassing client-side validation. | **Schema Validation** inside Firestore Rules (checking types, ranges, and mandatory fields). |
+| **Unauthorized Access** | Compromised auth tokens or "Insecure Direct Object Reference" (IDOR) on private documents. | Identity-based rules (`request.auth.uid == userId`); short-lived tokens. |
+| **Denial of Service (DoS)** | Expensive queries (e.g., deep pagination, broad filters) designed to exhaust Firestore quotas/budget. | Query limiting; disabling broad `list` operations; budget alerts and automated throttling. **Critical Requirement:** A single valid but malicious authenticated user must not be able to exhaust the project's $50/month budget through repetitive expensive operations. |
+
+### 4.2 Common Pitfalls & Comprehensive Review Checklist
+A comprehensive security review must address these common architectural weaknesses:
+
+#### 1. Data Loss & Corruption
+*   **Pitfall:** Overwriting documents without checking for version consistency or state-specific logic.
+*   **Review Requirement:** Use **Firestore Transactions** or **Batched Writes** for atomic operations. 
+*   **Review Requirement:** All incoming data types and constraints (e.g., string length, numeric range) must be validated within Security Rules, never relying solely on the client.
+*   **Review Requirement:** Ensure Cloud Functions are **idempotent** to prevent data corruption during execution retries.
+
+#### 2. Data Leaks & Privacy Violations
+*   **Pitfall:** Storing PII (e.g., full GPS coordinates) when only area-level data is needed.
+*   **Review Requirement:** Verify **Location Fuzzing** implementation. Audit all Firestore documents to ensure no unhashed PII is stored unnecessarily.
+*   **Review Requirement:** Check for "Rule Shadowing" where a broad rule inadvertently grants access to a sub-collection intended to be private.
+*   **Review Requirement:** Ensure `profilePictureUrl` access (including both thumbnail and standard-resolution versions) is strictly gated by the Community-based Visibility model.
+
+#### 3. Improper Input Validation & Budget Exhaustion
+*   **Pitfall:** Trusting client-side logic for business-critical values (e.g., `isAdmin`, `price`, `status`).
+*   **Pitfall:** Allowing unrestricted creation of high-cost documents or execution of complex queries by a single UID.
+*   **Review Requirement:** All state transitions (e.g., `pending` to `approved`) must be enforced by Cloud Functions or locked down via Security Rules using `request.resource.data.diff()`.
+*   **Review Requirement:** Analyze the "Cost-per-Query" for all primary user flows. Implement server-side or rule-based rate limiting for any operation that could be abused to trigger significant billable events.
+
+### 4.3 Security Testing Workflow
+1.  **Static Analysis:** Periodically review `firestore.rules` and `storage.rules` for overly permissive wildcards (e.g., `allow read: if true`).
+2.  **Negative TDD:** For every new feature, write a test case in `test-rules.js` that explicitly attempts to read/write data as an unauthorized user and confirms the request is rejected.
+3.  **Fuzz Testing:** Attempt to write documents with missing fields, incorrect data types (e.g., string instead of int), or exceptionally long strings to test the robustness of validation rules.
+4.  **Privacy Audit:** Use the Firebase Emulator UI to inspect created documents and ensure no PII is visible in fields intended for public discovery.
+
+---
+
+## 5. Cost Estimation & Budget Alignment ($50/Month Cap)
 
 Based on the 10,000-user usage model on the **Firebase Blaze (Pay-as-you-go)** plan, but benefiting from the **Free Spark Tier** quotas:
 
@@ -142,7 +184,7 @@ Based on the 10,000-user usage model on the **Firebase Blaze (Pay-as-you-go)** p
 
 ---
 
-## 5. Architect's Review & Validation
+## 6. Architect's Review & Validation
 
 **Critical Validation Points:**
 1.  **Denormalization Strategy:** Ensure Firestore schemas balance read performance with the risk of stale data.

@@ -20,12 +20,31 @@ if (environment === 'local') {
 
 const db = admin.firestore();
 
+async function clearCollection(collectionName) {
+  const collectionRef = db.collection(collectionName);
+  const snapshot = await collectionRef.get();
+  
+  if (snapshot.empty) {
+    return;
+  }
+
+  console.log(`🗑️  Clearing ${snapshot.size} documents from '${collectionName}'...`);
+  const batch = db.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+
+  await batch.commit();
+}
+
 async function seedCollection(collectionName, fileName) {
   const filePath = path.join(__dirname, '../seeds', fileName);
   if (!fs.existsSync(filePath)) {
     console.warn(`⚠️  Seed file not found: ${fileName}. Skipping.`);
     return;
   }
+
+  await clearCollection(collectionName);
 
   const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
   console.log(`📡 Seeding ${data.length} documents into '${collectionName}'...`);

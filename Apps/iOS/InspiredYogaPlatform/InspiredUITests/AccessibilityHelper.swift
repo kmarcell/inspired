@@ -3,7 +3,7 @@ import XCTest
 extension XCUIApplication {
     func captureAccessibilityHierarchy(name: String) {
         let tree = self.debugDescription
-        let screenshot = self.screenshot()
+        let screenshot = XCUIScreen.main.screenshot()
         
         // 1. Console Output (Fallback)
         print("--- ACCESSIBILITY HIERARCHY START: \(name) ---")
@@ -14,18 +14,27 @@ extension XCUIApplication {
         if let projectPath = ProcessInfo.processInfo.environment["PROJECT_DIR"] {
             let accessibilityDir = URL(fileURLWithPath: projectPath).appendingPathComponent("Accessibility")
             
+            print("📁 Accessibility Directory: \(accessibilityDir.path)")
+            
             // Ensure directory exists
-            try? FileManager.default.createDirectory(at: accessibilityDir, withIntermediateDirectories: true)
-            
-            // Save Text Hierarchy
-            let textURL = accessibilityDir.appendingPathComponent("\(name).txt")
-            try? tree.write(to: textURL, atomically: true, encoding: .utf8)
-            
-            // Save Screenshot
-            let imageURL = accessibilityDir.appendingPathComponent("\(name).png")
-            try? screenshot.image.pngData()?.write(to: imageURL)
-            
-            print("✅ Saved accessibility artifacts to: \(accessibilityDir.path)")
+            do {
+                try FileManager.default.createDirectory(at: accessibilityDir, withIntermediateDirectories: true)
+                
+                // Save Text Hierarchy
+                let textURL = accessibilityDir.appendingPathComponent("\(name).txt")
+                try tree.write(to: textURL, atomically: true, encoding: .utf8)
+                print("📝 Saved hierarchy to: \(textURL.path)")
+                
+                // Save Screenshot
+                let imageURL = accessibilityDir.appendingPathComponent("\(name).png")
+                let data = screenshot.image.pngData()
+                try data?.write(to: imageURL)
+                print("📸 Saved screenshot to: \(imageURL.path) (Size: \(screenshot.image.size), Scale: \(screenshot.image.scale))")
+            } catch {
+                print("❌ Failed to save accessibility artifacts: \(error)")
+            }
+        } else {
+            print("⚠️ PROJECT_DIR environment variable not set. Skipping file export.")
         }
 
         // 3. Keep as test attachments for Xcode UI / Fastlane Reports

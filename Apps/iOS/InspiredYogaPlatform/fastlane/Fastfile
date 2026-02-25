@@ -3,16 +3,41 @@
 default_platform(:ios)
 
 platform :ios do
-              desc "Run all unit and snapshot tests (Local Emulator)"
-              lane :test do
-                sh("cd ../../../.. && ./scripts/sync-strings.sh")
-                sh("cd ../../../.. && ./scripts/generate-assets.sh")
-                        scan(
-                          scheme: "Inspired (Local)",
-                          configuration: "Debug (Local)",
-                          xcargs: "-skipMacroValidation"
-                        )
-                
+  desc "Verify that Firebase Emulators are running"
+  private_lane :verify_emulators do
+    begin
+      sh("curl -f http://localhost:4000")
+    rescue
+      UI.user_error!("❌ Firebase Emulators are not running! Please run 'firebase emulators:start' in a separate terminal before running tests.")
+    end
+  end
+
+  desc "Seed the local emulator with initial data"
+  lane :seed_emulator do
+    UI.message("🌱 Seeding local emulator...")
+    sh("cd ../../../.. && node infrastructure/scripts/seeder.js local")
+  end
+
+  desc "Run all unit and snapshot tests (Local Emulator)"
+  lane :test do |options|
+    # 1. Pre-test Automation
+    sh("cd ../../../.. && ./scripts/sync-strings.sh")
+    sh("cd ../../../.. && ./scripts/generate-assets.sh")
+
+    # 2. Emulator Verification (Critical for UI Tests)
+    verify_emulators
+
+    # 3. Optional/Automatic Seeding
+    if options[:reseed]
+      seed_emulator
+    end
+
+    # 4. Execution
+    scan(
+      scheme: "Inspired (Local)",
+      configuration: "Debug (Local)",
+      xcargs: "-skipMacroValidation"
+    )
   end
 
   desc "Deploy a new version to Firebase App Distribution (Staging)"
@@ -32,19 +57,19 @@ platform :ios do
             )
           end
     
-                desc "Analyze Accessibility (Generate Hierarchy & Screenshots)"
-                lane :analyze_accessibility do
-                  sh("mkdir -p ../Accessibility")
-                  sh("rm -f ../Accessibility/*")
-                  scan(
-                    scheme: "Inspired (Local)",
-                    configuration: "Debug (Local)",
-                    only_testing: "InspiredUITests/LoginUITests/testLoginScreenVoiceOver",
-                    xcargs: "-skipMacroValidation"
-                  )
-                  # Read the generated hierarchy files for AI analysis
-                  sh("cat ../Accessibility/*.txt")
-                end
+    desc "Analyze Accessibility (Generate Hierarchy & Screenshots)"
+    lane :analyze_accessibility do
+      sh("mkdir -p ../../../../Accessibility")
+      sh("rm -f ../../../../Accessibility/*")
+      scan(
+        scheme: "Inspired (Local)",
+        configuration: "Debug (Local)",
+        only_testing: "InspiredUITests/LoginUITests/testLoginScreenVoiceOver",
+        xcargs: "-skipMacroValidation"
+      )
+      # Read the generated hierarchy files for AI analysis
+      sh("cat ../../../../Accessibility/*.txt")
+    end
           
       desc "Deploy a new version to TestFlight (Production)"
   lane :deploy_prod do

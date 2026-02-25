@@ -40,7 +40,10 @@ node_modules/
 **/fastlane/*.log
 **/fastlane/report.junit
 result.json
-Apps/iOS/InspiredYogaPlatform/Accessibility/
+Accessibility/
 
 # Blog Posts
 BLOG_*.md
+
+# Personal Mandates
+PERSONAL_MANDATES.md
