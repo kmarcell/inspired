@@ -254,8 +254,15 @@ If you need to start from a clean state or zero out all costs, you can tear down
 
 ---
 
-## Documentation
-- **[GEMINI.md](./GEMINI.md):** Architectural, security, and engineering mandates.
-- **[ARCHITECTURE.md](./ARCHITECTURE.md):** High-level technical specification, service interactions, and usage estimates (intended for architect review).
-- **[FEATURES.md](./FEATURES.md):** UI components, screen behaviors, and precise NoSQL data schemas.
-- **[ROADMAP.md](./ROADMAP.md):** Strategic plan and task tracking.
+## Documentation Structure
+
+This repository uses a structured approach to documentation to ensure engineering integrity and cross-platform consistency.
+
+| File | Purpose | Target Audience |
+| :--- | :--- | :--- |
+| **[GEMINI.md](./GEMINI.md)** | **Engineering Core.** Defines platform-agnostic mandates for security, cost control, documentation synchronization, and engineering standards. | All Developers / AI Agents |
+| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | **System Design.** The canonical source for all technical decisions, service interactions (GCP, Firebase), regional choices, and budget specifications. | System Architects / Tech Leads |
+| **[FEATURES.md](./FEATURES.md)** | **Product Specification.** Defines business requirements, UI behaviors, and precise NoSQL data schemas/contracts. | Product Owners / Developers |
+| **[SWIFT.md](./SWIFT.md)** | **iOS Implementation.** Detailed guide for iOS-specific tools (Fastlane, XcodeGen), coding standards, and implementation patterns (TCA). | iOS Engineers |
+| **[ROADMAP.md](./ROADMAP.md)** | **Strategic Plan.** High-level task tracking and phase definitions for the platform's evolution. | Project Managers / All |
+| **[UserFlows.md](./UserFlows.md)** | **Testing Scenarios.** Defines the critical user paths and accessibility verification requirements for automated UI tests. | QA / Developers |

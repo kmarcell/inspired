@@ -10,173 +10,112 @@
 - **Mandate Consistency:** When adding or updating any mandate or rule (in `@GEMINI.md` or `@PERSONAL_MANDATES.md`), it must be rigorously checked for consistency against all existing mandates. If a conflict is identified, the user must be consulted to provide a resolution that maintains a consistent and non-contradictory set of rules before the change is applied.
 
 ## Backend & Data Architecture
-- **Canonical Specification:** Detailed service descriptions, inter-service communication, throughput estimates, and system limitations are documented in **[@ARCHITECTURE.md](./ARCHITECTURE.md)**. This file must be reviewed and validated by a system architect.
 - **Synchronization & Integrity Mandate:** **@FEATURES.md**, **@ARCHITECTURE.md**, and **@GEMINI.md** must be kept in perfect synchronization. 
     - **Feature Updates:** When adding or changing a feature in **@FEATURES.md**, the developer must check, document, and provide JSON examples for data usage. 
     - **Impact Review:** Review the implications for service and data usage (e.g., throughput, cost, latency).
     - **Architecture Sync:** If a feature change or security review impacts service or data usage, **@ARCHITECTURE.md** must be updated immediately, including all relevant architectural diagrams.
-    - **Data Seeding:** If data structures change, the backend seeding files (e.g., in `infrastructure/seeds/`) and the seeder script (`infrastructure/scripts/seeder.js`) must be updated to reflect the new requirements.
-    - **Security & Validation:** Any change to data or service usage requires an update to the Security Rules (`firestore.rules`, `storage.rules`). This must be followed by a security check, rule analysis, and an update to the automated rules test suite (`infrastructure/scripts/test-rules.js`) to ensure 100% coverage and compliance.
-- **Service Provider:** Google Cloud Platform via **Firebase iOS SDK**.
-- **Tooling Strategy:** Use the **Firebase CLI** as the primary tool. 
-    - **Prerequisites:** **Java Runtime** (for Emulators), **Node.js** (for Seeding/Testing), **XcodeGen**, and **Fastlane**.
-- **Security Rules Synchronization:** All data privacy and access control logic must be defined in **@ARCHITECTURE.md**. The automated rules test suite (`infrastructure/scripts/test-rules.js`) must be kept in perfect synchronization with these architectural mandates.
-- **Authentication:** Firebase Auth (supporting Google, Apple, and Email/Password).
-    - **Note:** "Login with Apple" is **deferred** until a paid Apple Developer account is available. Initial development will focus on Google Login and Email/Password.
-- **Database:** **Cloud Firestore (NoSQL)**. 
-    - **Rationale:** Chosen for superior cost efficiency (generous free tier), built-in real-time listeners for chat/posts, and schema flexibility during rapid development.
-    - **Moderated Content:** Store studio profile comments and posts in Firestore with a `status` field (e.g., `pending`, `approved`, `rejected`).
-    - **Moderation Workflow:** Use Firestore Security Rules and Cloud Functions to enforce studio-owner approval before content becomes public. 
-    - **Automated Moderation:** Utilize **Firebase Extensions** (e.g., "Moderate Content with Perspective API") for initial automated filtering where appropriate.
-    - **Rich Text & Markdown:** Store comments and posts as standard **Markdown** text. 
-        - **Limit:** Enforce a maximum of **500 characters** per entry to ensure performance and readability.
-        - **Rendering:** Use native SwiftUI `Text` or `AttributedString` Markdown support for rendering.
-    - **Group Chat:** Implement real-time group chat using **Cloud Firestore** (message sub-collections) and **Firebase Cloud Messaging (FCM)** for push notifications.
-        - **Real-time:** Use Firestore snapshots for instant message delivery within the app.
-        - **Consistency:** Apply the same Markdown and 500-character limits as comments/posts.
-- **Storage:** Cloud Storage for Firebase for user-generated content (e.g., profile pictures).
-- **Image Processing & Multi-Resolution Mandate:**
-    - **Local Processing:** Perform all image downsampling and compression **locally on the device** before uploading.
-    - **Standard Resolutions:**
-        - **Thumbnail:** 150x150 pixels (Square crop, JPEG, ~0.7 compression).
-        - **Standard:** Max 1024x1024 pixels (Aspect-fit, JPEG, ~0.7 compression).
-    - **Storage Strategy:** Store both versions in Cloud Storage (e.g., `avatars/{uid}_thumb.jpg` and `avatars/{uid}_std.jpg`) to optimize list views and profile pages.
-    - **Cache Invalidation:** Use **URL Fingerprinting** (e.g., query-string timestamps) to force instant CDN and client-side cache refreshes upon image updates.
-    - **Storage Hygiene:** Ensure old blobs (thumbnails and standard versions) are deleted from Cloud Storage when a user replaces their media to maintain a clean environment and control costs.
-    - **Implementation:** Use native iOS `ImageRenderer` or `UIImage` resizing capabilities. Use the **Firebase Storage SDK** for all upload operations.
-- **Image Processing:** Perform image downsampling and compression **locally on the device** before uploading to minimize bandwidth and storage costs.
+    - **Data Seeding:** If data structures change, backend seeding and seeder scripts must be updated to reflect the new requirements.
+    - **Security & Validation:** Any change to data or service usage requires an update to the Security Rules. This must be followed by a security check, rule analysis, and an update to the automated rules test suite to ensure 100% coverage and compliance.
+- **Unified Cloud Strategy:** Use a unified cloud platform managed via Infrastructure as Code. Specific service and tool choices are documented in **[@ARCHITECTURE.md](./ARCHITECTURE.md)**.
+- **Tooling Strategy:** Use CLI-first tooling for management, emulators for local development, and Infrastructure as Code (IaC) for all environment provisioning.
+- **Security Rules Synchronization:** All data privacy and access control logic must be defined in **@ARCHITECTURE.md** and verified via automated test suites.
+- **Authentication Principles:** Implement robust identity management supporting multiple providers (e.g., OAuth, Email).
+- **Database Principles:** Use a scalable, cost-efficient NoSQL database solution. Favor real-time capabilities and schema flexibility for rapid development.
+- **Content Moderation:** Implement a robust moderation workflow for community-generated content, combining automated filtering with administrative/owner approval.
+- **Markdown Standardization:** Standardize on **Markdown** for rich text storage with strict character limits to ensure performance and readability across all clients.
+- **Real-time Communication:** Implement real-time messaging and notifications using scalable cloud infrastructure.
+- **Storage & Image processing:** 
+    - Perform resource-intensive processing (e.g., downsampling, compression) **on the client device** before uploading to minimize bandwidth and storage costs.
+    - **Standard Resolutions:** Support at least a **Thumbnail** (square crop) and a **Standard** (aspect-fit) resolution for all user-generated media. (Specific dimensions defined in **[@FEATURES.md](./FEATURES.md#411-standard-image-resolutions)**).
+    - **Cache Invalidation:** Use platform-appropriate fingerprinting (e.g., query-string timestamps) to force instant CDN and browser/app cache refreshes upon updates.
+    - **Hygiene:** Maintain storage hygiene by purging stale or replaced assets to control costs.
+    - **Implementation:** Use platform-native image processing APIs.
 - **Studio Data & Shadow Profiles:** 
-    - **Backend Seeding:** Use **Google Places API** via Cloud Functions to discover and "seed" yoga studios into Firestore as **Shadow Profiles**.
-    - **iOS Client:** The app fetches studio data exclusively from Firestore. Direct client-side calls to the Google Places API are forbidden to minimize costs and exposure.
-    - **Discovery:** Proximity searches are performed against indexed Firestore data using location fuzzing.
+    - **Backend Seeding:** Use automated discovery services via cloud functions to discover and "seed" yoga studios into the database as **Shadow Profiles**.
+    - **Client Access:** Frontend clients fetch studio data exclusively from the database. Direct client-side calls to discovery APIs are forbidden.
+    - **Discovery:** Proximity searches are performed against indexed database data using location fuzzing.
 - **Security & Integrity:**
     - **Secret Management:** 
-        - **Backend-Only Keys:** Sensitive keys like the Google Places API Key must live exclusively in Cloud Functions environment variables (IaC managed).
-        - **Frontend Keys:** Minimize or eliminate third-party API keys in the iOS binary. Configuration is fetched via `GoogleService-Info.plist` at build time.
+        - **Backend-Only Keys:** Sensitive keys must live exclusively in cloud function environment variables (IaC managed).
+        - **Frontend Keys:** Minimize or eliminate third-party API keys in frontend binaries. Configuration should be fetched via environment-specific config files at build time.
     - **Location Privacy:** 
         - **Users:** Store only area-level data (e.g., postcode prefix or district). **Never store exact GPS coordinates for individual users.**
         - **Studios:** Store publicly available business addresses.
         - **Discovery:** Use Location Fuzzing for proximity searches to protect user/teacher privacy until a booking is confirmed.
 - **Compliance & Data Residency:**
-    - **GDPR & UK-GDPR:** Adhere strictly to EU and UK data protection standards. 
-    - **Regional Mandate:** All backend services (Firestore, Cloud Storage, Cloud Functions) must be deployed to the **`europe-west1` (Belgium)** region. This ensures data residency within the EU, minimizes inter-service latency, and reduces egress costs.
+    - **Global Standards:** Adhere strictly to regional data protection standards (e.g., GDPR, UK-GDPR). 
+    - **Regional Data Residency:** All backend services must be deployed to a single, strategically chosen region to ensure data residency compliance and minimize inter-service latency.
     - **User Rights:** Implement mechanisms for Data Access, Rectification, and the "Right to be Forgotten".
-    - **Future-proofing:** Design for future compliance with CCPA (US) and PIPL (Asia) as the platform scales.
-- **Logic:** Use Firebase Cloud Functions for server-side logic (e.g., complex group management or future payment processing).
+    - **Future-proofing:** Design for future compliance with global standards (e.g., CCPA, PIPL) as the platform scales.
+- **Server-side Logic:** Use cloud-native serverless functions for complex management, moderation, and data scrubbing tasks.
+- **Studio Data & Shadow Profiles:** 
+    - **Backend Seeding:** Use automated discovery services via cloud functions to discover and "seed" yoga studios into the database as **Shadow Profiles**.
+    - **Client Access:** Frontend clients fetch studio data exclusively from the database. Direct client-side calls to discovery APIs are forbidden.
+    - **Discovery:** Proximity searches are performed against indexed database data using location fuzzing.
+- **Security & Integrity:**
+    - **Secret Management:** 
+        - **Backend-Only Keys:** Sensitive keys must live exclusively in cloud function environment variables (IaC managed).
+        - **Frontend Keys:** Minimize or eliminate third-party API keys in frontend binaries. Configuration should be fetched via environment-specific config files at build time.
+    - **Location Privacy:** 
+        - **Users:** Store only area-level data (e.g., postcode prefix or district). **Never store exact GPS coordinates for individual users.**
+        - **Studios:** Store publicly available business addresses.
+        - **Discovery:** Use Location Fuzzing for proximity searches to protect user/teacher privacy until a booking is confirmed.
+- **Compliance & Data Residency:**
+    - **Global Standards:** Adhere strictly to regional data protection standards (e.g., GDPR, UK-GDPR). 
+    - **Regional Data Residency:** All backend services must be deployed to a single, strategically chosen region to ensure data residency compliance and minimize inter-service latency. (Specific region defined in **[@ARCHITECTURE.md](./ARCHITECTURE.md)**).
+    - **User Rights:** Implement mechanisms for Data Access, Rectification, and the "Right to be Forgotten".
+    - **Future-proofing:** Design for future compliance with global standards (e.g., CCPA, PIPL) as the platform scales.
+- **Server-side Logic:** Use cloud-native serverless functions for complex management, moderation, and data scrubbing tasks.
 
 ## Infrastructure & Cost Management
-- **Cost Controls:**
-    - **Monthly Budget:** Maintain a hard cost cap of **$50/month**.
-    - **Alerting:** Configure GCP/Firebase budget alerts at 50%, 75%, and 90% of the threshold.
-    - **Automated Mitigation:** Notify administrators immediately and consider programmatic disabling of high-cost services if the $50 threshold is approached.
-- **Monitoring & Observability:**
-    - **Usage Tracking:** Use Google Cloud Monitoring to track API usage and resource consumption across Firestore, Storage, and Cloud Functions.
-    - **Performance Auditing:** Regularly audit Firestore query efficiency to minimize unnecessary read/write operations and costs.
+- **Cost Controls:** Maintain a strict hard cost cap (defined in `@ARCHITECTURE.md`). Configure platform alerts and implement automated mitigation or throttling if thresholds are approached.
+- **Monitoring & Observability:** Track API usage and resource consumption across all services. Regularly audit query efficiency to minimize unnecessary operations and costs.
 
 ## Infrastructure as Code (IaC) & Deployment
-- **Mandate:** All backend infrastructure must be defined and deployed via **Infrastructure as Code using Terraform (.tf) files directly**.
-- **Rationale:** Direct HCL (HashiCorp Configuration Language) is chosen to maintain industry standard compatibility, ensure full access to GCP provider features, and simplify debugging by avoiding unnecessary abstraction layers.
+- **IaC Mandate:** All backend infrastructure must be defined and deployed via **Infrastructure as Code (IaC)** directly.
+- **IaC Rationale:** Direct HCL or platform-native configuration is preferred to maintain standard compatibility, ensure full access to provider features, and simplify debugging.
 - **Validation & Correctness:**
-    - **Syntax Check:** Always run `terraform validate` (or `firebase deploy --only firestore:indexes --dry-run` where applicable) before any deployment.
-    - **Logical Check:** Review the `terraform plan` output to ensure only intended resources are modified/deleted.
+    - **Syntax Check:** Always validate IaC syntax before any deployment.
+    - **Logical Check:** Review execution plans to ensure only intended resources are modified or deleted.
 - **Rollback Strategy:**
-    - **Versioned Config:** All IaC configurations must be committed to Git. To revert a failed deployment, check out the previous known good state and re-deploy.
-    - **State Management:** Use remote state with locking (e.g., GCS bucket) for Terraform to prevent concurrent modification and ensure a consistent source of truth.
+    - **Versioned Config:** All configurations must be committed to Git. To revert a failed deployment, check out the previous known good state and re-deploy.
+    - **State Management:** Use remote state management with locking to prevent concurrent modifications and ensure a consistent source of truth.
 - **Environment Strategy:**
-    - **3-Tier Setup:**
-        - **Local:** Targeted at the Firebase Emulator. Uses the `Debug (Local)` configuration and `-DFIREBASE_EMULATOR` flag.
-        - **Staging:** Targeted at the `inspired-yoga-app-staging` cloud project.
-        - **Production:** Targeted at the `inspired-yoga-app` cloud project.
-    - **Deployment Flow:** All changes must be verified in **Local** (Emulator) and **Staging** before being promoted to **Production**.
-    - **Environment Switching:** Use the Firebase CLI and the `scripts/fetch-config.sh` script to manage configurations.
+    - **3-Tier Setup:** Maintain **Local**, **Staging**, and **Production** environments.
+    - **Deployment Flow:** All changes must be verified in **Local** (Emulators) and **Staging** before promotion to **Production**.
+    - **Environment Switching:** Use platform-specific CLI tools and scripts to manage configurations.
 - **Scripts & Maintenance:**
-    - **Deployment:** Maintain a `scripts/deploy.sh [environment]` script to handle the full IaC deployment pipeline.
-    - **Teardown:** Maintain a `scripts/teardown.sh [environment]` script to safely remove all resources from a specific environment (e.g., wiping Staging for a clean re-test).
-- **iOS Automation (Fastlane):**
-    - **Mandate:** Use **Fastlane** for all iOS CI/CD tasks including running tests, managing code signing (`match`), and uploading to TestFlight (`pilot`).
-    - **Macro Validation:** All Fastlane lanes must be configured to **auto-accept Swift Package Macros** (e.g., via `-skipMacroValidation` or `IDEDLSKipPackageMacroValidation`) to ensure non-interactive execution.
-    - **Lanes:** Maintain lanes for `test`, `build_staging`, and `deploy_prod`.
-    - **Firebase Integration:** Use Fastlane plugins to automate IPA uploads to Firebase App Distribution for staging.
+    - **Deployment:** Maintain deployment scripts to handle the full IaC deployment pipeline.
+    - **Teardown:** Maintain teardown scripts to safely remove all resources from a specific environment.
+- **Automation & CI/CD:**
+    - **Mandate:** Use platform-appropriate automation tools (documented in platform-specific mandates like `@SWIFT.md`) for CI/CD tasks including testing, code signing, and distribution.
 - **Test User Management (Staging):**
-    - **Google Login in Staging:** 
-        - Use real, dedicated Google test accounts (e.g., `inspired.test.user1@gmail.com`) for manual staging tests. 
-        - For automated testing, use the **Firebase Auth Emulator** to simulate Google login without real accounts.
-    - **Identity Protection (No Git):** 
-        - **Mandate:** Never commit real or test user emails, UIDs, or credentials to the git repository.
-        - **Local Config:** Store staging user lists or test credentials in a `.env` or `scripts/local-config.json` file (listed in `.gitignore`).
-        - **Console Management:** Manage the canonical list of authorized staging testers via the **Firebase Console** (Auth > Users).
+    - **Identity Protection (No Git):** Never commit real or test user identifiers, credentials, or PII to the git repository. Store these in local, ignored configuration files.
+    - **Management:** Manage the canonical list of authorized testers via the cloud platform console.
 - **Data Isolation:** Staging data and users must never be mixed with Production.
 - **Database Migrations:**
-    - **Development Phase:** Data loss is acceptable. Schema changes (renaming, merging, or dropping fields) may involve wiping the database and re-seeding to maintain velocity.
-    - **Production Phase:** Zero data loss. Once live, any structural changes must be performed via **versioned migration scripts** (using Cloud Functions or administrative CLI tools) to transform existing NoSQL documents.
-    - **Indexes:** Manage all Firestore composite indexes via the Firebase CLI as part of the IaC mandate.
+    - **Development Phase:** Data loss is acceptable. Schema changes may involve wiping the database and re-seeding to maintain velocity.
+    - **Production Phase:** Zero data loss. Once live, any structural changes must be performed via versioned migration scripts.
 - **Localization Synchronization:** 
-    - **Structure:** `Resources/Localization/{locale}/strings.json` (e.g., `/en/strings.json`, `/pt/strings.json`).
-    - **Automated Sync:** Use `scripts/sync-strings.sh` to transform these JSON files into iOS `.xcstrings` and React translation files. 
-    - **Automation:** This script must be automatically called as a **pre-build step** in the Fastlane `deploy` and `test` lanes to ensure string consistency.
-- **Iconography:** Use **SF Symbols** and **Emojis** as the primary visual language for the iOS application.
-- **Idea Tracking & Action Items:** Whenever an idea or requirement is introduced with triggers like "remember" or "take note," it must be immediately codified as a **To-Do** item in the relevant section of **@FEATURES.md**. If it is a new feature, a new section must be created. The **@ROADMAP.md** must also be updated to ensure these items are tracked to completion.
+    - **Source of Truth:** `Resources/Localization/{locale}/strings.json`.
+    - **Automated Sync:** Use scripts to transform these JSON files into platform-native translation formats. 
+- **Iconography:** Use platform-native symbols and emojis as the primary visual language.
+- **Idea Tracking & Action Items:** Whenever an idea or requirement is introduced with triggers like "remember" or "take note," it must be immediately codified as a **To-Do** item in the relevant section of **@FEATURES.md**. The **@ROADMAP.md** must also be updated to ensure these items are tracked to completion.
 
 ## Project Structure
 - **Root:** Contains project-wide documentation (`.md` files), centralized design assets (`UI/Mockups/`), and cross-platform configuration.
 - **Apps Path:** Frontend applications are located in `Apps/{Platform}/`.
-- **Universal Frontend Mandate:** All architectural, security, privacy, and data integrity mandates defined in this document apply to **all frontend clients** (e.g., iOS, React, Web) unless explicitly noted.
-- **Organization (iOS - InspiredYogaPlatform):** 
-    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
-    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
-- **Project Management (XcodeGen):**
-    - **Mandate:** Use **XcodeGen** to manage the `.xcodeproj` file. 
-    - **Source of Truth:** The `project.yml` file is the canonical source for targets, configurations, and dependencies.
-    - **No Manual Edits:** **Never** manually edit the `.xcodeproj` or commit it to Git. 
-    - **Generation:** Run `xcodegen generate` after any structural or configuration changes.
-- **Organization:** 
-    - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
-    - `Apps/iOS/InspiredYogaPlatform/InspiredTests/`: Unit and Snapshot tests.
-    - `Apps/iOS/InspiredYogaPlatform/InspiredUITests/`: UI tests (following UserFlows.md).
-    - `Apps/iOS/InspiredYogaPlatform/UI/`: Design system and mockups.
 
 ## Architecture: Frontend Clients
+- **Universal Frontend Mandate:** All architectural, security, privacy, and data integrity mandates defined in this document apply to **all frontend clients** (e.g., iOS, React, Web) unless explicitly noted.
 - **Dependency Pattern:** All backend services must be abstracted into platform-appropriate **Clients** (e.g., TCA Clients for iOS, Hooks/Services for React).
 - **Testing Requirements:** Every frontend client must implement:
     - **TDD:** Test-driven development for all logic.
     - **Snapshot Testing:** UI validation against **@FEATURES.md** mockups.
     - **Offline Safety:** Mock implementations for all external dependencies.
 
-## Architecture: iOS Specifics (TCA Integration)
-- **Framework:** The Composable Architecture (TCA).
-- **Project Management:** Use **XcodeGen** to manage the `.xcodeproj`.
-- **Media Loading:** **Never** use `AsyncImage` directly with real URLs in core features. All image fetching, processing, and caching must be abstracted via a `MediaClient` to support deterministic testing.
-- **Interfaces:** Define clients with `async/await` interfaces.
-- **Testing:** Provide "live" and "test" (mock) implementations for every client to support TDD and Snapshot testing without network dependencies.
-
-- **Coding Standards & Style:**
-    - **Formatting:** Use Xcode's built-in `swift-format` (4 spaces indentation, 120 character line limit).
-    - **No Trivial Comments:** **Never** add comments that describe obvious logic, self-explanatory color mappings (e.g., `// Light: Black`), or hardcoded layout values (e.g., `// iPhone size`). Code should be expressive enough to stand alone.
-    - **Naming:** Follow standard Swift API Design Guidelines and TCA naming conventions.
-- **Concurrency:** Prefer `async/await` over Combine and GCD for all asynchronous operations.
-- **Documentation:** Do not add documentation to code unless explicitly requested, **except for PII data** (see Security).
-- **Engineering Principles:**
-    - Adhere to **SOLID** and **DRY** principles.
-    - Keep methods short and focused on a single task.
-    - Prefer polymorphism or multiple function overloads instead of `Boolean` or `Enum` input parameters.
-    - **No force unwrapping.** Use `guard` statements for early exits.
-    - **Error Handling:** Prefer throwing exceptions over returning `Boolean` for success. Avoid `try?`; bubble up errors to the appropriate handling level. Use native **`Swift.Error`** instead of `NSError` wherever possible to maintain Swift-native idiomatic quality.
-    - **Localization-First Workflow:** **Never** use hardcoded static strings (labels, buttons, error messages) in the codebase.
-        1. Add the English string to `Resources/Localization/en/strings.json`.
-        2. Run the sync script to generate the iOS `.xcstrings`.
-        3. Use the localized key in the Swift code.
-    - **Semantic Color Assets:** **Never** use system colors (e.g., `.white`, `.black`, `.blue`) or inline ternary logic for theme-aware colors.
-        1. All colors must be defined in `Resources/Assets.xcassets` using semantic names.
-        2. **Explicit Slots (Xcode Standard):** Every color asset **must** have explicit slots for "Any Appearance" (Light) and "Dark Appearance". 
-        3. **Dark Mode Key:** The Dark variant must use `"appearance" : "luminosity"` and `"value" : "dark"` in its `Contents.json` to be recognized by the system.
-        4. **Access:** Use the generated Swift extension on `Color` (e.g., `Color.primaryText`) for all UI code.
-    - **Type-Safe Assets:** All images and colors must be accessed through type-safe generated enums or extensions.
-    - **Consistent Button Design:** Maintain a cohesive button hierarchy:
-        - **Primary (Filled):** High contrast. Light mode: Black fill/White text. Dark mode: White fill/Black text.
-        - **Secondary (Outlined):** Light mode: Clear fill/Black border & text. Dark mode: Clear fill/White border & text.
-    - **Dependency Hygiene:** If a 3rd-party framework is no longer used in the code, it **must** be removed from `project.yml` immediately.
-    - **Dependency Management:** Link necessary products explicitly in `project.yml` to resolve linker issues.
-    - Organize files into folders based on functionality.
+## Platform-Specific Implementation Mandates
+- **iOS (Swift/SwiftUI):** Detailed architectural patterns, coding standards, and implementation learnings for the iOS application are documented in **[@SWIFT.md](./SWIFT.md)**. These rules are foundational and must be strictly adhered to for all iOS development.
 
 ## Testing Strategy
 - **Methodology:** Test-Driven Development (TDD). 
@@ -184,36 +123,21 @@
     - 2. Confirm the test fails.
     - 3. Implement minimal code to pass the test.
 - **Environment Distinction (Crucial):**
-    - **Unit & Snapshot Tests:** Must use **in-code Swift mocks** (via TCA `.testValue`). These tests must be 100% offline and deterministic, relying zero on the Firebase Emulator or network.
-    - **UI Tests:** Must run against the **Firebase Emulator**. This ensures we test the integration between the app and the backend logic (Rules, Functions) without hitting cloud quotas.
-- **Unit Tests (Swift Testing):**
+    - **Unit & Snapshot Tests:** Must use **in-code mocks**. These tests must be 100% offline and deterministic, relying zero on network or live backend services.
+    - **UI Tests:** Must run against local emulators where applicable. This ensures integration testing without hitting cloud quotas.
+- **Unit Tests:**
     - **Scope:** Target public interfaces and functions. Avoid testing internal/private logic.
-    - **Security Testing:** Every TDD cycle must include **Negative Tests** to verify that "Permission Denied" scenarios are handled gracefully and that the backend properly rejects unauthorized requests.
-    - **Scenarios:** Cover all requirement-driven scenarios and input variants.
-    - **Edge Cases:**
-        - `Int`: Test negative, zero, positive, and index-out-of-range. Test large numbers for performance/overflow but keep test execution time reasonable (avoid huge loops).
-        - `String`: Test empty strings and special characters.
-        - `Array`: Test empty, single-item, and multi-item collections.
-- **Snapshot Tests (SnapshotTesting):**
-    - **Framework:** Use the **Point-Free SnapshotTesting** framework.
-    - **Method:** Snapshots must be generated using **Swift code**.
-    - **Re-recording Mandate:** Always re-record reference snapshots (`record: true`) immediately after any UI code change. This ensures that the repository's reference images are always in sync with the latest implementation.
-    - **Parameterized Themes:** Use Swift Testing's `@Test(arguments:)` to verify screens in both **Light** and **Dark** modes within a single test function.
-    - **Theme Awareness:** Ensure the test environment correctly overrides the `colorScheme` so that Dark Mode snapshots are visually distinct from Light Mode.
-    - **Scope:** Test entire screens in various configurations.
-    - **States:** Generate snapshots for **Empty**, **Minimal Data**, and **Full Data** (all optionals populated) scenarios.
-    - **Stress Testing:** Use exceptionally long strings to verify `SwiftUI.Text` behavior (truncation, multi-line wrapping, and layout integrity).
-    - **Storage (Git LFS):** All generated reference images (`.png`) must be tracked using **Git LFS** to keep the repository size manageable. Ensure `**/__Snapshots__/*.png` is configured in `.gitattributes`.
+    - **Security Testing:** Every TDD cycle must include **Negative Tests** to verify that "Permission Denied" scenarios are handled gracefully.
+    - **Scenarios:** Cover all requirement-driven scenarios and input variants (empty, boundary, edge cases).
+- **Snapshot Tests:**
+    - **Goal:** UI validation against design mockups.
+    - **Recording:** Always re-record reference snapshots immediately after UI changes to maintain a consistent source of truth.
+    - **Themes:** Verify screens across all supported system themes (e.g., Light and Dark modes).
+    - **States:** Generate snapshots for **Empty**, **Minimal Data**, and **Full Data** scenarios.
 - **UI Tests:**
     - **Source of Truth:** Scenarios are defined in the `UserFlows.md` file.
-    - **Semantic Identifiers:** All UI components must have descriptive `accessibilityIdentifier`s following the pattern `feature.{id}.element` (e.g., `posts.123.share`, `login.emailField`).
-    - **High-Performance Mandate:** UI Tests must be designed for speed. Use NSPredicate-based expectations rather than hard `sleep()` waits. Optimize for zero-wait execution where possible.
-    - **VoiceOver Feedback Loop (Mandatory):**
-    - **Capture:** Every significant screen state in UI Tests must call `app.captureAccessibilityHierarchy(name:)` with a unique name.
-    - **Artifacts:** This call must generate a paired **.txt** (hierarchy) and **.png** (screenshot) in the root `Accessibility/` directory.
-    - **Analysis:** The `fastlane analyze_accessibility` lane will expose these artifacts. The developer/AI must analyze the paired data to ensure the hierarchy matches the visual intent.
-    - **Logging:** All findings must be recorded in `ACCESSIBILITY_IMPROVEMENTS.md` following the pattern: `[Platform] -> [Screen Name] -> [Issue] -> [Action]`. This ensures that improvements on one platform (e.g., iOS) can be systematically reviewed for applicability on others (e.g., React).
-    - **Finality:** A feature is only complete once its accessibility log items are closed and verified via a fresh analysis run.
+    - **Performance:** Designed for speed, avoiding hard waits where possible.
+    - **Accessibility Loop:** Capture and analyze accessibility hierarchies for every significant screen state to ensure they match visual intent.
 
 ## Security & Privacy (High Priority)
 - **Data Protection:** Security takes precedence over UX and performance. No data is shared without explicit user approval.
@@ -223,24 +147,22 @@
     - Upon account deletion, an automated **Data Scrubbing** process (Cloud Function) must purge all associated PII from Auth, Firestore, and Storage.
 - **Community-based Visibility:** 
     - **Connection Definition:** Two users are considered "connected" if they share at least one **Joined Community** (includes Groups or Area communities).
-    - **Avatar Privacy:** Support `public` and `members-only` visibility settings. 
-    - **Enforcement:** Privacy must be enforced at the database level. If a user is not authorized, the `profilePictureUrl` must not be accessible.
+    - **Asset Privacy:** Privacy must be enforced at the database level. If a user is not authorized, sensitive assets (like profile pictures) must not be accessible.
 - **Deferred Choice & Reversibility:**
     - No unsolicited system pop-ups (e.g., location sharing, push notifications). All such requests must be initiated by the user or deferred for later.
-    - All user privacy decisions and information sharing must be fully reversible and granularly controllable from the app's settings at any time (e.g., toggling profile visibility from public to private).
+    - All user privacy decisions and information sharing must be fully reversible and granularly controllable from the app's settings at any time.
 - **PII (Personally Identifiable Information):** 
     - Properties holding PII must be explicitly marked in the code.
     - Documentation is **required** for any property holding PII data.
 - **Networking:** Do not implement network calls or API logic until specifically instructed. If a requirement implies API usage, state the intent and ask for permission first.
 - **Environment Configuration:**
-    - **No-Commit Mandate:** **Never** commit `GoogleService-Info.plist` or sensitive API keys to the repository.
+    - **No-Commit Mandate:** **Never** commit sensitive API keys or environment-specific configuration files to the repository.
     - **Secret Management:** 
         - **Backend-Only Keys:** Sensitive keys like the Google Places API Key must live exclusively in Cloud Functions environment variables (IaC managed).
-        - **Frontend Keys:** Minimize or eliminate third-party API keys in the iOS binary. Configuration is fetched via `GoogleService-Info.plist` at build time.
-    - **Automated Fetching:** Use the Firebase CLI (`firebase apps:sdkconfig`) to fetch environment-specific configurations during the setup or pre-build phase.
+        - **Frontend Keys:** Minimize or eliminate third-party API keys in frontend binaries. 
+    - **Automated Fetching:** Use the Firebase CLI to fetch environment-specific configurations during the setup or pre-build phase.
     - **Isolation:** Each build configuration (Staging/Prod) must point to its respective fetched configuration file.
-    - **Development Access:** Use local USB deployment for testing on physical devices (Free Tier provisioning).
-- **Logging:** Use `os.log` only. 
+- **Logging:** Use platform-native logging only. 
     - No debug logs unless requested.
     - All API calls, identifiers, and user data in logs **must be obfuscated**.
 
@@ -266,18 +188,12 @@
 
 ## Development Workflow
 - **Roadmap Synchronization:** **@ROADMAP.md** must be updated at the conclusion of every significant task. Completed items must be ticked off, and any newly identified gaps or sub-tasks must be added to ensure the roadmap remains accurate and actionable.
-- **Local-First Automation:** All CI/CD tasks are performed locally using **Fastlane**.
-- **Pre-build Automation:** The `fastlane test` and `fastlane build` lanes must automatically execute:
-    1. `scripts/sync-strings.sh`: Synchronizes JSON translations to iOS.
-    2. `scripts/generate-assets.sh`: Generates type-safe Swift interfaces for Colors and Images.
-- **Verification:** Follow Apple's Human Interface Guidelines (HIG) for all UI work.
+- **Local-First Automation:** All CI/CD tasks are performed locally using platform-appropriate tools (documented in platform-specific mandates like `@SWIFT.md`).
+- **Environment Stability Investigation:** 
+    - **Trigger:** If tests fail unexpectedly with missing results, incomplete output, or if the process appears to hang/loop without a clear implementation-level error, the developer must investigate potential infrastructure failures.
+    - **Execution Window Tracking:** Every automated test run must record its **Start** and **End** timestamps.
+    - **Crash Log Correlation:** In the event of a suspected environment crash, the developer must check system diagnostic reports for platform-specific crash logs falling within the recorded test execution window.
+    - **Analysis & Resolution:** The root cause of the crash must be analyzed, documented, and fixed before resuming feature development to maintain environment integrity.
+- **Verification:** Follow platform-specific human interface guidelines for all UI work.
 - **Workflow:** Research and strategy must precede execution.
 - **Finality:** Always run tests and verify behavior before considering a task complete.
-
-## Implementation Learnings
-- **Foundation Imports:** Always ensure `import Foundation` is present when using types like `Date`, `URL`, or `Data` to avoid compilation errors.
-- **XcodeGen Synchronization:** After any file move or addition, `xcodegen generate` must be executed before running tests or builds.
-- **Sendable Conformance:** All models and actions used within TCA must explicitly conform to `Sendable` to comply with Swift 6 strict concurrency requirements.
-- **TestStore Syntax:** When using `TestStore` in TCA, ensure state mutation closures use the `{ state in ... }` or `{ $0.isLoading = true }` syntax correctly based on the TCA version.
-- **Full-Screen Support (Letterboxing):** Always ensure `INFOPLIST_KEY_UILaunchScreen_Generation` is set to `YES` in the `project.yml` settings. Without this, iOS will "letterbox" the app, failing to fill the screen on modern iPhone models.
-- **Safe Area Best Practices:** Never apply `.ignoresSafeArea()` to a container holding interactive content. Instead, use a `ZStack` with a background `Color` that ignores the safe area, allowing the content `VStack` to naturally respect safe boundaries (notch/home indicator).

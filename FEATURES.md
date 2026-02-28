@@ -184,14 +184,18 @@ This section documents the precise data contracts between the iOS application an
 ## 4. Technical Implementation Details
 
 ### 4.1 Image Handling (Avatars & Studio Media)
-- **Downsampling:** All images are processed **on-device** before upload to Cloud Storage using native iOS `UIImage` or `ImageRenderer`.
-- **Target Resolutions:**
-    - **Thumbnail:** 150x150 pixels (Square crop, 0.7 JPEG). Used for lists and small avatars.
-    - **Standard:** Max 1024x1024 pixels (Aspect-fit, 0.7 JPEG). Used for profile headers and full media views.
+- **Downsampling:** All images are processed **on-device** before upload to Cloud Storage using platform-native APIs.
+- **Target Resolutions (Standard):** See Section 4.1.1 for specific pixel requirements.
 - **Upload Strategy:**
-    - Use **Firebase Storage SDK** for uploads.
+    - Use platform-appropriate storage SDKs.
     - File naming convention: `images/{feature}/{uid}_{version}.jpg` (e.g., `avatars/123_thumb.jpg`).
 - **Data Integrity:** Store both `thumbnailUrl` and `standardUrl` in the corresponding Firestore document.
+
+#### 4.1.1 Standard Image Resolutions
+| Version | Dimensions | Format | Compression | Use Case |
+| :--- | :--- | :--- | :--- | :--- |
+| **Thumbnail** | 150x150 px | JPEG (Square Crop) | ~0.7 | Lists, small avatars, previews. |
+| **Standard** | Max 1024x1024 px | JPEG (Aspect-fit) | ~0.7 | Profile headers, full media views. |
 
 ### 4.2 Cache Policy & Asset Hygiene
 - **Caching Mechanism:** Use native SwiftUI **AsyncImage** or a **URLSession** wrapper with standard `URLCache` policies.
@@ -226,6 +230,22 @@ This section documents the precise data contracts between the iOS application an
 3.  **Legal Links:** Links to placeholder Terms and Privacy URLs at bottom.
 4.  **Implicit Acceptance:** Include text: "By logging in or creating an account, you accept our **Privacy Policy** and **Terms & Conditions**."
 5.  **Report an Issue:** A "Report an Issue" button opens the external Support Google Form (See 5.5).
+6.  **TDD Requirement:** Verify that the "LOGO" placeholder is hidden from VoiceOver.
+7.  **TDD Requirement:** Verify that the prominent "Sign in with Google" button has an appropriate accessibility hint.
+
+### 5.1.1 App Launch & Session Management (Cold Start)
+- **Goal:** Provide a seamless transition from app boot to the appropriate initial screen based on authentication state.
+- **Visuals:** A dedicated "Launch" state displaying the app logo and a circular loading indicator.
+- **Logic:**
+    1.  **Check Identity:** Query `AuthenticationClient.currentUser()` for a cached Firebase Auth session.
+    2.  **Profile Synchronization:** If an identity exists, fetch the latest user profile from Firestore (`users/{uid}`).
+    3.  **Routing:**
+        -   **Authenticated:** If identity and profile exist, route to the **Landing Page**.
+        -   **Unauthenticated:** If no identity exists, route to **Login**.
+        -   **Error/Incomplete:** If identity exists but profile is missing, route to **Profile Completion** (Future Feature).
+- **Testing Mandate:**
+    - **UI Tests:** Must be able to bypass session persistence using the `TEST_RESET_SESSION` environment variable to ensure a clean "First Launch" state for every test case.
+    - **Snapshot Tests:** Must cover the `launching` state (Splash + Loader).
 
 ### 5.2 Landing Page Shell
 **Goal:** The primary application frame and global navigation.

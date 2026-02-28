@@ -5,7 +5,13 @@ This document provides a technical deep-dive into the "Inspired" yoga platform's
 ---
 
 ## 1. System Overview & Data Flow
-The system utilizes a serverless, event-driven architecture powered by the Google Cloud Platform (GCP) and the Firebase suite.
+The system utilizes a serverless, event-driven architecture powered by the **Google Cloud Platform (GCP)** and the **Firebase** suite.
+
+### 1.1 Core Architectural Decisions
+*   **Regional Mandate:** All backend services (Firestore, Cloud Storage, Cloud Functions) are deployed to the **`europe-west1` (Belgium)** region to ensure data residency within the EU and minimize inter-service latency.
+*   **Infrastructure as Code (IaC):** All infrastructure is defined and deployed via **Terraform (.tf) files directly**. Direct HCL (HashiCorp Configuration Language) is chosen to maintain industry standard compatibility and ensure full access to GCP provider features without unnecessary abstraction layers.
+*   **Database Selection:** **Cloud Firestore (NoSQL)** is chosen for its superior cost efficiency (generous free tier), built-in real-time listeners for chat/posts, and schema flexibility during rapid development.
+*   **Local Development:** local development is targeted at the **Firebase Emulator** using the `Debug (Local)` configuration.
 
 ```mermaid
 graph TD
@@ -47,6 +53,10 @@ graph TD
         - **Local Session Cache:** Mirroring the user's `joinedCommunities` in local app state to predict visibility.
         - **Cloud Function Aggregation:** Pre-filtering feeds via server-side logic to reduce individual document security checks.
 *   **Inter-service Comm:** Triggers Cloud Functions for server-side moderation or notifications.
+*   **Content Moderation Strategy:** 
+    - **Workflow:** Use Firestore Security Rules and Cloud Functions to enforce studio-owner approval before community content becomes public.
+    - **Automated Moderation:** Utilize **Firebase Extensions** (e.g., "Moderate Content with Perspective API") for initial automated filtering of comments and posts.
+    - **Markdown Constraints:** Store content as Markdown with a maximum limit of **500 characters** per entry to ensure performance and readability across all clients.
 *   **Limitations:**
     *   **Document Size:** Max 1 MiB per document.
     *   **Write Frequency:** ~1 write/sec per document (can be scaled via sharding if needed for massive groups).

@@ -7,7 +7,19 @@ This file defines the critical user paths for UI testing and the screen-by-scree
 ## 1. Critical User Flows (UI Tests)
 *These tests validate functional paths and system integration.*
 
-### 1.1 Login Screen Arrival
+### 1.1 App Launch & Session Restoration
+- **Goal:** Verify that the app correctly routes the user based on their session state.
+- **Scenario A: Fresh Install / No Session**
+    1. Launch app with `TEST_RESET_SESSION=YES`.
+    2. Verify Splash Screen/Loader appears briefly.
+    3. Verify app routes to **Login Screen**.
+- **Scenario B: Persistent Session**
+    1. Authenticate a user (e.g., via Google).
+    2. Terminate and Relaunch the app.
+    3. Verify app routes directly to the **Community Feed** (Mock for now).
+- **Test ID:** `app.launch_routing`
+
+### 1.2 Login Screen Arrival
 - **Goal:** Verify the app launches and displays the Login screen correctly.
 - **Steps:**
     1. Launch the app.
