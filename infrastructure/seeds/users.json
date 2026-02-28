@@ -11,7 +11,7 @@
     "privacySettings": {
       "isProfilePublic": true,
       "avatarPrivacy": "public",
-      "showJoinedGroups": "all"
+      "showJoinedGroups": "public"
     },
     "createdAt": "2026-01-01T10:00:00Z"
   },

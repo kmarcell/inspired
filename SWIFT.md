@@ -34,7 +34,12 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
 - Prefer static member lookup to struct instances.
 - Never use old-style GCD; use `async/await`.
 - Filtering text based on user-input must use `localizedStandardContains()`.
-- Avoid force unwraps and force `try`. Use `guard` for early exits and prefer throwing `Swift.Error` over returning Booleans for failure.
+- **Error Handling:**
+    - **No Silent Failures:** Never use `try?` to silence errors. Always use `do-catch` blocks and log the error to the console or an error reporting service.
+    - **Prefer Throwing:** Prefer throwing `Swift.Error` over returning Booleans for failure states.
+    - **No Force Unwrapping:** Use `guard` statements for early exits.
+- **Warnings as Errors:** Treat all compiler warnings as errors. Fix warnings in our code immediately. Warnings from third-party dependencies can be ignored if unfixable.
+- **Collaboration:** If a test fails unexpectedly or if you are stuck on an implementation detail, explicitly ask the user for input or collaboration instead of assuming a fix.
 
 
 ## SwiftUI instructions

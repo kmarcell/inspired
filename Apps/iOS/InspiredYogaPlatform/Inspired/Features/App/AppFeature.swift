@@ -36,7 +36,7 @@ public struct AppFeature: Sendable {
                     return .run { send in
                         do {
                             // Sign in to Auth Emulator first to satisfy Firestore Rules
-                            try? await Auth.auth().signIn(withEmail: "\(forcedUserId)@inspired.test", password: "password123")
+                            try await Auth.auth().signIn(withEmail: "\(forcedUserId)@inspired.test", password: "password123")
                             await send(.userProfileResponse(Result { try await firestoreClient.fetchUserProfile(forcedUserId) }))
                         } catch {
                             print("❌ Forced auth/profile failed: \(error)")

@@ -38,6 +38,8 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GCC_TREAT_WARNINGS_AS_ERRORS: YES
+        SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
       configs:
         Debug (Local):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
