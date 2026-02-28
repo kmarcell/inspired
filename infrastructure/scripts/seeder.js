@@ -20,6 +20,27 @@ if (environment === 'local') {
 
 const db = admin.firestore();
 
+function validateUserSchema(user) {
+  const requiredFields = ['id', 'username', 'displayName', 'privacySettings', 'createdAt', 'updatedAt'];
+  for (const field of requiredFields) {
+    if (!user[field]) {
+      throw new Error(`User ${user.id || 'unknown'} missing required field: ${field}`);
+    }
+  }
+
+  const validVisibility = ['public', 'groups-only', 'members-only'];
+  const privacy = user.privacySettings;
+  
+  if (privacy) {
+    if (privacy.avatarPrivacy && !validVisibility.includes(privacy.avatarPrivacy)) {
+        throw new Error(`User ${user.id} has invalid avatarPrivacy: ${privacy.avatarPrivacy}`);
+    }
+    if (privacy.showJoinedGroups && !validVisibility.includes(privacy.showJoinedGroups)) {
+        throw new Error(`User ${user.id} has invalid showJoinedGroups: ${privacy.showJoinedGroups}`);
+    }
+  }
+}
+
 function convertDates(obj) {
   if (Array.isArray(obj)) {
     return obj.map(convertDates);
@@ -62,6 +83,11 @@ async function seedCollection(collectionName, fileName) {
   await clearCollection(collectionName);
 
   let data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  
+  if (collectionName === 'users') {
+    data.forEach(validateUserSchema);
+  }
+
   data = convertDates(data);
   
   console.log(`📡 Seeding ${data.length} documents into '${collectionName}'...`);
