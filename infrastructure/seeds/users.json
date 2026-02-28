@@ -13,7 +13,8 @@
       "avatarPrivacy": "public",
       "showJoinedGroups": "public"
     },
-    "createdAt": "2026-01-01T10:00:00Z"
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
   },
   {
     "id": "user_student_001",
@@ -29,6 +30,7 @@
       "avatarPrivacy": "groups-only",
       "showJoinedGroups": "members-only"
     },
-    "createdAt": "2026-02-15T14:30:00Z"
+    "createdAt": "2026-02-15T14:30:00Z",
+    "updatedAt": "2026-02-15T14:30:00Z"
   }
 ]
