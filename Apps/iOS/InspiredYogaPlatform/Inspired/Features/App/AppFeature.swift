@@ -32,7 +32,7 @@ public struct AppFeature: Sendable {
             switch action {
             case .appLaunched:
                 #if DEBUG
-                if let forcedUserId = UserDefaults.standard.string(forKey: "TEST_UID") {
+                if let forcedUserId = TestConfiguration.forcedUserId {
                     return .run { send in
                         do {
                             // Sign in to Auth Emulator first to satisfy Firestore Rules

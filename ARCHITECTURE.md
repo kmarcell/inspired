@@ -92,6 +92,10 @@ graph TD
     - **Execution Time:** Max 9 minutes per execution.
 *   **Documentation:** [Cloud Functions Documentation](https://firebase.google.com/docs/functions)
 
+### 2.6 Data Serialization Standards
+*   **Dates & Timestamps:** All date fields must be serialized as **ISO 8601** strings (e.g., `2026-02-18T10:00:00Z`) in JSON seed files and API responses to ensure platform-independent parsing. Firestore Timestamps are used internally but converted for client transport.
+*   **Enums:** Enum values in data (e.g., `privacySettings`) must strictly match the string raw values defined in the iOS `Codable` structs.
+
 ---
 
 ## 3. Usage & Throughput Estimates (Abstract Level)
@@ -200,6 +204,14 @@ Based on the 10,000-user usage model on the **Firebase Blaze (Pay-as-you-go)** p
 1.  **Denormalization Strategy:** Ensure Firestore schemas balance read performance with the risk of stale data.
 2.  **Concurrency:** Monitor the 1 write/sec Firestore limit for high-frequency group chats. Consider "Chat Sub-collections" or Real-time Database for high-scale rooms.
 3.  **Privacy:** Verify Firestore Security Rules against the "Least Privilege" mandate in `GEMINI.md`.
+
+---
+
+## 7. Security Vulnerability Log
+
+| ID | Date | Issue | Remediation | Learning |
+| :--- | :--- | :--- | :--- | :--- |
+| **SEC-001** | 2026-02-28 | **Invalid Seed Data:** `users.json` contained `showJoinedGroups: "all"`, which was not a valid enum value, causing silent decoding failures during profile fetch. | Updated `users.json` to use `"public"`. Added `updatedAt` field. | **Seed Integrity:** Mock/Seed data must strictly adhere to the production schema. Invalid data can mask auth failures by triggering fallback paths (e.g., returning to Login) instead of crashing explicitly. |
 
 ---
 

@@ -187,6 +187,7 @@
     - **Step 5: Iteration:** If the layout or logic deviates from the mockup, adjust the code, re-generate the snapshot, and repeat. Continuous maintenance of **@FEATURES.md** and its data sections is required as features evolve.
 
 ## Development Workflow
+- **Explicit Commit Approval:** **NEVER** commit or push changes without asking for and receiving explicit, verbal confirmation from the user in the current turn. Previous approvals do not persist.
 - **Roadmap Synchronization:** **@ROADMAP.md** must be updated at the conclusion of every significant task. Completed items must be ticked off, and any newly identified gaps or sub-tasks must be added to ensure the roadmap remains accurate and actionable.
 - **Local-First Automation:** All CI/CD tasks are performed locally using platform-appropriate tools (documented in platform-specific mandates like `@SWIFT.md`).
 - **Environment Stability Investigation:** 

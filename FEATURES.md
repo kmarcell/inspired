@@ -63,8 +63,15 @@ This section documents the precise data contracts between the iOS application an
 | `isTeacher` | `Boolean` | Flag identifying teacher accounts. | No |
 | `profilePictureUrl` | `String` | URL for the **standard-resolution** (1024px) avatar. | **Yes** (Subject to Privacy Rules) |
 | `thumbnailUrl` | `String` | URL for the **thumbnail-resolution** (150px) avatar. | **Yes** (Subject to Privacy Rules) |
-| `privacySettings` | `Map` | User's granular privacy toggles. | No |
+| `privacySettings` | `Map` | User's granular privacy toggles. See 2.1.1. | No |
 | `createdAt` | `Timestamp` | ISO 8601 creation date. | No |
+
+#### 2.1.1 Privacy Settings Schema
+| Field | Type | Description | Possible Values |
+| :--- | :--- | :--- | :--- |
+| `isProfilePublic` | `Boolean` | Controls public visibility of the profile. | `true`, `false` |
+| `avatarPrivacy` | `String` | Visibility level of the profile picture. | `public`, `groups-only`, `members-only` |
+| `showJoinedGroups` | `String` | Visibility level of the joined communities list. | `public`, `groups-only`, `members-only` |
 
 ---
 

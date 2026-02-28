@@ -18,6 +18,7 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
     - `Apps/iOS/InspiredYogaPlatform/InspiredUITests/`: UI tests (following UserFlows.md).
 - **Dependency Management:** Use TCA's `@Dependency` system. Provide "live" and "test" (mock) implementations for every client.
 - **Automation (Fastlane):** Use **Fastlane** for all iOS CI/CD tasks including tests (`test`), managing code signing (`match`), and uploading to TestFlight (`pilot`). Auto-accept macros via `-skipMacroValidation`.
+    - **Test Freshness:** The `test` lane must ensure the app is built from the latest source (e.g., using `scan`'s build capabilities or an explicit `build_app` step) to avoid testing against stale binaries.
 - Do not introduce third-party frameworks without asking first.
 - Avoid UIKit unless requested.
 
@@ -100,6 +101,10 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
 - **Update Loops:** Be extremely cautious with `.onAppear` in root views. Swapping child views in a `switch` (e.g., in `AppView`) can re-fire `.onAppear` on the parent, causing recursive state updates and simulator instability.
 - **Simulator Infrastructure:** If tests fail silently or loop, check `~/Library/Logs/CoreSimulator/CoreSimulator.log` and system diagnostic reports (e.g., `launchd_sim` in `/Library/Logs/DiagnosticReports/`). The simulator can be throttled or killed for excessive disk writes or memory usage.
 - **XcodeGen Sync:** Execute `xcodegen generate` after any file move or target configuration change before running tests or builds.
+- **UI Test Configuration:** When passing arguments to the app during UI tests (e.g., to force a specific user ID), prefer using `app.launchArguments` (standard `-KEY VALUE` format) over `launchEnvironment`. The app should check `UserDefaults` for these keys.
+- **Clean Test State:** Always recreate the `XCUIApplication` instance in `setUp()` for every test case to ensure a pristine environment and avoid state pollution from previous tests.
+- **Seed Data Integrity:** Ensure seed JSON files match the exact `Codable` schema of your models, including optional fields and enum raw values. `DecodingError`s in `seeder.js` or the app can fail tests silently or cause fallback behaviors that obscure the root cause.
+- **System Dependencies:** Always use TCA's `@Dependency` system for iOS system dependencies (e.g., `date`, `uuid`, `userDefaults`, `mainQueue`) to ensure testability. Never access `UserDefaults.standard` or `Date()` directly in feature logic.
 
 
 ## SwiftData instructions
