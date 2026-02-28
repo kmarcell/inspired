@@ -16,10 +16,11 @@ final class LoginUITests: XCTestCase {
     /// Functional test to verify the login screen appears correctly.
     func testLoginScreenArrival() throws {
         let app = XCUIApplication()
+        app.launchEnvironment["TEST_RESET_SESSION"] = "YES"
         app.launch()
 
         // Verify key elements are present using localized labels
-        XCTAssertTrue(app.staticTexts["Inspired"].exists)
+        XCTAssertTrue(app.staticTexts["Inspired"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Sign in with Google"].exists)
     }
 
@@ -27,6 +28,7 @@ final class LoginUITests: XCTestCase {
     func testLoginScreenVoiceOver() throws {
         let app = XCUIApplication()
         app.launchEnvironment["TEST_SCREEN"] = "Login"
+        app.launchEnvironment["TEST_RESET_SESSION"] = "YES"
         app.launch()
 
         // Capture Accessibility Hierarchy for AI Analysis

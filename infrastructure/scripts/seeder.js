@@ -20,6 +20,21 @@ if (environment === 'local') {
 
 const db = admin.firestore();
 
+function convertDates(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(convertDates);
+  } else if (obj !== null && typeof obj === 'object') {
+    Object.keys(obj).forEach(key => {
+      if (typeof obj[key] === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(obj[key])) {
+        obj[key] = admin.firestore.Timestamp.fromDate(new Date(obj[key]));
+      } else {
+        obj[key] = convertDates(obj[key]);
+      }
+    });
+  }
+  return obj;
+}
+
 async function clearCollection(collectionName) {
   const collectionRef = db.collection(collectionName);
   const snapshot = await collectionRef.get();
@@ -46,7 +61,9 @@ async function seedCollection(collectionName, fileName) {
 
   await clearCollection(collectionName);
 
-  const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  let data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  data = convertDates(data);
+  
   console.log(`📡 Seeding ${data.length} documents into '${collectionName}'...`);
 
   const batch = db.batch();
@@ -59,8 +76,47 @@ async function seedCollection(collectionName, fileName) {
   console.log(`✅ Successfully seeded '${collectionName}'.`);
 }
 
+async function seedAuth(users) {
+  if (environment === 'local') {
+    console.log('🧹 Clearing Auth Emulator accounts...');
+    try {
+      const response = await fetch(`http://localhost:9099/emulator/v1/projects/inspired-yoga-app-staging/accounts`, {
+        method: 'DELETE'
+      });
+      if (response.ok) {
+        console.log('✅ Auth Emulator cleared.');
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to clear Auth Emulator:', error.message);
+    }
+  }
+
+  console.log(`🔑 Seeding ${users.length} users into Auth Emulator...`);
+  for (const user of users) {
+    try {
+      const email = `${user.id}@inspired.test`;
+      await admin.auth().createUser({
+        uid: user.id,
+        email: email,
+        password: 'password123',
+        displayName: user.displayName
+      });
+      console.log(`✅ Created Auth user: ${user.id} (${email})`);
+    } catch (error) {
+      if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {
+        console.log(`ℹ️ Auth user already exists: ${user.id}`);
+      } else {
+        console.warn(`⚠️ Failed to create Auth user ${user.id}:`, error.message);
+      }
+    }
+  }
+}
+
 async function run() {
   try {
+    const usersData = JSON.parse(fs.readFileSync(path.join(__dirname, '../seeds/users.json'), 'utf8'));
+    await seedAuth(usersData);
+    
     await seedCollection('users', 'users.json');
     await seedCollection('studios', 'studios.json');
     await seedCollection('posts', 'posts.json');

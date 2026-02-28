@@ -4,15 +4,31 @@ import FirebaseFirestore
 import FirebaseAuth
 import FirebaseStorage
 import ComposableArchitecture
+import OSLog
 
 @main
 struct InspiredApp: App {
+    let logger = Logger(subsystem: "com.inspired", category: "App")
+    let store = Store(initialState: AppFeature.State()) {
+        AppFeature()
+            .dependency(\.authenticationClient, .liveValue)
+            .dependency(\.firestoreClient, .liveValue)
+    }
+
     init() {
+        logger.debug("🛠️ App Environment: \(ProcessInfo.processInfo.environment)")
         FirebaseApp.configure()
         
         #if FIREBASE_EMULATOR
         print("🚀 Connecting to Firebase Emulator...")
         setupEmulator()
+        #endif
+
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["TEST_RESET_SESSION"] == "YES" {
+            print("🧹 Clearing session for test run...")
+            try? Auth.auth().signOut()
+        }
         #endif
     }
 
@@ -20,22 +36,17 @@ struct InspiredApp: App {
         WindowGroup {
             if let testScreen = testScreenName {
                 switch testScreen {
-                case "Login": loginView
-                case "Landing": ContentView()
-                default: Text("Unknown test screen: \(testScreen)")
+                case "Login": 
+                    LoginView(store: Store(initialState: LoginReducer.State()) { LoginReducer() })
+                case "Landing": 
+                    ContentView()
+                default: 
+                    Text("Unknown test screen: \(testScreen)")
                 }
             } else {
-                loginView
+                AppView(store: store)
             }
         }
-    }
-
-    private var loginView: some View {
-        LoginView(
-            store: Store(initialState: LoginReducer.State()) {
-                LoginReducer()
-            }
-        )
     }
 
     private var testScreenName: String? {

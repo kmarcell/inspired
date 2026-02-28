@@ -41,7 +41,7 @@ targets:
       configs:
         Debug (Local):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
-          OTHER_SWIFT_FLAGS: $(inherited) -DFIREBASE_EMULATOR
+          OTHER_SWIFT_FLAGS: $(inherited) -DDEBUG -DFIREBASE_EMULATOR
         Debug (Staging):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
         Release (Staging):

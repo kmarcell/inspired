@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Foundation
+import FirebaseAuth
 
 @DependencyClient
 public struct AuthenticationClient: Sendable {
@@ -7,6 +8,34 @@ public struct AuthenticationClient: Sendable {
     public var loginWithGoogle: @Sendable () async throws -> User
     public var logout: @Sendable () async throws -> Void
     public var deleteAccount: @Sendable () async throws -> Void
+}
+
+extension AuthenticationClient: DependencyKey {
+    public static let liveValue = Self(
+        currentUser: {
+            guard let firebaseUser = Auth.auth().currentUser else { return nil }
+            return User(
+                id: firebaseUser.uid,
+                username: firebaseUser.email ?? "unknown",
+                displayName: firebaseUser.displayName,
+                bio: nil,
+                lastSearchArea: nil,
+                isTeacher: false,
+                joinedCommunities: []
+            )
+        },
+        loginWithGoogle: {
+            // Placeholder for real Google Login dance
+            // For now, we'll return a mock but this will be updated in Step 2.
+            return .mock
+        },
+        logout: {
+            try Auth.auth().signOut()
+        },
+        deleteAccount: {
+            try await Auth.auth().currentUser?.delete()
+        }
+    )
 }
 
 extension AuthenticationClient: TestDependencyKey {
