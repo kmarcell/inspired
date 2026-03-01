@@ -190,6 +190,11 @@
 
 ## Development Workflow
 - **Explicit Commit Approval:** **NEVER** commit or push changes without asking for and receiving explicit, verbal confirmation from the user in the current turn. Previous approvals do not persist.
+- **Expertise & Proactive Review:** Before recommending or implementing a requested solution, the developer (AI) must perform a proactive "Architecture & Security Review." This includes:
+    - **Security Audit:** Checking for potential vulnerabilities (e.g., hardcoded secrets, PII exposure).
+    - **Best Practice Alignment:** Identifying if a standard industry alternative (e.g., `.env`, OAuth, Dependency Injection) is superior to the literal request.
+    - **Cost & Performance Impact:** Evaluating potential billable events or latency regressions.
+    - **Strategic Recommendation:** The AI must present these findings *before* or *alongside* the implementation plan, rather than waiting for the user to suggest the more secure path.
 - **Roadmap Synchronization:** **@ROADMAP.md** must be updated at the conclusion of every significant task. Completed items must be ticked off, and any newly identified gaps or sub-tasks must be added to ensure the roadmap remains accurate and actionable.
 - **Local-First Automation:** All CI/CD tasks are performed locally using platform-appropriate tools (documented in platform-specific mandates like `@SWIFT.md`).
 - **Environment Stability Investigation:** 
