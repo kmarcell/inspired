@@ -86,6 +86,12 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [ ] **Community Feed UI:** Implement the post-card list and "What's on your mind?" bar.
 - [ ] **Landing Snapshots:** Generate snapshots and verify against `UI/Mockups/5.2_LandingPageShell.svg` and `5.3_CommunityFeedPost.svg`.
 
+**Step 4: Privacy-First User Model & Security Rule Enforcement (TDD)**
+- [x] **Data Model Refactor:** Remove `isTeacher` and standardize on `privacySettings`.
+- [x] **Security Rule Implementation:** Implement "Community Overlap" and Profile Privacy logic in Firestore Rules.
+- [x] **Privacy Constraint Enforcement:** Implement logic to force avatar to `public` if profile is `public`.
+- [x] **Negative TDD:** Write comprehensive security tests for the Privacy Matrix.
+
 #### 3.2 Advanced Feature Design & Specification (Prerequisite for Phase 4)
 *Phase 3.2 must be complete before moving to Phase 4 Staging Deployment.*
 - [ ] **Email Registration Flow:** Design the "Create Account" screen for non-Google users.

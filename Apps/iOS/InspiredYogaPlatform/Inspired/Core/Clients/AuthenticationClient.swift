@@ -20,7 +20,6 @@ extension AuthenticationClient: DependencyKey {
                 displayName: firebaseUser.displayName,
                 bio: nil,
                 lastSearchArea: nil,
-                isTeacher: false,
                 joinedCommunities: []
             )
         },
@@ -59,12 +58,12 @@ extension DependencyValues {
 // --- Mocks ---
 extension User {
     public static let mock = User(
-        id: "user_maya_001",
+        id: "user_teacher_001",
         username: "yoga_maya#1001",
         displayName: "Maya Sharma",
         bio: "Certified Vinyasa teacher.",
         lastSearchArea: "Askew",
-        isTeacher: true,
-        joinedCommunities: ["area_askew"]
+        joinedCommunities: ["area_askew"],
+        privacySettings: .init(isProfilePublic: true, avatarPrivacy: .public)
     )
 }

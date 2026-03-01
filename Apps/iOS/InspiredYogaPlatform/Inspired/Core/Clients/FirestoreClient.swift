@@ -2,6 +2,12 @@ import ComposableArchitecture
 import Foundation
 import FirebaseFirestore
 
+public enum ProfileError: Error, Equatable {
+    case permissionDenied
+    case notFound
+    case unknown
+}
+
 @DependencyClient
 public struct FirestoreClient: Sendable {
     public var fetchUserProfile: @Sendable (_ userId: String) async throws -> User
@@ -13,8 +19,18 @@ public struct FirestoreClient: Sendable {
 extension FirestoreClient: DependencyKey {
     public static let liveValue = Self(
         fetchUserProfile: { userId in
-            let snapshot = try await Firestore.firestore().collection("users").document(userId).getDocument()
-            return try snapshot.data(as: User.self)
+            do {
+                let snapshot = try await Firestore.firestore().collection("users").document(userId).getDocument()
+                if !snapshot.exists {
+                    throw ProfileError.notFound
+                }
+                return try snapshot.data(as: User.self)
+            } catch let error as NSError {
+                if error.domain == FirestoreErrorDomain, error.code == FirestoreErrorCode.permissionDenied.rawValue {
+                    throw ProfileError.permissionDenied
+                }
+                throw error
+            }
         },
         fetchPosts: { area in
             let snapshot = try await Firestore.firestore().collection("posts")
@@ -57,7 +73,12 @@ extension Array where Element == Post {
     public static let mock: [Post] = [
         Post(
             id: "post_askew_001",
-            author: .init(id: "user_teacher_001", username: "yoga_maya#1001", thumbnailUrl: nil),
+            author: .init(
+                id: "user_teacher_001",
+                username: "yoga_maya#1001",
+                thumbnailUrl: nil,
+                avatarPrivacy: .public
+            ),
             content: "Looking forward to seeing everyone at the Askew Zen Den tomorrow morning! 🧘‍♀️",
             source: .init(type: .area, name: "Askew"),
             stats: .init(likeCount: 15, commentCount: 2),
@@ -65,7 +86,12 @@ extension Array where Element == Post {
         ),
         Post(
             id: "post_hammersmith_001",
-            author: .init(id: "user_student_001", username: "zen_explorer#2002", thumbnailUrl: nil),
+            author: .init(
+                id: "user_student_001",
+                username: "zen_explorer#2002",
+                thumbnailUrl: nil,
+                avatarPrivacy: .groupsOnly
+            ),
             content: "Anyone know a good studio in Hammersmith for complete beginners?",
             source: .init(type: .area, name: "Hammersmith"),
             stats: .init(likeCount: 3, commentCount: 8),

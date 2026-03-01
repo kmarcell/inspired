@@ -5,9 +5,9 @@
     "displayName": "Maya Sharma",
     "bio": "Certified Vinyasa teacher. Finding peace in movement.",
     "lastSearchArea": "Askew",
-    "isTeacher": true,
-    "joinedCommunities": ["area_askew", "studio_askew_001"],
+    "joinedCommunities": ["area_askew"],
     "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_std.jpg",
+    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
     "privacySettings": {
       "isProfilePublic": true,
       "avatarPrivacy": "public",
@@ -22,9 +22,9 @@
     "displayName": "Jane Doe",
     "bio": "Learning to breathe one day at a time.",
     "lastSearchArea": "Askew",
-    "isTeacher": false,
     "joinedCommunities": ["area_askew"],
     "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_std.jpg",
+    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_thumb.jpg",
     "privacySettings": {
       "isProfilePublic": false,
       "avatarPrivacy": "groups-only",
@@ -32,5 +32,22 @@
     },
     "createdAt": "2026-02-15T14:30:00Z",
     "updatedAt": "2026-02-15T14:30:00Z"
+  },
+  {
+    "id": "user_student_002",
+    "username": "liam_yogi#3003",
+    "displayName": "Liam Smith",
+    "bio": "Keep it secret, keep it safe.",
+    "lastSearchArea": "Chelsea",
+    "joinedCommunities": ["area_chelsea"],
+    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/liam_std.jpg",
+    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/liam_thumb.jpg",
+    "privacySettings": {
+      "isProfilePublic": false,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "members-only"
+    },
+    "createdAt": "2026-03-01T09:00:00Z",
+    "updatedAt": "2026-03-01T09:00:00Z"
   }
 ]

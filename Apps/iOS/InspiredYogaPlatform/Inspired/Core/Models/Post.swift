@@ -12,6 +12,7 @@ public struct Post: Equatable, Identifiable, Codable {
         public let id: String
         public let username: String
         public let thumbnailUrl: URL?
+        public let avatarPrivacy: User.PrivacySettings.VisibilityLevel
     }
 
     public struct PostSource: Equatable, Codable {

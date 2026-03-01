@@ -6,9 +6,9 @@ public struct User: Equatable, Identifiable, Codable, Sendable {
     public let displayName: String?
     public let bio: String?
     public let lastSearchArea: String?
-    public let isTeacher: Bool
     public let joinedCommunities: [String]
     public let profilePictureUrl: URL?
+    public let thumbnailUrl: URL?
     public let privacySettings: PrivacySettings
     public let createdAt: Date
     public let updatedAt: Date
@@ -41,9 +41,9 @@ public struct User: Equatable, Identifiable, Codable, Sendable {
         displayName: String? = nil,
         bio: String? = nil,
         lastSearchArea: String? = nil,
-        isTeacher: Bool = false,
         joinedCommunities: [String] = [],
         profilePictureUrl: URL? = nil,
+        thumbnailUrl: URL? = nil,
         privacySettings: PrivacySettings = .init(),
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -53,9 +53,9 @@ public struct User: Equatable, Identifiable, Codable, Sendable {
         self.displayName = displayName
         self.bio = bio
         self.lastSearchArea = lastSearchArea
-        self.isTeacher = isTeacher
         self.joinedCommunities = joinedCommunities
         self.profilePictureUrl = profilePictureUrl
+        self.thumbnailUrl = thumbnailUrl
         self.privacySettings = privacySettings
         self.createdAt = createdAt
         self.updatedAt = updatedAt

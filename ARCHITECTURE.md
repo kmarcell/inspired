@@ -128,11 +128,13 @@ Access to sensitive user fields (e.g., `profilePictureUrl`) is controlled by **V
 *   **Issue Reports:** All support data is **`admin-only`**. No user can read data submitted by another user.
 *   **Optimization:** Review performance once scale exceeds 100k active users (see optimization strategy in Section 2.2).
 
-### 3.3 Automated Validation
-Security rules are verified using an automated Node.js test suite (`infrastructure/scripts/test-rules.js`). This suite must be executed before any deployment to verify:
-1.  Public access to non-sensitive data (Studios, Posts).
-2.  Owner-only access to PII (Profiles).
-3.  Community-based restriction logic.
+### 3.4 Stale Metadata & The "Security-First" Tradeoff
+The system utilizes **denormalized author metadata** (username, thumbnailUrl, avatarPrivacy) within Post documents to ensure high-performance feed rendering without complex joins.
+
+*   **Tradeoff:** If a user changes their `avatarPrivacy` or `isProfilePublic` status, existing posts will retain the **old** privacy settings in their metadata until those posts are explicitly updated or re-indexed.
+*   **Intentional Behavior (Private -> Public):** If a user transitions from private to public, their older posts will continue to display as "groups-only" or "private" in the feed. This is an intentional tradeoff to maintain the privacy context of the original share and avoid expensive mass-updates of historical data.
+*   **Enforced Security (Public -> Private):** If a user transitions from public to private, their older posts might still contain a `thumbnailUrl` and a `public` flag. However, the **Cloud Storage Rules** (for the image binary) and **Firestore Rules** (for the profile fetch) always perform a **live check** against the current User document. 
+*   **Result:** The user's privacy is always protected at the protocol level. A stale "public" flag in a Post may result in a `403 Forbidden` error when fetching the image or a `Permission Denied` when tapping the profile, which the client must handle gracefully.
 
 ---
 
@@ -183,7 +185,24 @@ A comprehensive security review must address these common architectural weakness
     `Local .env` -> `Fastlane` -> `XCTest Environment` -> `App Launch Arguments`.
 *   **Backdoor Enforcement:** The "forced authentication" path used in UI tests is only compiled in `DEBUG` builds and requires a matching UID and Password passed via launch arguments.
 
-### 4.5 Seeding & Environment Strategies
+### 4.5 Unified User Privacy Matrix
+Users are distinguished solely by their privacy settings. The following logic is enforced via Firestore Security Rules (for metadata) and Cloud Storage Rules (for binaries):
+
+| Avatar Privacy | Profile Privacy | Who can view Profile (Bio, Name) | Who can view Avatar (Std & Thumb) |
+| :--- | :--- | :--- | :--- |
+| `groups-only` | `private` | **Only the Owner.** | Users with at least one **Joined Community overlap**. |
+| `public` | `private` | **Only the Owner.** | **Everyone.** |
+| `public` | `public` | **Everyone** (Searchable). | **Everyone.** |
+| `groups-only` | `public` | *Invalid State.* | Automatically forced to `public`. |
+
+**Access Logic (Enforcement):**
+*   **Profile Metadata (Firestore):** `allow read: if isOwner() || resource.data.privacySettings.isProfilePublic == true`.
+*   **Avatar Binary (Storage):** `allow read: if isOwner() || avatarIsPublic() || (avatarIsGroupsOnly() && hasCommunityOverlap())`.
+*   **Denormalization:** When a user posts, the `thumbnailUrl` and `avatarPrivacy` are denormalized in the `Post`. The client uses `avatarPrivacy` to decide whether to show the image or a "Community-Only" placeholder (though the binary is secured at the storage level regardless).
+
+---
+
+### 4.6 Seeding & Environment Strategies
 To maintain security and testability, we employ different seeding strategies based on the environment:
 
 | Feature | Local Emulator | Staging / Production |

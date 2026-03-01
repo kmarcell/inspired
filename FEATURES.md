@@ -39,10 +39,10 @@ This section documents the precise data contracts between the iOS application an
   "displayName": "Jane Doe",
   "bio": "Yoga enthusiast based in London.",
   "lastSearchArea": "Askew",
-  "isTeacher": false,
   "profilePictureUrl": "https://storage.googleapis.com/.../profile_small.jpg",
+  "thumbnailUrl": "https://storage.googleapis.com/.../thumb.jpg",
   "privacySettings": {
-    "isProfilePublic": true,
+    "isProfilePublic": false,
     "avatarPrivacy": "groups-only",
     "showJoinedGroups": "members-only"
   },
@@ -60,7 +60,6 @@ This section documents the precise data contracts between the iOS application an
 | `displayName` | `String` | User's full name. | **Yes** |
 | `bio` | `String` | Short biography (Max 280 chars). | No |
 | `lastSearchArea`| `String` | Last area name searched or IP-detected (e.g., "Hammersmith"). | No |
-| `isTeacher` | `Boolean` | Flag identifying teacher accounts. | No |
 | `profilePictureUrl` | `String` | URL for the **standard-resolution** (1024px) avatar. | **Yes** (Subject to Privacy Rules) |
 | `thumbnailUrl` | `String` | URL for the **thumbnail-resolution** (150px) avatar. | **Yes** (Subject to Privacy Rules) |
 | `privacySettings` | `Map` | User's granular privacy toggles. See 2.1.1. | No |
@@ -69,9 +68,13 @@ This section documents the precise data contracts between the iOS application an
 #### 2.1.1 Privacy Settings Schema
 | Field | Type | Description | Possible Values |
 | :--- | :--- | :--- | :--- |
-| `isProfilePublic` | `Boolean` | Controls public visibility of the profile. | `true`, `false` |
-| `avatarPrivacy` | `String` | Visibility level of the profile picture. | `public`, `groups-only`, `members-only` |
+| `isProfilePublic` | `Boolean` | Controls public visibility of the profile (search, bio). | `true`, `false` |
+| `avatarPrivacy` | `String` | Visibility level of the profile picture (Standard & Thumbnail). | `public`, `groups-only` |
 | `showJoinedGroups` | `String` | Visibility level of the joined communities list. | `public`, `groups-only`, `members-only` |
+
+**Constraints:**
+- **Public Profile Constraint:** If `isProfilePublic` is `true`, `avatarPrivacy` must be `public`.
+- **Default State:** New users default to `isProfilePublic: false` and `avatarPrivacy: "groups-only"`.
 
 ---
 
@@ -128,7 +131,8 @@ This section documents the precise data contracts between the iOS application an
   "author": {
     "id": "user_abc",
     "username": "yoga_teacher#8821",
-    "thumbnailUrl": "https://storage.googleapis.com/.../thumb.jpg"
+    "thumbnailUrl": "https://storage.googleapis.com/.../thumb.jpg",
+    "avatarPrivacy": "groups-only"
   },
   "content": "Just finished a great morning flow! #yoga #zen",
   "source": {
@@ -147,7 +151,7 @@ This section documents the precise data contracts between the iOS application an
 | Field | Type | Description | PII? |
 | :--- | :--- | :--- | :--- |
 | `id` | `String` | Unique Post ID. | No |
-| `author` | `Map` | Denormalized author info (ID, username, avatar) for fast rendering. | No |
+| `author` | `Map` | Denormalized author info (ID, username, avatar, privacy) for fast rendering. | No |
 | `content` | `Markdown`| Standard Markdown text (Max 500 chars). | No |
 | `source` | `Map` | Origin: type (`area`|`community`) and name. | No |
 | `stats` | `Map` | Denormalized counts for likes and comments. | No |
@@ -280,9 +284,10 @@ This section documents the precise data contracts between the iOS application an
 **Logic & Rules:**
 1.  **Unified Feed:** Mixed chronological stream of posts from "Joined Communities" and the "Selected Area".
 2.  **Area Switching:** Changing the area in the Search Bar updates the navigation label and the feed content.
-3.  **Empty Feed Handling (TBD):** Logic for expanding discovery to neighboring areas if the local feed is sparse.
-4.  - [ ] **To-Do (remember):** Define the exact data schema for Posts, Comments, and Likes.
-5.  - [ ] **To-Do (remember):** Define #mentions and hashtags behavior (tapping to search, rendering styles, and indexing).
+3.  **Feed List Behavior:**
+    - **Pagination:** TBD.
+    - **Refresh Logic:** TBD.
+4.  **Empty Feed Handling (TBD):** Logic for expanding discovery to neighboring areas if the local feed is sparse.
 
 **Developer Notes (TCA):**
 - **FeedReducer Side-effects:** Upon receiving a successful page fetch of posts, the reducer should immediately trigger a `fetchUserLikes(postIds:)` action. This batched query populates the user's specific "liked" state for the visible cards.
@@ -299,6 +304,22 @@ This section documents the precise data contracts between the iOS application an
     - Left: Square 'L' (Like Button) + Count.
     - Center: Square 'C' (Comment Button) + Count.
     - Right: Square 'S' (Share Button).
+
+### 5.3.1 Privacy Fallback & Stale Metadata Handling
+**Goal:** Handle inconsistencies between denormalized post metadata and live user privacy settings gracefully.
+
+1.  **Image Fallback (403 Forbidden):**
+    - **Scenario:** A user made a post when they were `public`, but has since gone `private`.
+    - **Mechanism:** If the `MediaClient` or image loading component receives a **403 Forbidden** error from Cloud Storage, it must catch this error.
+    - **Result:** Instead of showing a broken image or a "failed to load" state, display the **"Community-Only" Placeholder** avatar.
+2.  **Navigation Guard (Permission Denied):**
+    - **Scenario:** A user taps an author's name/avatar on an old post where the metadata says they are `public`, but they are now `private`.
+    - **Mechanism:** The `FirestoreClient` will return a **Permission Denied** error when attempting to fetch the profile.
+    - **Result:**
+        - Do not navigate to the Profile Page.
+        - Display a brief, user-friendly **Toast or Alert** saying: "This profile is now private."
+3.  **Avatar Metadata Logic:**
+    - If `avatarPrivacy` is `groups-only`, the client should display the **"Community-Only" Placeholder** immediately without attempting to fetch the binary (unless the client already knows they share a community, which is TBD).
 
 ### 5.4 Localization
 **Goal:** Ensure the platform can be translated and culturally adapted.

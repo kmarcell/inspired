@@ -16,9 +16,8 @@ struct AuthenticationTests {
 
         let user = try await client.loginWithGoogle()
         
-        #expect(user.id == "user_maya_001")
+        #expect(user.id == "user_teacher_001")
         #expect(user.username == "yoga_maya#1001")
-        #expect(user.isTeacher == true)
     }
 
     @Test("Verify current user status")
@@ -32,6 +31,6 @@ struct AuthenticationTests {
 
         let user = try await client.currentUser()
         
-        #expect(user?.id == "user_maya_001")
+        #expect(user?.id == "user_teacher_001")
     }
 }

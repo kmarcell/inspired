@@ -4,7 +4,8 @@
     "author": {
       "id": "user_teacher_001",
       "username": "yoga_maya#1001",
-      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg"
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
     },
     "content": "Looking forward to seeing everyone at the Askew Zen Den tomorrow morning! 🧘‍♀️",
     "source": {
@@ -22,7 +23,8 @@
     "author": {
       "id": "user_student_001",
       "username": "zen_explorer#2002",
-      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_thumb.jpg"
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_thumb.jpg",
+      "avatarPrivacy": "groups-only"
     },
     "content": "Anyone know a good studio in Hammersmith for complete beginners?",
     "source": {

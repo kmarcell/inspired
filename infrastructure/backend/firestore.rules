@@ -2,22 +2,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if two users share a community
-    function isConnected(userA, userB) {
-      return userA.joinedCommunities.hasAny(userB.joinedCommunities);
+    // Helper function to check if the requester is the owner
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
     // 1. User Profiles
     match /users/{userId} {
-      // Full access for the owner
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Full read for the owner
+      allow read: if isOwner(userId);
       
-      // Restricted read for others based on avatar privacy
-      allow get: if request.auth != null && (
-        resource.data.privacySettings.avatarPrivacy == "public" ||
-        (resource.data.privacySettings.avatarPrivacy == "groups-only" && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities.hasAny(resource.data.joinedCommunities))
-      );
+      // Restricted read for others: Only if the profile is public
+      allow get: if request.auth != null && resource.data.privacySettings.isProfilePublic == true;
+      
+      // Full write for the owner BUT enforced by constraints
+      allow write: if isOwner(userId) && 
+        (request.resource.data.privacySettings.isProfilePublic == false || 
+         request.resource.data.privacySettings.avatarPrivacy == "public");
     }
     
     // 2. Yoga Studios
