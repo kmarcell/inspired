@@ -176,6 +176,23 @@ A comprehensive security review must address these common architectural weakness
 3.  **Fuzz Testing:** Attempt to write documents with missing fields, incorrect data types (e.g., string instead of int), or exceptionally long strings to test the robustness of validation rules.
 4.  **Privacy Audit:** Use the Firebase Emulator UI to inspect created documents and ensure no PII is visible in fields intended for public discovery.
 
+#### 4.4 Local Authentication & Secret Management
+*   **Local-Only Auth:** Email/Password authentication is strictly reserved for the **Local Emulator environment**. Staging and Production environments must exclusively use OAuth providers (Google/Apple) to eliminate the risk of password database breaches.
+*   **Non-Persistent Credentials:** No passwords, even for test accounts, are stored in the repository or seed JSON files. 
+*   **Injection Pipeline:** Local secrets are managed via a `.env` file (git-ignored) and injected into the automated test suite via the following chain: 
+    `Local .env` -> `Fastlane` -> `XCTest Environment` -> `App Launch Arguments`.
+*   **Backdoor Enforcement:** The "forced authentication" path used in UI tests is only compiled in `DEBUG` builds and requires a matching UID and Password passed via launch arguments.
+
+### 4.5 Seeding & Environment Strategies
+To maintain security and testability, we employ different seeding strategies based on the environment:
+
+| Feature | Local Emulator | Staging / Production |
+| :--- | :--- | :--- |
+| **Firestore Profiles** | **Seeded.** Atomic reset of all collections. | **Seeded.** Used to create "Shadow Profiles" for testers. |
+| **Auth Identities** | **Seeded.** Accounts created with a local master password. | **Manual / OAuth.** Users created via real Google/Apple sign-in. |
+| **Profile Linkage** | Automatic (via seeded UID). | Manual (seeded Profile ID must match real tester's UID). |
+| **Credentials** | Email/Password enabled. | OAuth Providers ONLY. |
+
 ---
 
 ## 5. Cost Estimation & Budget Alignment ($50/Month Cap)
@@ -212,6 +229,7 @@ Based on the 10,000-user usage model on the **Firebase Blaze (Pay-as-you-go)** p
 | ID | Date | Issue | Remediation | Learning |
 | :--- | :--- | :--- | :--- | :--- |
 | **SEC-001** | 2026-02-28 | **Invalid Seed Data:** `users.json` contained `showJoinedGroups: "all"`, which was not a valid enum value, causing silent decoding failures during profile fetch. | Updated `users.json` to use `"public"`. Added `updatedAt` field. | **Seed Integrity:** Mock/Seed data must strictly adhere to the production schema. Invalid data can mask auth failures by triggering fallback paths (e.g., returning to Login) instead of crashing explicitly. |
+| **SEC-002** | 2026-02-28 | **Hardcoded Test Credentials:** `seeder.js` and `AppFeature.swift` used a hardcoded password (`password123`) for all emulator accounts. | Implemented secure injection pipeline: `.env` -> Fastlane -> XCTest -> LaunchArgs. | **Credential Hygiene:** Even test passwords must never be committed. Using a local-only injection pipeline ensures Staging/Prod remains isolated and secure. |
 
 ---
 

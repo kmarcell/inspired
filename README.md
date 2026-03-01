@@ -118,6 +118,13 @@ We use a 3-tier environment structure to ensure safe development, thorough testi
 ### 4.1 Working with the Local Emulator
 The Local environment uses the **Firebase Emulator Suite** to run a complete backend on your Mac.
 
+#### Local Secret Management
+To ensure security, local emulator passwords are never committed to the repository. 
+1.  **`.env` File:** The `./scripts/bootstrap.sh` script automatically creates a `.env` file at the root of the project.
+2.  **`TEST_USER_PASSWORD`:** This file contains a unique `TEST_USER_PASSWORD` used by the seeder to create accounts in the Auth Emulator and by UI tests to perform "forced logins."
+3.  **Customization:** You can manually update this password in your `.env` file at any time. It is ignored by Git to prevent accidental leakage.
+
+#### Starting the Emulator
 1.  **Start the Emulator:**
 ```bash
 # Run this from a DEDICATED system terminal (not via the Gemini CLI shell)

@@ -11,7 +11,22 @@ echo "🚀 Bootstrapping Inspired Yoga Platform..."
 echo "📦 Installing root dependencies..."
 npm install --silent
 
-# 2. Backend Scaffolding
+# 2. Local Secret Initialization
+if [ ! -f ".env" ]; then
+    echo "🔑 Creating local .env file..."
+    echo "TEST_USER_PASSWORD=local_$(openssl rand -hex 8)" > .env
+    echo "✅ Created .env with a generated password."
+else
+    if grep -q "TEST_USER_PASSWORD=" .env; then
+        echo "ℹ️  TEST_USER_PASSWORD already exists in .env. Skipping."
+    else
+        echo "🔑 Adding TEST_USER_PASSWORD to existing .env..."
+        echo "TEST_USER_PASSWORD=local_$(openssl rand -hex 8)" >> .env
+        echo "✅ Added password to .env."
+    fi
+fi
+
+# 3. Backend Scaffolding
 if [ -d "infrastructure/backend/functions" ]; then
     echo "📦 Installing Cloud Functions dependencies..."
     cd infrastructure/backend/functions && npm install --silent && cd ../../../

@@ -22,7 +22,8 @@ final class AppLaunchUITests: XCTestCase {
     /// Scenario B: Persistent Session Restoration
     func testAppLaunchRoutingToFeed() throws {
         // Simulate a restored identity from Firebase Auth using standard UserDefaults arguments
-        app.launchArguments.append(contentsOf: ["-TEST_UID", "user_teacher_001"])
+        let password = ProcessInfo.processInfo.environment["TEST_USER_PASSWORD"] ?? "missing_password"
+        app.launchArguments.append(contentsOf: ["-TEST_UID", "user_teacher_001", "-TEST_PWD", password])
         app.launch()
 
         // 1. Verify we end up on the Authenticated Feed (Placeholder)

@@ -145,6 +145,7 @@ schemes:
       environmentVariables:
         IS_EMULATOR: "YES"
         PROJECT_DIR: "$(PROJECT_DIR)/../../.."
+        TEST_USER_PASSWORD: "$(TEST_USER_PASSWORD)"
   
   Inspired (Staging):
     build:

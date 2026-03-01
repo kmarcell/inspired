@@ -20,6 +20,10 @@ platform :ios do
 
   desc "Run all unit and snapshot tests (Local Emulator)"
   lane :test do |options|
+    # 0. Load Local Secrets
+    Dotenv.load "../../../../.env"
+    UI.message("🧪 Fastlane: TEST_USER_PASSWORD is set: #{!ENV['TEST_USER_PASSWORD'].nil?}")
+
     # 1. Pre-test Automation
     sh("cd ../../../.. && ./scripts/sync-strings.sh")
     sh("cd ../../../.. && ./scripts/generate-assets.sh")

@@ -103,36 +103,43 @@ async function seedCollection(collectionName, fileName) {
 }
 
 async function seedAuth(users) {
-  if (environment === 'local') {
+  if (environment !== 'local') {
+    console.log(`ℹ️  Skipping Auth seeding for ${environment.toUpperCase()} (OAuth only).`);
+    return;
+  }
+
+  const password = process.env.TEST_USER_PASSWORD;
+    if (!password) {
+      throw new Error('❌ TEST_USER_PASSWORD environment variable is required for local seeding.');
+    }
+
     console.log('🧹 Clearing Auth Emulator accounts...');
     try {
-      const response = await fetch(`http://localhost:9099/emulator/v1/projects/inspired-yoga-app-staging/accounts`, {
+      await fetch(`http://localhost:9099/emulator/v1/projects/inspired-yoga-app-staging/accounts`, {
         method: 'DELETE'
       });
-      if (response.ok) {
-        console.log('✅ Auth Emulator cleared.');
-      }
+      console.log('✅ Auth Emulator cleared.');
     } catch (error) {
       console.warn('⚠️ Failed to clear Auth Emulator:', error.message);
     }
-  }
 
-  console.log(`🔑 Seeding ${users.length} users into Auth Emulator...`);
-  for (const user of users) {
-    try {
-      const email = `${user.id}@inspired.test`;
-      await admin.auth().createUser({
-        uid: user.id,
-        email: email,
-        password: 'password123',
-        displayName: user.displayName
-      });
-      console.log(`✅ Created Auth user: ${user.id} (${email})`);
-    } catch (error) {
-      if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {
-        console.log(`ℹ️ Auth user already exists: ${user.id}`);
-      } else {
-        console.warn(`⚠️ Failed to create Auth user ${user.id}:`, error.message);
+    console.log(`🔑 Seeding ${users.length} users into Auth Emulator...`);
+    for (const user of users) {
+      try {
+        const email = `${user.id}@inspired.test`;
+        await admin.auth().createUser({
+          uid: user.id,
+          email: email,
+          password: password,
+          displayName: user.displayName
+        });
+        console.log(`✅ Created Auth user: ${user.id} (${email})`);
+      } catch (error) {
+        if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {
+          console.log(`ℹ️ Auth user already exists: ${user.id}`);
+        } else {
+          console.warn(`⚠️ Failed to create Auth user ${user.id}:`, error.message);
+        }
       }
     }
   }

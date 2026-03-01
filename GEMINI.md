@@ -90,7 +90,9 @@
 - **Automation & CI/CD:**
     - **Mandate:** Use platform-appropriate automation tools (documented in platform-specific mandates like `@SWIFT.md`) for CI/CD tasks including testing, code signing, and distribution.
 - **Test User Management (Staging):**
-    - **Identity Protection (No Git):** Never commit real or test user identifiers, credentials, or PII to the git repository. Store these in local, ignored configuration files.
+    - **Identity Protection (No Git):** 
+        - **Mandate:** Never commit real or test user identifiers, credentials, or PII to the git repository. Store these in local, ignored configuration files.
+        - **Seeding Guard:** Auth seeding (creating identities) is strictly permitted for the **Local Emulator ONLY**. Never attempt to seed the Auth service in Staging or Production.
     - **Management:** Manage the canonical list of authorized testers via the cloud platform console.
 - **Data Isolation:** Staging data and users must never be mixed with Production.
 - **Database Migrations:**
