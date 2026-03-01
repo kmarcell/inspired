@@ -15,8 +15,7 @@ final class AppLaunchUITests: XCTestCase {
         app.launch()
 
         // 1. Verify we end up on the Login Screen
-        XCTAssertTrue(app.staticTexts["Inspired"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Sign in with Google"].exists)
+        XCTAssertTrue(app.buttons["login.googleButton"].waitForExistence(timeout: 5))
     }
 
     /// Scenario B: Persistent Session Restoration

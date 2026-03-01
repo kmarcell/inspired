@@ -2,9 +2,9 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct LoginView: View {
-    let store: StoreOf<LoginReducer>
+    let store: StoreOf<LoginFeature>
 
-    public init(store: StoreOf<LoginReducer>) {
+    public init(store: StoreOf<LoginFeature>) {
         self.store = store
     }
 
@@ -40,72 +40,95 @@ public struct LoginView: View {
                 }
                 .padding(.bottom, 60)
 
-                VStack(spacing: 16) {
+                VStack(spacing: 20) {
                     Button {
                         store.send(.googleLoginButtonTapped)
                     } label: {
-                        HStack {
-                            Image(systemName: "g.circle.fill")
+                        HStack(spacing: 12) {
+                            Text("G")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundStyle(.blue)
                             Text("login.googleButton")
                         }
                         .fontWeight(.medium)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.primarySurfaceInverted, in: RoundedRectangle(cornerRadius: 12))
-                        .foregroundColor(.primaryTextInverted)
+                        .background(Color.primarySurface, in: RoundedRectangle(cornerRadius: 12))
+                        .foregroundStyle(Color.primaryText)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.primaryTextInverted.opacity(0.2), lineWidth: 1)
+                                .stroke(Color.primaryText.opacity(0.1), lineWidth: 1)
                         )
                     }
                     .accessibilityIdentifier("login.googleButton")
                     .accessibilityHint("Sign in with your Google account")
 
-                    Button {
-                    } label: {
-                        Text("login.emailButton")
-                            .fontWeight(.medium)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.primarySurface, in: RoundedRectangle(cornerRadius: 12))
-                            .foregroundColor(Color.primaryText)
-                    }
-                    .accessibilityIdentifier("login.emailButton")
-                    .accessibilityHint("Sign in with your email address")
-
                     HStack {
                         VStack { Divider().background(Color.secondaryText.opacity(0.3)) }
                         Text("login.orDivider")
                             .font(.footnote)
-                            .foregroundColor(Color.secondaryText)
+                            .foregroundStyle(Color.secondaryText)
                             .accessibilityHidden(true)
                         VStack { Divider().background(Color.secondaryText.opacity(0.3)) }
                     }
                     .padding(.vertical, 8)
                     .accessibilityHidden(true)
 
-                    Button {
-                    } label: {
-                        Text("login.createAccountButton")
-                            .fontWeight(.medium)
+                    VStack(spacing: 12) {
+                        TextField("login.emailPlaceholder", text: Binding(
+                            get: { store.email },
+                            set: { store.send(.emailChanged($0)) }
+                        ))
+                        .keyboardType(.emailAddress)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .padding()
+                        .background(Color.primarySurface, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.primaryText.opacity(0.1), lineWidth: 1)
+                        )
+                        .accessibilityIdentifier("login.emailTextField")
+
+                        Button {
+                            store.send(.sendMagicLinkTapped)
+                        } label: {
+                            HStack(spacing: 12) {
+                                Text("📧")
+                                    .font(.system(size: 20))
+                                Text("login.magicLinkButton")
+                            }
+                            .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.clear)
-                            .foregroundColor(Color.primaryText)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.primaryText, lineWidth: 1)
-                            )
+                            .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
+                            .foregroundStyle(.white)
+                        }
+                        .disabled(store.isLoading)
+                        .accessibilityIdentifier("login.magicLinkButton")
+                        .accessibilityHint("Send a magic login link to your email")
+
+                        if store.magicLinkSent {
+                            Text("login.magicLinkSent")
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                                .transition(.opacity)
+                        }
+
+                        if let error = store.error {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .transition(.opacity)
+                        }
                     }
-                    .accessibilityIdentifier("login.createAccountButton")
-                    .accessibilityHint("Create a new account")
                 }
                 .padding(.horizontal, 40)
 
                 VStack(spacing: 4) {
                     Text("login.footer.legalPrefix")
                         .font(.caption2)
-                        .foregroundColor(Color.secondaryText)
+                        .foregroundStyle(Color.secondaryText)
                     
                     HStack(spacing: 4) {
                         Text("login.footer.privacyPolicy")
@@ -115,25 +138,23 @@ public struct LoginView: View {
                             .fontWeight(.bold)
                     }
                     .font(.caption2)
-                    .foregroundColor(Color.primaryText)
+                    .foregroundStyle(Color.accentColor)
                 }
                 .padding(.top, 40)
                 .multilineTextAlignment(.center)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("By logging in or creating an account, you accept our Privacy Policy and Terms and Conditions.")
+                .accessibilityLabel("By continuing, you agree to our Privacy Policy and Terms of Service.")
 
                 Spacer()
 
-                HStack(spacing: 16) {
-                    Button { } label: { Text("login.footer.privacyPolicy") }
-                    Circle().frame(width: 4, height: 4).foregroundColor(Color.secondaryText)
-                    Button { } label: { Text("login.footer.terms") }
-                    Circle().frame(width: 4, height: 4).foregroundColor(Color.secondaryText)
-                    Button { } label: { Text("login.footer.support") }
-                        .accessibilityIdentifier("login.supportButton")
+                Button {
+                    // Action for Support/Report
+                } label: {
+                    Text("login.footer.support")
+                        .font(.footnote)
+                        .foregroundStyle(Color.secondaryText)
                 }
-                .font(.footnote)
-                .foregroundColor(Color.secondaryText)
+                .accessibilityIdentifier("login.supportButton")
                 .padding(.bottom, 20)
             }
         }
@@ -142,8 +163,8 @@ public struct LoginView: View {
 
 #Preview {
     LoginView(
-        store: Store(initialState: LoginReducer.State()) {
-            LoginReducer()
+        store: Store(initialState: LoginFeature.State()) {
+            LoginFeature()
         }
     )
 }

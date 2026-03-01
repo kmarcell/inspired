@@ -6,6 +6,8 @@ import FirebaseAuth
 public struct AuthenticationClient: Sendable {
     public var currentUser: @Sendable () async throws -> User?
     public var loginWithGoogle: @Sendable () async throws -> User
+    public var sendSignInLink: @Sendable (_ email: String) async throws -> Void
+    public var signInWithLink: @Sendable (_ email: String, _ link: String) async throws -> User
     public var logout: @Sendable () async throws -> Void
     public var deleteAccount: @Sendable () async throws -> Void
 }
@@ -25,8 +27,26 @@ extension AuthenticationClient: DependencyKey {
         },
         loginWithGoogle: {
             // Placeholder for real Google Login dance
-            // For now, we'll return a mock but this will be updated in Step 2.
             return .mock
+        },
+        sendSignInLink: { email in
+            let actionCodeSettings = ActionCodeSettings()
+            actionCodeSettings.url = URL(string: "https://inspired-yoga.web.app/finishSignUp")
+            actionCodeSettings.handleCodeInApp = true
+            actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
+            
+            try await Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings)
+        },
+        signInWithLink: { email, link in
+            let result = try await Auth.auth().signIn(withEmail: email, link: link)
+            // If it's a new user, result.user will have a UID but Firestore won't have a profile yet.
+            // The AppFeature will handle the routing to onboarding.
+            return User(
+                id: result.user.uid,
+                username: result.user.email ?? "unknown",
+                displayName: result.user.displayName,
+                joinedCommunities: []
+            )
         },
         logout: {
             try Auth.auth().signOut()
@@ -41,6 +61,8 @@ extension AuthenticationClient: TestDependencyKey {
     public static let previewValue = Self(
         currentUser: { .mock },
         loginWithGoogle: { .mock },
+        sendSignInLink: { _ in },
+        signInWithLink: { _, _ in .mock },
         logout: { },
         deleteAccount: { }
     )

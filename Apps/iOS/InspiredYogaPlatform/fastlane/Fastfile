@@ -20,6 +20,9 @@ platform :ios do
 
   desc "Run all unit and snapshot tests (Local Emulator)"
   lane :test do |options|
+    # Increase timeout for slow showBuildSettings calls
+    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
+
     # 0. Load Local Secrets
     Dotenv.load "../../../../.env"
     UI.message("🧪 Fastlane: TEST_USER_PASSWORD is set: #{!ENV['TEST_USER_PASSWORD'].nil?}")
@@ -40,6 +43,7 @@ platform :ios do
     scan(
       scheme: "Inspired (Local)",
       configuration: "Debug (Local)",
+      derived_data_path: "./build",
       xcargs: "-skipMacroValidation"
     )
   end

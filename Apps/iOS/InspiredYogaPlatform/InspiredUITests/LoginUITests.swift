@@ -19,9 +19,10 @@ final class LoginUITests: XCTestCase {
         app.launchEnvironment["TEST_RESET_SESSION"] = "YES"
         app.launch()
 
-        // Verify key elements are present using localized labels
-        XCTAssertTrue(app.staticTexts["Inspired"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["Sign in with Google"].exists)
+        // Verify key elements are present using accessibility identifiers
+        XCTAssertTrue(app.buttons["login.googleButton"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["login.magicLinkButton"].exists)
+        XCTAssertTrue(app.textFields["login.emailTextField"].exists)
     }
 
     /// Accessibility test to capture the VoiceOver hierarchy.

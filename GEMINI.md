@@ -110,6 +110,7 @@
 
 ## Architecture: Frontend Clients
 - **Universal Frontend Mandate:** All architectural, security, privacy, and data integrity mandates defined in this document apply to **all frontend clients** (e.g., iOS, React, Web) unless explicitly noted.
+- **TCA Testing:** When using `TestStore.receive`, always use the predicate matching syntax with an explicit `assert:` label: `await store.receive { action in if case let .action(.failure(error)) = action { return error is ExpectedError }; return false } assert: { ... state assertions ... }`. Avoid using KeyPaths for `receive` calls.
 - **Dependency Pattern:** All backend services must be abstracted into platform-appropriate **Clients** (e.g., TCA Clients for iOS, Hooks/Services for React).
 - **Testing Requirements:** Every frontend client must implement:
     - **TDD:** Test-driven development for all logic.
@@ -190,6 +191,7 @@
 
 ## Development Workflow
 - **Explicit Commit Approval:** **NEVER** commit or push changes without asking for and receiving explicit, verbal confirmation from the user in the current turn. Previous approvals do not persist.
+- **Syntax & Compiler Coordination:** If a code modification fails due to precise matching issues, or if compiler errors persist after a single corrective attempt, the AI must **STOP immediately**. Do not attempt multiple trial-and-error fixes. State the issue clearly and ask the user for assistance or a syntax fix to maintain coordination and efficiency.
 - **Expertise & Proactive Review:** Before recommending or implementing a requested solution, the developer (AI) must perform a proactive "Architecture & Security Review." This includes:
     - **Security Audit:** Checking for potential vulnerabilities (e.g., hardcoded secrets, PII exposure).
     - **Best Practice Alignment:** Identifying if a standard industry alternative (e.g., `.env`, OAuth, Dependency Injection) is superior to the literal request.

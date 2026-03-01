@@ -231,18 +231,27 @@ This section documents the precise data contracts between the iOS application an
 
 ## 5. Screen & Component Behaviors
 
-### 5.1 Login & Registration Screen
-**Goal:** Unified entry for Google Sign-In and Email/Password.
-**Mockup:** `UI/Mockups/5.1_LoginRegistrationScreen.svg`
+### 5.1 Login & Magic Link Flow
+**Goal:** A high-frictionless, passwordless entry point for both new and returning users.
+**Mockup:** `UI/Mockups/5.1_LoginScreen_v2.svg`
 
-**Logic & Rules:**
-1.  **Direct Transition:** After successful authentication, the user is transitioned directly to the **Landing Page**.
-2.  **Username Logic (Backend):** Usernames follow the `name#1234` format. Suffix automatically appended by backend.
-3.  **Legal Links:** Links to placeholder Terms and Privacy URLs at bottom.
-4.  **Implicit Acceptance:** Include text: "By logging in or creating an account, you accept our **Privacy Policy** and **Terms & Conditions**."
-5.  **Report an Issue:** A "Report an Issue" button opens the external Support Google Form (See 5.5).
-6.  **TDD Requirement:** Verify that the "LOGO" placeholder is hidden from VoiceOver.
-7.  **TDD Requirement:** Verify that the prominent "Sign in with Google" button has an appropriate accessibility hint.
+**Authentication Options:**
+1.  **Google Sign-In**: Primary, single-tap OAuth.
+2.  **Magic Link (Email)**:
+    - **Validation**: Perform basic client-side validation (e.g., check for `@` and a period `.`) to prevent obvious typos before sending. Do not over-validate (avoid complex regex).
+    - **Firebase Flow**: Firebase sends a secure verification link to the email.
+    - **Sign-in**: Upon tapping the link (on the same device), the user is signed in.
+    - **Testing Mandate**: **Manual Verification Required.** Because Magic Link relies on an out-of-band email delivery and deep-linking, it cannot be fully automated in UI tests. Developers must verify this flow manually on a physical device or simulator with a real email account.
+3.  **Apple ID**: *Deferred (Phase 4)*.
+
+**Identity & Username Strategy:**
+- **Automatic Username Generation**: To avoid "Username Taken" friction, usernames are automatically generated in the `displayName#1234` format.
+- **Backend Logic**: A Cloud Function triggers upon Firestore profile creation to append the random 4-digit suffix and ensure uniqueness.
+- **One-Time Onboarding**:
+    - **Trigger**: Detected when a user logs in for the first time (no Firestore document exists for their UID).
+    - **Fields**: The user is prompted for their **Display Name** and optional **Bio**.
+    - **Privacy Initialization**: Default privacy settings (`isProfilePublic: false`, `avatarPrivacy: "groups-only"`) are applied during this step.
+- **Legal Acceptance**: Login/Sign-up constitutes implicit acceptance of the **Privacy Policy** and **Terms of Service**.
 
 ### 5.1.1 App Launch & Session Management (Cold Start)
 - **Goal:** Provide a seamless transition from app boot to the appropriate initial screen based on authentication state.

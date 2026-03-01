@@ -37,8 +37,8 @@ struct InspiredApp: App {
             if let testScreen = testScreenName {
                 switch testScreen {
                 case "Login": 
-                    LoginView(store: Store(initialState: LoginReducer.State()) { LoginReducer() })
-                case "Landing": 
+                    LoginView(store: Store(initialState: LoginFeature.State()) { LoginFeature() })
+                case "Landing":
                     ContentView()
                 default: 
                     Text("Unknown test screen: \(testScreen)")

@@ -136,6 +136,11 @@ The system utilizes **denormalized author metadata** (username, thumbnailUrl, av
 *   **Enforced Security (Public -> Private):** If a user transitions from public to private, their older posts might still contain a `thumbnailUrl` and a `public` flag. However, the **Cloud Storage Rules** (for the image binary) and **Firestore Rules** (for the profile fetch) always perform a **live check** against the current User document. 
 *   **Result:** The user's privacy is always protected at the protocol level. A stale "public" flag in a Post may result in a `403 Forbidden` error when fetching the image or a `Permission Denied` when tapping the profile, which the client must handle gracefully.
 
+### 3.5 Infrastructure & Automation Learnings
+*   **Fastlane Xcodebuild Stability:** Fastlane's `scan` may time out (default 3s) during the `showBuildSettings` phase on large projects with many SPM dependencies. Set `ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"` in the `Fastfile` to prevent intermittent test failures.
+*   **Deep-Link & Magic Link Testing:** Passwordless Magic Link flows cannot be fully automated via XCUITest due to out-of-band email delivery and deep-link interception requirements. These flows must be verified **manually** on physical devices or via Deep Link CLI simulators.
+*   **Stale Metadata Security:** NoSQL denormalization requires acceptence of stale metadata (e.g., old post authors). Absolute security must be enforced via **Live Firestore/Storage Rules** that check the current state of the User document before serving sensitive assets.
+
 ---
 
 ## 4. Security Risk Assessment & Testing Guidelines

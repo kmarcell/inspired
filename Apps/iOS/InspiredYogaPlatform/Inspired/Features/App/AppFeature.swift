@@ -7,7 +7,7 @@ public struct AppFeature: Sendable {
     @ObservableState
     public enum State: Equatable {
         case launching
-        case login(LoginReducer.State)
+        case login(LoginFeature.State)
         case authenticated(User)
 
         public init() {
@@ -17,7 +17,7 @@ public struct AppFeature: Sendable {
 
     public enum Action: Sendable {
         case appLaunched
-        case login(LoginReducer.Action)
+        case login(LoginFeature.Action)
         case currentUserResponse(Result<User?, Error>)
         case userProfileResponse(Result<User, Error>)
     }
@@ -59,12 +59,12 @@ public struct AppFeature: Sendable {
                 }
 
             case .currentUserResponse(.success(.none)):
-                state = .login(LoginReducer.State())
+                state = .login(LoginFeature.State())
                 return .none
 
             case let .currentUserResponse(.failure(error)):
                 print("❌ Auth check failed: \(error)")
-                state = .login(LoginReducer.State())
+                state = .login(LoginFeature.State())
                 return .none
 
             case let .userProfileResponse(.success(user)):
@@ -73,7 +73,7 @@ public struct AppFeature: Sendable {
 
             case let .userProfileResponse(.failure(error)):
                 print("❌ Profile fetch failed: \(error)")
-                state = .login(LoginReducer.State())
+                state = .login(LoginFeature.State())
                 return .none
 
             case .login(.loginResponse(.success(let user))):
@@ -85,7 +85,7 @@ public struct AppFeature: Sendable {
             }
         }
         .ifCaseLet(\.login, action: \.login) {
-            LoginReducer()
+            LoginFeature()
         }
     }
 }

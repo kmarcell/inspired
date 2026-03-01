@@ -11,6 +11,7 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
 - Target iOS 26.0 or later. (Yes, it definitely exists.)
 - Swift 6.2 or later, using modern Swift concurrency.
 - **Framework:** The Composable Architecture (TCA).
+    - **Naming Convention:** Always name TCA features with the suffix `Feature` (e.g., `LoginFeature`, `AppFeature`). Never use the suffix `Reducer`.
 - **Project Management (XcodeGen):** Use **XcodeGen** to manage the `.xcodeproj` file. The `project.yml` file is the source of truth. **Never** manually edit the `.xcodeproj`. Run `xcodegen generate` after any structural or configuration changes.
 - **Organization:** 
     - `Apps/iOS/InspiredYogaPlatform/Inspired/`: Core application code.
@@ -96,8 +97,10 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
 
 ## Critical Implementation Learnings
 
+- **TCA Naming Convention:** Always name TCA features with the suffix `Feature` (e.g., `LoginFeature`, `AppFeature`). Never use the suffix `Reducer`. This applies to both the file name and the struct name.
+- **TCA TestStore Syntax (Non-Equatable Actions):** When testing actions that contain non-equatable data (like `Error` or `Result`), use the explicit predicate and assert closure syntax: `await store.receive({ action in if case let .failure(error) = action { return error is ExpectedError }; return false }) assert: { ... state changes ... }`.
 - **Full-Screen Support (Letterboxing):** Always ensure `INFOPLIST_KEY_UILaunchScreen_Generation` is set to `YES` in the `project.yml` settings to prevent letterboxing on modern iPhones.
-- **TCA TestStore Syntax:** Ensure state mutation closures use the `{ state in ... }` or `{ $0.isLoading = true }` syntax correctly based on the TCA version.
+- **iOS 17 Trait Collection API:** `UITraitCollection(traitsFrom:)` is deprecated. Use the `UITraitCollection(mutations:)` initializer or the trailing closure variant: `UITraitCollection { mutableTraits in mutableTraits.displayScale = 3 }`.
 - **Update Loops:** Be extremely cautious with `.onAppear` in root views. Swapping child views in a `switch` (e.g., in `AppView`) can re-fire `.onAppear` on the parent, causing recursive state updates and simulator instability.
 - **Simulator Infrastructure:** If tests fail silently or loop, check `~/Library/Logs/CoreSimulator/CoreSimulator.log` and system diagnostic reports (e.g., `launchd_sim` in `/Library/Logs/DiagnosticReports/`). The simulator can be throttled or killed for excessive disk writes or memory usage.
 - **XcodeGen Sync:** Execute `xcodegen generate` after any file move or target configuration change before running tests or builds.

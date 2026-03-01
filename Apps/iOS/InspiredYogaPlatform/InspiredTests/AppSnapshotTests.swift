@@ -12,14 +12,13 @@ struct AppSnapshotTests {
         var colorScheme: ColorScheme { self == .light ? .light : .dark }
     }
 
-    // Custom configuration for iPhone 16 Pro
     static let iPhone16Pro = ViewImageConfig(
         safeArea: UIEdgeInsets(top: 62, left: 0, bottom: 34, right: 0),
         size: CGSize(width: 402, height: 874),
-        traits: UITraitCollection(traitsFrom: [
-            .init(displayScale: 3),
-            .init(userInterfaceStyle: .light)
-        ])
+        traits: UITraitCollection { mutableTraits in
+            mutableTraits.displayScale = 3
+            mutableTraits.userInterfaceStyle = .light
+        }
     )
 
     @Test("Verify Launching Splash Screen", arguments: Theme.allCases)

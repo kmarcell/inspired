@@ -2,6 +2,10 @@
 Inspired.xcodeproj/xcuserdata/*
 Inspired.xcodeproj/project.xcworkspace/xcuserdata/*
 
+# Credentials
+.env
+.env.*
+
 # CocoaPods
 Pods/
 
@@ -14,7 +18,9 @@ Pods/
 DerivedData/
 *.xcodeproj/
 !*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
-.env.*
+
+# Fastlane / Xcode build artifacts
+Apps/iOS/InspiredYogaPlatform/build/
 *.xcconfig
 GoogleService-Info.plist
 
