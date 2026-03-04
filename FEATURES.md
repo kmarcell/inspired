@@ -121,8 +121,18 @@ This section documents the precise data contracts between the iOS application an
 
 ---
 
-### 2.3 Community Post Schema
-*Collection: `/posts/{postId}`*
+### 2.4 Community & Subscription Logic
+**Goal:** Unify "Following" and "Joining" into a single primitive.
+
+1.  **Implicit Personal Communities**:
+    - Every user automatically owns a personal community identified by the ID: `user_sub_{userId}`.
+    - The **Community Name** is always synchronized with the owner's current `username`.
+2.  **Subscribing**:
+    - "Subscribing" to a user is technically defined as adding their `user_sub_{userId}` to the requester's `joinedCommunities` array.
+    - **Privacy Guard**: A user can only be subscribed to if their profile is `public`. Since private profiles return **Permission Denied** on read, the UI for subscribing is naturally hidden.
+3.  **The Feed**:
+    - The feed aggregates all posts where `source.id` is present in the user's `joinedCommunities` list.
+    - Posts made to a personal feed use `type: "community"` and `id: "user_sub_{userId}"`.
 
 **JSON Example:**
 ```json

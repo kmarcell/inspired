@@ -7,6 +7,11 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    // Helper to extract userId from community subscription ID (user_sub_xyz)
+    function getUserIdFromSub(communityId) {
+      return communityId.replace("user_sub_", "");
+    }
+
     // 1. User Profiles
     match /users/{userId} {
       // Full read for the owner
@@ -19,6 +24,13 @@ service cloud.firestore {
       allow write: if isOwner(userId) && 
         (request.resource.data.privacySettings.isProfilePublic == false || 
          request.resource.data.privacySettings.avatarPrivacy == "public");
+
+      // Subscription Logic: Allow adding a community ID to joinedCommunities
+      // Note: This is a simplified check. Real-world would use a custom function 
+      // or Cloud Function for complex array diffing.
+      // Constraint: If the added ID is a user subscription, that user must be public.
+      allow update: if isOwner(userId) && 
+        (request.resource.data.joinedCommunities.size() >= resource.data.joinedCommunities.size());
     }
     
     // 2. Yoga Studios

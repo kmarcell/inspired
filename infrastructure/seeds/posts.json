@@ -19,6 +19,26 @@
     "createdAt": "2026-02-18T08:00:00Z"
   },
   {
+    "id": "post_maya_personal_001",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Just uploaded a new meditation guide for my subscribers. Breathe deep! ✨",
+    "source": {
+      "type": "community",
+      "id": "user_sub_user_teacher_001",
+      "name": "yoga_maya#1001"
+    },
+    "stats": {
+      "likeCount": 25,
+      "commentCount": 5
+    },
+    "createdAt": "2026-03-01T10:00:00Z"
+  },
+  {
     "id": "post_hammersmith_001",
     "author": {
       "id": "user_student_001",

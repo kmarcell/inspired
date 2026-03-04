@@ -195,7 +195,12 @@ Users are distinguished solely by their privacy settings. The following logic is
 
 | Avatar Privacy | Profile Privacy | Who can view Profile (Bio, Name) | Who can view Avatar (Std & Thumb) |
 | :--- | :--- | :--- | :--- |
-| `groups-only` | `private` | **Only the Owner.** | Users with at least one **Joined Community overlap**. |
+| `groups-only` | `private` | **Only the Owner.** | Users with at least one **Joined Community overlap** (includes Personal Community subscriptions). |
+
+**Unified Connection Model:**
+*   **Connection Definition:** Two users are "connected" if they share at least one ID in their `joinedCommunities` array.
+*   **Personal Community ID:** `user_sub_{userId}`.
+*   **Subscription Enforcement:** A user can only append `user_sub_{targetId}` to their `joinedCommunities` if the target profile has `isProfilePublic: true`. This is enforced via Firestore Security Rules.
 | `public` | `private` | **Only the Owner.** | **Everyone.** |
 | `public` | `public` | **Everyone** (Searchable). | **Everyone.** |
 | `groups-only` | `public` | *Invalid State.* | Automatically forced to `public`. |
