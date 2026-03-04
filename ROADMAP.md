@@ -80,6 +80,15 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Login Screen UI:** LoginView implemented using TCA.
 - [x] **Login Snapshots:** Snapshots recorded and verified.
 
+**Step 5: User Onboarding & Name Moderation (TDD)**
+- [ ] **Onboarding Screen UI:** Implement `OnboardingView` with Display Name field and uneditable Username label.
+- [ ] **Onboarding Logic:** Implement routing from Login to Onboarding if Firestore profile is missing.
+- [ ] **Onboarding Persistence:** Update `AppFeature` routing to ensure users are returned to Onboarding until profile completion.
+- [ ] **Prefill Logic:** Auto-populate Display Name from Google Auth metadata.
+- [ ] **Moderation Cloud Function:** Implement `validateDisplayName` callable function using Google Cloud Natural Language API.
+- [ ] **Validation Guard:** Enforce display name length (2-50 chars) and character constraints in Firestore Security Rules.
+- [ ] **Onboarding Snapshots:** Capture snapshots for empty and pre-filled states.
+
 **Step 3: Landing Page & Feed (TDD)**
 - [ ] **Feed Unit Tests:** Write tests for chronological sorting and area filtering using the mock Firestore client.
 - [ ] **Landing Shell UI:** Implement the global navigation and area label.
