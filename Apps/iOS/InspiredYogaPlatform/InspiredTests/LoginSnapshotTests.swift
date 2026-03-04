@@ -32,7 +32,7 @@ struct LoginSnapshotTests {
             of: vc,
             as: .image(on: .iPhone13Pro),
             named: theme.rawValue,
-            record: false, // Disabling recording after update
+            record: false, // Disabling recording after contrast verification
             testName: "LoginView"
         )
     }
@@ -55,7 +55,7 @@ struct LoginSnapshotTests {
             of: vc,
             as: .image(on: .iPhone13Pro),
             named: theme.rawValue,
-            record: false, // Disabling recording after update
+            record: false, // Disabling recording after contrast verification
             testName: "MagicLinkSent"
         )
     }

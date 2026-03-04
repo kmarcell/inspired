@@ -35,4 +35,26 @@ final class LoginUITests: XCTestCase {
         // Capture Accessibility Hierarchy for AI Analysis
         app.captureAccessibilityHierarchy(name: "LoginScreen_VoiceOver")
     }
+
+    /// Functional and accessibility test for the Magic Link Sent state.
+    func testMagicLinkSentAccessibility() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["TEST_RESET_SESSION"] = "YES"
+        app.launch()
+
+        let emailField = app.textFields["login.emailTextField"]
+        XCTAssertTrue(emailField.waitForExistence(timeout: 5))
+        
+        emailField.tap()
+        emailField.typeText("test@example.com")
+        
+        app.buttons["login.magicLinkButton"].tap()
+        
+        // Wait for the success pill
+        let successText = app.staticTexts["login.magicLinkSent"]
+        XCTAssertTrue(successText.waitForExistence(timeout: 5))
+        
+        // Capture hierarchy to verify contrast/structure in the success state
+        app.captureAccessibilityHierarchy(name: "LoginScreen_MagicLinkSent_VoiceOver")
+    }
 }

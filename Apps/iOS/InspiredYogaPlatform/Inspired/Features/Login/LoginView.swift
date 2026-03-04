@@ -47,7 +47,7 @@ public struct LoginView: View {
                         HStack(spacing: 12) {
                             Text("G")
                                 .font(.system(size: 20, weight: .bold))
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(Color.brandGoogle)
                             Text("login.googleButton")
                         }
                         .fontWeight(.medium)
@@ -61,7 +61,7 @@ public struct LoginView: View {
                         )
                     }
                     .accessibilityIdentifier("login.googleButton")
-                    .accessibilityHint("Sign in with your Google account")
+                    .accessibilityHint(Text("login.googleButton.accessibilityHint"))
 
                     HStack {
                         VStack { Divider().background(Color.secondaryText.opacity(0.3)) }
@@ -106,20 +106,49 @@ public struct LoginView: View {
                         }
                         .disabled(store.isLoading)
                         .accessibilityIdentifier("login.magicLinkButton")
-                        .accessibilityHint("Send a magic login link to your email")
+                        .accessibilityHint(Text("login.magicLinkButton.accessibilityHint"))
 
                         if store.magicLinkSent {
-                            Text("login.magicLinkSent")
-                                .font(.caption)
-                                .foregroundStyle(.green)
-                                .transition(.opacity)
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("login.magicLinkSent")
+                            }
+                            .font(.footnote)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.statusConfirmation)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.statusConfirmation.opacity(0.1))
+                            .clipShape(.rect(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.statusConfirmation.opacity(0.2), lineWidth: 1)
+                            )
+                            .accessibilityElement(children: .combine)
+                            .accessibilityIdentifier("login.magicLinkSent")
+                            .transition(.move(edge: .top).combined(with: .opacity))
                         }
 
                         if let error = store.error {
-                            Text(error)
-                                .font(.caption)
-                                .foregroundStyle(.red)
-                                .transition(.opacity)
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                Text(error)
+                            }
+                            .font(.footnote)
+                            .fontWeight(.medium)
+                            .foregroundStyle(Color.statusFailure)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.statusFailure.opacity(0.1))
+                            .clipShape(.rect(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.statusFailure.opacity(0.2), lineWidth: 1)
+                            )
+                            .accessibilityElement(children: .combine)
+                            .transition(.opacity)
                         }
                     }
                 }
@@ -143,7 +172,7 @@ public struct LoginView: View {
                 .padding(.top, 40)
                 .multilineTextAlignment(.center)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("By continuing, you agree to our Privacy Policy and Terms of Service.")
+                .accessibilityLabel(Text("login.footer.legal.accessibilityLabel"))
 
                 Spacer()
 
