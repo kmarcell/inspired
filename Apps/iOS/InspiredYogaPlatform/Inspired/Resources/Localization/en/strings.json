@@ -7,6 +7,7 @@
     "login.magicLinkButton": "Send Magic Link",
     "login.magicLinkButton.accessibilityHint": "Send a magic login link to your email",
     "login.magicLinkSent": "Check your email for the link!",
+    "login.cooldown.resend %lld": "You can resend in %llds",
     "login.orDivider": "OR",
     "login.footer.legalPrefix": "By continuing, you agree to our",
     "login.footer.privacyPolicy": "Privacy Policy",
@@ -15,5 +16,15 @@
     "login.footer.legal.accessibilityLabel": "By continuing, you agree to our Privacy Policy and Terms of Service.",
     "login.footer.support": "Report an Issue",
     "login.error.generic": "An unexpected error occurred. Please try again.",
-    "login.error.invalidEmail": "Please enter a valid email address."
+    "login.error.invalidEmail": "Please enter a valid email address.",
+    
+    "onboarding.title": "Welcome!",
+    "onboarding.subtitle": "Let's set up your profile.",
+    "onboarding.displayName.label": "DISPLAY NAME",
+    "onboarding.displayName.placeholder": "e.g. Jane Doe",
+    "onboarding.displayName.hint": "This is how you'll appear in the community.",
+    "onboarding.username.label": "USERNAME",
+    "onboarding.username.hint": "Your unique identifier is assigned automatically.",
+    "onboarding.confirmButton": "Confirm & Join",
+    "onboarding.footer.info": "You can change your bio and profile picture later."
 }

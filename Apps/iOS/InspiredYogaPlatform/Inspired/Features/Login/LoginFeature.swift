@@ -10,6 +10,11 @@ public struct LoginFeature: Sendable {
         public var user: User? = nil
         public var email: String = ""
         public var magicLinkSent: Bool = false
+        public var cooldownRemaining: Int = 0
+        
+        public var isCooldownActive: Bool {
+            cooldownRemaining > 0
+        }
 
         public var isEmailValid: Bool {
             email.contains("@") && email.contains(".")
@@ -27,11 +32,17 @@ public struct LoginFeature: Sendable {
         case loginResponse(Result<User, Error>)
         case logoutButtonTapped
         case logoutResponse(Result<Void, Error>)
+        case cooldownTick
     }
 
     @Dependency(\.authenticationClient) var authClient
+    @Dependency(\.continuousClock) var clock
 
     public init() {}
+
+    private enum CancelID: Hashable {
+        case cooldown_timer
+    }
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -50,9 +61,11 @@ public struct LoginFeature: Sendable {
 
             case .sendMagicLinkTapped:
                 guard state.isEmailValid else {
-                    state.error = "Please enter a valid email address."
+                    state.error = "login.error.invalidEmail"
                     return .none
                 }
+                guard !state.isCooldownActive else { return .none }
+                
                 state.isLoading = true
                 state.error = nil
                 return .run { [email = state.email] send in
@@ -62,6 +75,20 @@ public struct LoginFeature: Sendable {
             case .sendMagicLinkResponse(.success):
                 state.isLoading = false
                 state.magicLinkSent = true
+                state.cooldownRemaining = 60
+                return .run { send in
+                    for await _ in self.clock.timer(interval: .seconds(1)) {
+                        await send(.cooldownTick)
+                    }
+                }
+                .cancellable(id: CancelID.cooldown_timer)
+
+            case .cooldownTick:
+                state.cooldownRemaining -= 1
+                if state.cooldownRemaining <= 0 {
+                    state.cooldownRemaining = 0
+                    return .cancel(id: CancelID.cooldown_timer)
+                }
                 return .none
 
             case let .sendMagicLinkResponse(.failure(error)):

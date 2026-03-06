@@ -32,7 +32,7 @@ struct LoginSnapshotTests {
             of: vc,
             as: .image(on: .iPhone13Pro),
             named: theme.rawValue,
-            record: false, // Disabling recording after contrast verification
+            record: false, // Recording new layout
             testName: "LoginView"
         )
     }
@@ -55,8 +55,32 @@ struct LoginSnapshotTests {
             of: vc,
             as: .image(on: .iPhone13Pro),
             named: theme.rawValue,
-            record: false, // Disabling recording after contrast verification
+            record: false, // Capturing new layout
             testName: "MagicLinkSent"
+        )
+    }
+
+    @Test("Verify Magic Link Cooldown state", arguments: Theme.allCases)
+    func testMagicLinkCooldown(theme: Theme) {
+        var state = LoginFeature.State()
+        state.magicLinkSent = true
+        state.cooldownRemaining = 45
+        let store = Store(initialState: state) {
+            LoginFeature()
+        }
+        let view = LoginView(store: store)
+            .environment(\.colorScheme, theme.colorScheme)
+            .frame(width: 390, height: 844)
+        
+        let vc = UIHostingController(rootView: view)
+        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+
+        assertSnapshot(
+            of: vc,
+            as: .image(on: .iPhone13Pro),
+            named: theme.rawValue,
+            record: false, // Capturing new layout
+            testName: "MagicLinkCooldown"
         )
     }
 }

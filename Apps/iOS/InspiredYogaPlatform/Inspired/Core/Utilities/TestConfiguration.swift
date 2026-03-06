@@ -9,5 +9,9 @@ struct TestConfiguration {
     static var forcedPassword: String? {
         UserDefaults.standard.string(forKey: "TEST_PWD")
     }
+
+    static var forcedScreen: String? {
+        UserDefaults.standard.string(forKey: "TEST_SCREEN")
+    }
 }
 #endif

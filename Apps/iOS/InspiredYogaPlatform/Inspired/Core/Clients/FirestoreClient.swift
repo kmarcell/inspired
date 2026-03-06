@@ -11,6 +11,8 @@ public enum ProfileError: Error, Equatable {
 @DependencyClient
 public struct FirestoreClient: Sendable {
     public var fetchUserProfile: @Sendable (_ userId: String) async throws -> User
+    public var createUserProfile: @Sendable (_ user: User) async throws -> Void
+    public var validateDisplayName: @Sendable (_ name: String) async throws -> Bool
     public var fetchPosts: @Sendable (_ area: String) async throws -> [Post]
     public var fetchStudios: @Sendable (_ area: String) async throws -> [Studio]
     public var fetchUserLikes: @Sendable (_ postIds: [String]) async throws -> [String: Bool]
@@ -31,6 +33,16 @@ extension FirestoreClient: DependencyKey {
                 }
                 throw error
             }
+        },
+        createUserProfile: { user in
+            try Firestore.firestore().collection("users").document(user.id).setData(from: user)
+        },
+        validateDisplayName: { name in
+            // Placeholder: In production, this calls a Cloud Function
+            // For now, assume anything > 2 chars is valid unless it's a specific "vulgar" mock
+            try await Task.sleep(nanoseconds: 500_000_000)
+            if name.lowercased().contains("vulgar") { return false }
+            return name.count >= 2
         },
         fetchPosts: { area in
             let snapshot = try await Firestore.firestore().collection("posts")
@@ -53,6 +65,8 @@ extension FirestoreClient: DependencyKey {
 extension FirestoreClient: TestDependencyKey {
     public static let previewValue = Self(
         fetchUserProfile: { _ in .mock },
+        createUserProfile: { _ in },
+        validateDisplayName: { _ in true },
         fetchPosts: { _ in .mock },
         fetchStudios: { _ in .mock },
         fetchUserLikes: { ids in Dictionary(uniqueKeysWithValues: ids.map { ($0, false) }) }

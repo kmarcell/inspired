@@ -73,6 +73,7 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
 ## Assets & Localization
 
 - **Localization-First Workflow:** Never use hardcoded strings. Add English to `Resources/Localization/en/strings.json` first, then run `scripts/sync-strings.sh` to generate `.xcstrings`.
+- **Standard SwiftUI Localization:** Never use `NSLocalizedString`. Use standard SwiftUI `Text` with localization keys (e.g., `Text("login.title")`). For dynamic formatting or plurals, use SwiftUI's native interpolation within `Text` or `LocalizedStringKey` (e.g., `Text("login.cooldown.resend \(count)")`).
 - **Pre-build Automation:** The `fastlane test` and `fastlane build` lanes must automatically execute `scripts/sync-strings.sh` and `scripts/generate-assets.sh` (which generates type-safe Swift interfaces for Colors and Images).
 - **Semantic Color Assets:** Never use system colors (e.g., `.white`, `.black`). All colors must be defined in `Resources/Assets.xcassets` using semantic names with explicit "Any" and "Dark" appearance slots.
 - **Iconography:** Use **SF Symbols** and **Emojis** as the primary visual language.
@@ -102,6 +103,7 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
 - **Full-Screen Support (Letterboxing):** Always ensure `INFOPLIST_KEY_UILaunchScreen_Generation` is set to `YES` in the `project.yml` settings to prevent letterboxing on modern iPhones.
 - **iOS 17 Trait Collection API:** `UITraitCollection(traitsFrom:)` is deprecated. Use the `UITraitCollection(mutations:)` initializer or the trailing closure variant: `UITraitCollection { mutableTraits in mutableTraits.displayScale = 3 }`.
 - **Update Loops:** Be extremely cautious with `.onAppear` in root views. Swapping child views in a `switch` (e.g., in `AppView`) can re-fire `.onAppear` on the parent, causing recursive state updates and simulator instability.
+- **Pre-flight Authentication (UI Tests):** Never use `Task.sleep` or retry loops in a Reducer to wait for Firebase Auth state. Handle forced authentication at the `Scene` level (InspiredApp) using a `.task` on the `WindowGroup`. Ensure the Auth state is fully primed before sending the initial `.appLaunched` action to the Store.
 - **Simulator Infrastructure:** If tests fail silently or loop, check `~/Library/Logs/CoreSimulator/CoreSimulator.log` and system diagnostic reports (e.g., `launchd_sim` in `/Library/Logs/DiagnosticReports/`). The simulator can be throttled or killed for excessive disk writes or memory usage.
 - **XcodeGen Sync:** Execute `xcodegen generate` after any file move or target configuration change before running tests or builds.
 - **UI Test Configuration:** When passing arguments to the app during UI tests (e.g., to force a specific user ID), prefer using `app.launchArguments` (standard `-KEY VALUE` format) over `launchEnvironment`. The app should check `UserDefaults` for these keys.

@@ -196,23 +196,34 @@ Users are distinguished solely by their privacy settings. The following logic is
 | Avatar Privacy | Profile Privacy | Who can view Profile (Bio, Name) | Who can view Avatar (Std & Thumb) |
 | :--- | :--- | :--- | :--- |
 | `groups-only` | `private` | **Only the Owner.** | Users with at least one **Joined Community overlap** (includes Personal Community subscriptions). |
+| `public` | `private` | **Only the Owner.** | **Everyone.** |
+| `public` | `public` | **Everyone** (Searchable). | **Everyone.** |
+| `groups-only` | `public` | *Invalid State.* | Automatically forced to `public`. |
 
 **Unified Connection Model:**
 *   **Connection Definition:** Two users are "connected" if they share at least one ID in their `joinedCommunities` array.
 *   **Personal Community ID:** `user_sub_{userId}`.
 *   **Subscription Enforcement:** A user can only append `user_sub_{targetId}` to their `joinedCommunities` if the target profile has `isProfilePublic: true`. This is enforced via Firestore Security Rules.
-| `public` | `private` | **Only the Owner.** | **Everyone.** |
-| `public` | `public` | **Everyone** (Searchable). | **Everyone.** |
-| `groups-only` | `public` | *Invalid State.* | Automatically forced to `public`. |
 
 **Access Logic (Enforcement):**
 *   **Profile Metadata (Firestore):** `allow read: if isOwner() || resource.data.privacySettings.isProfilePublic == true`.
 *   **Avatar Binary (Storage):** `allow read: if isOwner() || avatarIsPublic() || (avatarIsGroupsOnly() && hasCommunityOverlap())`.
 *   **Denormalization:** When a user posts, the `thumbnailUrl` and `avatarPrivacy` are denormalized in the `Post`. The client uses `avatarPrivacy` to decide whether to show the image or a "Community-Only" placeholder (though the binary is secured at the storage level regardless).
 
----
+### 4.6 Magic Link Anti-Spam & Rate Limiting
+To prevent email provider throttling and Firebase billing exhaustion, the following multi-layer protection is enforced:
 
-### 4.6 Seeding & Environment Strategies
+1.  **Firebase App Check (Primary Defense):**
+    *   **Enforcement:** All Authentication requests (OAuth and Magic Link) must include a valid **App Check Token**.
+    *   **Provider:** DeviceCheck or AppAttest (iOS).
+    *   **Result:** Requests from unauthorized clients (scripts, bots, modified binaries) are rejected before triggering an email send or backend operation.
+2.  **Server-Side Rate Limiting (Cloud Functions):**
+    *   **Mechanism:** If needed for higher granularity, a Cloud Function wrapper for `sendSignInLink` will track request counts in a temporary `/rate_limits/{email_or_ip}` Firestore collection.
+    *   **Policy:** Max 5 requests per 15 minutes. Documents are automatically purged via TTL policies.
+3.  **Client-Side "Cooldown" State:**
+    *   The UI enforces a 60-second lockout period to manage user expectations and reduce accidental double-taps.
+
+### 4.7 Seeding & Environment Strategies
 To maintain security and testability, we employ different seeding strategies based on the environment:
 
 | Feature | Local Emulator | Staging / Production |

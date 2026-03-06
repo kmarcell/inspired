@@ -252,6 +252,16 @@ This section documents the precise data contracts between the iOS application an
     - **Firebase Flow**: Firebase sends a secure verification link to the email.
     - **Sign-in**: Upon tapping the link (on the same device), the user is signed in.
     - **Testing Mandate**: **Manual Verification Required.** Because Magic Link relies on an out-of-band email delivery and deep-linking, it cannot be fully automated in UI tests. Developers must verify this flow manually on a physical device or simulator with a real email account.
+
+**5.1.1 Anti-Spam & Security Measures:**
+1.  **Client-Side Cooldown**:
+    - After tapping "Send," the button accessory is disabled for **60 seconds**.
+    - The UI provides feedback (e.g., a countdown or "Sent") to prevent repeated taps.
+2.  **Firebase App Check**:
+    - Mandatory enforcement of App Check (using DeviceCheck/AppAttest) to ensure only valid app binaries can request Magic Links. This prevents bot-driven billing exhaustion.
+3.  **Rate Limiting**:
+    - Backend-enforced limit of 5 link requests per hour per email/IP address.
+    - Error feedback: "Too many attempts. Please try again in 15 minutes."
 3.  **Apple ID**: *Deferred (Phase 4)*.
 
 **Identity & Username Strategy:**

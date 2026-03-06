@@ -8,6 +8,7 @@ public struct AppFeature: Sendable {
     public enum State: Equatable {
         case launching
         case login(LoginFeature.State)
+        case onboarding(OnboardingFeature.State)
         case authenticated(User)
 
         public init() {
@@ -18,6 +19,7 @@ public struct AppFeature: Sendable {
     public enum Action: Sendable {
         case appLaunched
         case login(LoginFeature.Action)
+        case onboarding(OnboardingFeature.Action)
         case currentUserResponse(Result<User?, Error>)
         case userProfileResponse(Result<User, Error>)
     }
@@ -31,22 +33,8 @@ public struct AppFeature: Sendable {
         Reduce { state, action in
             switch action {
             case .appLaunched:
-                #if DEBUG
-                if let forcedUserId = TestConfiguration.forcedUserId {
-                    return .run { send in
-                        do {
-                            // Sign in to Auth Emulator first to satisfy Firestore Rules
-                            let password = TestConfiguration.forcedPassword ?? "missing_password"
-                            try await Auth.auth().signIn(withEmail: "\(forcedUserId)@inspired.test", password: password)
-                            let profile = try await firestoreClient.fetchUserProfile(forcedUserId)
-                            await send(.userProfileResponse(.success(profile)))
-                        } catch {
-                            print("❌ Forced auth/profile failed: \(error)")
-                            await send(.userProfileResponse(.failure(error)))
-                        }
-                    }
-                }
-                #endif
+                // If we've already injected a specific test state (e.g. Onboarding), don't run launch logic
+                guard state == .launching else { return .none }
                 
                 return .run { send in
                     await send(.currentUserResponse(Result { try await authClient.currentUser() }))
@@ -72,20 +60,42 @@ public struct AppFeature: Sendable {
                 return .none
 
             case let .userProfileResponse(.failure(error)):
+                // If profile not found but we have auth, go to onboarding
+                if let profileError = error as? ProfileError, profileError == .notFound {
+                    return .run { send in
+                        if let authUser = try await authClient.currentUser() {
+                            await send(.onboarding(.displayNameChanged(authUser.displayName ?? "")))
+                        } else {
+                            await send(.currentUserResponse(.success(.none)))
+                        }
+                    }
+                }
                 print("❌ Profile fetch failed: \(error)")
                 state = .login(LoginFeature.State())
                 return .none
 
-            case .login(.loginResponse(.success(let user))):
+            case let .onboarding(.delegate(.profileCreated(user))):
                 state = .authenticated(user)
                 return .none
 
+            case .login(.loginResponse(.success(let user))):
+                // After login, check for profile
+                return .run { send in
+                    await send(.userProfileResponse(Result { try await firestoreClient.fetchUserProfile(user.id) }))
+                }
+
             case .login:
+                return .none
+                
+            case .onboarding:
                 return .none
             }
         }
         .ifCaseLet(\.login, action: \.login) {
             LoginFeature()
+        }
+        .ifCaseLet(\.onboarding, action: \.onboarding) {
+            OnboardingFeature()
         }
     }
 }
@@ -106,12 +116,13 @@ public struct AppView: View {
                 if let loginStore = store.scope(state: \.login, action: \.login) {
                     LoginView(store: loginStore)
                 }
+            case .onboarding:
+                if let onboardingStore = store.scope(state: \.onboarding, action: \.onboarding) {
+                    OnboardingView(store: onboardingStore)
+                }
             case .authenticated(let user):
                 AuthenticatedPlaceholderView(user: user)
             }
-        }
-        .task {
-            store.send(.appLaunched)
         }
     }
 }
@@ -154,6 +165,7 @@ struct AuthenticatedPlaceholderView: View {
                 Text("Welcome, \(user.displayName ?? user.username)!")
                     .font(.largeTitle)
                     .fontWeight(.bold)
+                    .accessibilityIdentifier("app.welcomeText")
                 
                 Text("This is the Community Feed (Placeholder)")
                     .foregroundColor(.secondaryText)

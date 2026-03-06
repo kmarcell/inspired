@@ -209,7 +209,6 @@ struct CustomCollectionView: UIViewControllerRepresentable {
 // Usage: Instantiate CustomCollectionViewController and present it in your view hierarchy.
 #Preview {
     CustomCollectionView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
 
 #endif

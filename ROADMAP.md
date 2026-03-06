@@ -53,6 +53,7 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Functions Scaffolding:** `functions/` directory verified.
 - [x] **Seeding Implementation:** `infrastructure/scripts/seeder.js` verified.
 - [x] **Security Review:** Initial review and automated testing of privacy rules completed.
+
 #### 3.1 iOS Feature Implementation (TDD Cycle - Target: Local Emulator)
 
 **Step 0: Technical Refinements & Mandates (Prerequisite)**
@@ -77,25 +78,27 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 **Step 2: Authentication Logic (TDD)**
 - [x] **Auth Unit Tests:** Swift Testing suites verified and passing.
 - [x] **Fastlane Lane Implementation:** Develop and verify the `test` lane (Emulator-based), ensuring **auto-acceptance of Swift macros**.
-- [x] **Login Screen UI:** LoginView implemented using TCA.
-- [x] **Login Snapshots:** Snapshots recorded and verified.
+- [x] **Login Screen UI:** LoginView implemented using TCA with Magic Link integration.
+- [x] **Login Snapshots:** Snapshots recorded and verified for all states (Login, Sent, Cooldown).
+- [ ] **UI Polish (Login):** Fix `Spacer()` behavior to ensure legal footer remains at the bottom of the screen.
+- [ ] **Error Handling (Magic Link):** Implement and capture snapshots for API failure states during magic link request.
 
-**Step 5: User Onboarding & Name Moderation (TDD)**
-- [ ] **Onboarding Screen UI:** Implement `OnboardingView` with Display Name field and uneditable Username label.
-- [ ] **Onboarding Logic:** Implement routing from Login to Onboarding if Firestore profile is missing.
-- [ ] **Onboarding Persistence:** Update `AppFeature` routing to ensure users are returned to Onboarding until profile completion.
-- [ ] **Prefill Logic:** Auto-populate Display Name from Google Auth metadata.
+**Step 3: User Onboarding & Name Moderation (TDD)**
+- [x] **Onboarding Screen UI:** Implement `OnboardingView` with Display Name field and uneditable Username label.
+- [x] **Onboarding Logic:** Implement routing from Login to Onboarding if Firestore profile is missing.
+- [x] **Onboarding Persistence:** Update `AppFeature` routing to ensure users are returned to Onboarding until profile completion.
+- [x] **Prefill Logic:** Auto-populate Display Name from Google Auth metadata.
 - [ ] **Moderation Cloud Function:** Implement `validateDisplayName` callable function using Google Cloud Natural Language API.
 - [ ] **Validation Guard:** Enforce display name length (2-50 chars) and character constraints in Firestore Security Rules.
-- [ ] **Onboarding Snapshots:** Capture snapshots for empty and pre-filled states.
+- [x] **Onboarding Snapshots:** Capture snapshots for empty and pre-filled states.
 
-**Step 3: Landing Page & Feed (TDD)**
+**Step 4: Landing Page & Feed (TDD)**
 - [ ] **Feed Unit Tests:** Write tests for chronological sorting and area filtering using the mock Firestore client.
 - [ ] **Landing Shell UI:** Implement the global navigation and area label.
 - [ ] **Community Feed UI:** Implement the post-card list and "What's on your mind?" bar.
 - [ ] **Landing Snapshots:** Generate snapshots and verify against `UI/Mockups/5.2_LandingPageShell.svg` and `5.3_CommunityFeedPost.svg`.
 
-**Step 4: Privacy-First User Model & Security Rule Enforcement (TDD)**
+**Step 5: Privacy-First User Model & Security Rule Enforcement (TDD)**
 - [x] **Data Model Refactor:** Remove `isTeacher` and standardize on `privacySettings`.
 - [x] **Security Rule Implementation:** Implement "Community Overlap" and Profile Privacy logic in Firestore Rules.
 - [x] **Privacy Constraint Enforcement:** Implement logic to force avatar to `public` if profile is `public`.

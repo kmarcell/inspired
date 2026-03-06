@@ -1,11 +1,9 @@
 import XCTest
 
-final class AppLaunchUITests: XCTestCase {
-    var app: XCUIApplication!
+final class AppLaunchUITests: BaseUITestCase {
 
     override func setUpWithError() throws {
-        continueAfterFailure = false
-        app = XCUIApplication()
+        try super.setUpWithError()
         app.launchEnvironment["IS_UI_TEST"] = "YES"
     }
 
@@ -26,8 +24,8 @@ final class AppLaunchUITests: XCTestCase {
         app.launch()
 
         // 1. Verify we end up on the Authenticated Feed (Placeholder)
-        // We look for the welcome text based on the seeder data
-        XCTAssertTrue(app.staticTexts["Welcome, Maya Sharma!"].waitForExistence(timeout: 10))
+        // We look for the welcome text using identifier
+        XCTAssertTrue(app.staticTexts["app.welcomeText"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["Inspired Feed"].exists)
     }
 }

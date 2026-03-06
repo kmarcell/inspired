@@ -10,35 +10,31 @@ public struct LoginView: View {
 
     public var body: some View {
         ZStack {
-            Color.primaryBackground
-                .ignoresSafeArea()
+            Color.primaryBackground.ignoresSafeArea()
 
-            VStack(spacing: 0) {
+            VStack(spacing: 40) {
                 Spacer()
 
-                VStack(spacing: 16) {
-                    RoundedRectangle(cornerRadius: 20)
+                VStack(spacing: 12) {
+                    RoundedRectangle(cornerRadius: 24)
                         .fill(Color.secondary.opacity(0.2))
-                        .frame(width: 100, height: 100)
+                        .frame(width: 120, height: 120)
                         .overlay(
                             Text("LOGO")
-                                .font(.caption)
+                                .font(.headline)
                                 .foregroundColor(.secondary)
                         )
                         .accessibilityHidden(true)
-                    
-                    VStack(spacing: 4) {
-                        Text("login.title")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primaryText)
-                        
-                        Text("login.subtitle")
-                            .font(.headline)
-                            .foregroundColor(.secondaryText)
-                    }
+
+                    Text("login.title")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primaryText)
+
+                    Text("login.subtitle")
+                        .font(.subheadline)
+                        .foregroundColor(.secondaryText)
                 }
-                .padding(.bottom, 60)
 
                 VStack(spacing: 20) {
                     Button {
@@ -75,50 +71,70 @@ public struct LoginView: View {
                     .accessibilityHidden(true)
 
                     VStack(spacing: 12) {
-                        TextField("login.emailPlaceholder", text: Binding(
-                            get: { store.email },
-                            set: { store.send(.emailChanged($0)) }
-                        ))
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                        .padding()
-                        .background(Color.primarySurface, in: RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.primaryText.opacity(0.1), lineWidth: 1)
-                        )
-                        .accessibilityIdentifier("login.emailTextField")
-
-                        Button {
-                            store.send(.sendMagicLinkTapped)
-                        } label: {
-                            HStack(spacing: 12) {
-                                Text("📧")
-                                    .font(.system(size: 20))
-                                Text("login.magicLinkButton")
-                            }
-                            .fontWeight(.bold)
-                            .frame(maxWidth: .infinity)
+                        // Integrated Email Input & Send Action
+                        ZStack(alignment: .trailing) {
+                            TextField("login.emailPlaceholder", text: Binding(
+                                get: { store.email },
+                                set: { store.send(.emailChanged($0)) }
+                            ))
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
                             .padding()
-                            .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
-                            .foregroundStyle(.white)
-                        }
-                        .disabled(store.isLoading)
-                        .accessibilityIdentifier("login.magicLinkButton")
-                        .accessibilityHint(Text("login.magicLinkButton.accessibilityHint"))
+                            .padding(.trailing, 48) // Make room for the integrated button
+                            .background(Color.primarySurface, in: RoundedRectangle(cornerRadius: 12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.primaryText.opacity(0.1), lineWidth: 1)
+                            )
+                            .accessibilityIdentifier("login.emailTextField")
 
-                        if store.magicLinkSent {
-                            HStack(spacing: 8) {
-                                Image(systemName: "checkmark.circle.fill")
-                                Text("login.magicLinkSent")
+                            Button {
+                                store.send(.sendMagicLinkTapped)
+                            } label: {
+                                ZStack {
+                                    if store.isLoading {
+                                        ProgressView()
+                                            .controlSize(.small)
+                                    } else {
+                                        Image(systemName: "paperplane.fill")
+                                            .font(.system(size: 16, weight: .bold))
+                                            .foregroundStyle(store.isEmailValid && !store.isCooldownActive ? Color.accentColor : Color.secondaryText.opacity(0.3))
+                                    }
+                                }
+                                .frame(width: 32, height: 32)
+                                .background(store.isEmailValid && !store.isCooldownActive ? Color.accentColor.opacity(0.1) : Color.clear)
+                                .clipShape(Circle())
+                                .contentShape(Rectangle())
                             }
-                            .font(.footnote)
-                            .fontWeight(.medium)
+                            .padding(.trailing, 8)
+                            .disabled(store.isLoading || !store.isEmailValid || store.isCooldownActive)
+                            .accessibilityIdentifier("login.magicLinkButton")
+                            .accessibilityLabel(Text("login.magicLinkButton"))
+                            .accessibilityHint(Text("login.magicLinkButton.accessibilityHint"))
+                        }
+
+                        if store.magicLinkSent || store.isCooldownActive {
+                            HStack(alignment: .center, spacing: 12) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 16))
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("login.magicLinkSent")
+                                        .font(.footnote)
+                                        .fontWeight(.bold)
+                                    
+                                    if store.isCooldownActive {
+                                        Text("login.cooldown.resend \(store.cooldownRemaining)")
+                                            .font(.caption2)
+                                            .fontWeight(.medium)
+                                    }
+                                }
+                            }
                             .foregroundStyle(Color.statusConfirmation)
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.statusConfirmation.opacity(0.1))
                             .clipShape(.rect(cornerRadius: 12))
                             .overlay(
@@ -131,16 +147,16 @@ public struct LoginView: View {
                         }
 
                         if let error = store.error {
-                            HStack(spacing: 8) {
+                            HStack(alignment: .center, spacing: 8) {
                                 Image(systemName: "exclamationmark.triangle.fill")
-                                Text(error)
+                                Text(LocalizedStringKey(error))
                             }
                             .font(.footnote)
                             .fontWeight(.medium)
                             .foregroundStyle(Color.statusFailure)
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.statusFailure.opacity(0.1))
                             .clipShape(.rect(cornerRadius: 12))
                             .overlay(
@@ -153,6 +169,8 @@ public struct LoginView: View {
                     }
                 }
                 .padding(.horizontal, 40)
+
+                Spacer()
 
                 VStack(spacing: 4) {
                     Text("login.footer.legalPrefix")
@@ -181,12 +199,14 @@ public struct LoginView: View {
                 } label: {
                     Text("login.footer.support")
                         .font(.footnote)
-                        .foregroundStyle(Color.secondaryText)
+                        .foregroundColor(.secondaryText)
                 }
                 .accessibilityIdentifier("login.supportButton")
                 .padding(.bottom, 20)
             }
         }
+        .animation(.default, value: store.magicLinkSent)
+        .animation(.default, value: store.error)
     }
 }
 
