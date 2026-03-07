@@ -23,9 +23,9 @@ final class AppLaunchUITests: BaseUITestCase {
         app.launchArguments.append(contentsOf: ["-TEST_UID", "user_teacher_001", "-TEST_PWD", password])
         app.launch()
 
-        // 1. Verify we end up on the Authenticated Feed (Placeholder)
-        // We look for the welcome text using identifier
-        XCTAssertTrue(app.staticTexts["app.welcomeText"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.staticTexts["Inspired Feed"].exists)
+        // 1. Verify we end up on the Landing Page
+        // We look for the profile button or search bar using identifier
+        XCTAssertTrue(app.buttons["landing.profileButton"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["landing.searchButton"].exists)
     }
 }

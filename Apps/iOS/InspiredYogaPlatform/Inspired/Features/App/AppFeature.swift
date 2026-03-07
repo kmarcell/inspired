@@ -9,7 +9,7 @@ public struct AppFeature: Sendable {
         case launching
         case login(LoginFeature.State)
         case onboarding(OnboardingFeature.State)
-        case authenticated(User)
+        case authenticated(LandingPageFeature.State)
 
         public init() {
             self = .launching
@@ -20,6 +20,7 @@ public struct AppFeature: Sendable {
         case appLaunched
         case login(LoginFeature.Action)
         case onboarding(OnboardingFeature.Action)
+        case authenticated(LandingPageFeature.Action)
         case onboardingStateTriggered(userId: String, displayName: String)
         case currentUserResponse(Result<User?, Error>)
         case userProfileResponse(Result<User, Error>)
@@ -61,7 +62,7 @@ public struct AppFeature: Sendable {
                 return .none
 
             case let .userProfileResponse(.success(user)):
-                state = .authenticated(user)
+                state = .authenticated(LandingPageFeature.State(user: user))
                 return .none
 
             case let .userProfileResponse(.failure(error)):
@@ -80,7 +81,7 @@ public struct AppFeature: Sendable {
                 return .none
 
             case let .onboarding(.delegate(.profileCreated(user))):
-                state = .authenticated(user)
+                state = .authenticated(LandingPageFeature.State(user: user))
                 return .none
 
             case .login(.loginResponse(.success(let user))):
@@ -94,6 +95,9 @@ public struct AppFeature: Sendable {
                 
             case .onboarding:
                 return .none
+
+            case .authenticated:
+                return .none
             }
         }
         .ifCaseLet(\.login, action: \.login) {
@@ -101,6 +105,9 @@ public struct AppFeature: Sendable {
         }
         .ifCaseLet(\.onboarding, action: \.onboarding) {
             OnboardingFeature()
+        }
+        .ifCaseLet(\.authenticated, action: \.authenticated) {
+            LandingPageFeature()
         }
     }
 }
@@ -125,8 +132,10 @@ public struct AppView: View {
                 if let onboardingStore = store.scope(state: \.onboarding, action: \.onboarding) {
                     OnboardingView(store: onboardingStore)
                 }
-            case .authenticated(let user):
-                AuthenticatedPlaceholderView(user: user)
+            case .authenticated:
+                if let landingStore = store.scope(state: \.authenticated, action: \.authenticated) {
+                    LandingPageView(store: landingStore)
+                }
             }
         }
     }
@@ -161,36 +170,13 @@ struct LaunchView: View {
     }
 }
 
-struct AuthenticatedPlaceholderView: View {
-    let user: User
-    
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Text("Welcome, \(user.displayName ?? user.username)!")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .accessibilityIdentifier("app.welcomeText")
-                
-                Text("This is the Community Feed (Placeholder)")
-                    .foregroundColor(.secondaryText)
-                
-                Image(systemName: "person.3.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.accentColor)
-            }
-            .navigationTitle("Inspired Feed")
-        }
-    }
-}
-
 #Preview("Launching") {
     AppView(store: Store(initialState: .launching) {
         AppFeature()
     })
 }
 
-#Preview("Authenticated") {
+#Preview("Landing") {
     AppView(store: Store(initialState: .authenticated(.mock)) {
         AppFeature()
     })

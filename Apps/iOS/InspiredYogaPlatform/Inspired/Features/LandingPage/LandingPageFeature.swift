@@ -13,7 +13,7 @@ public struct LandingPageFeature {
         }
     }
     
-    public enum Action: Equatable {
+    public enum Action: Equatable, Sendable {
         case profileButtonTapped
         case searchButtonTapped
         case joinedCommunitiesButtonTapped

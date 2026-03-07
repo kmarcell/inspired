@@ -37,29 +37,4 @@ struct AppSnapshotTests {
             testName: "LaunchingSplash"
         )
     }
-
-    @Test("Verify Authenticated Feedback Placeholder", arguments: Theme.allCases)
-    func testAuthenticatedPlaceholder(theme: Theme) {
-        let store = withDependencies {
-            $0.authenticationClient.currentUser = { .mock }
-            $0.firestoreClient.fetchUserProfile = { _ in .mock }
-        } operation: {
-            Store(initialState: .authenticated(.mock)) {
-                AppFeature()
-            }
-        }
-        let view = AppView(store: store)
-            .environment(\.colorScheme, theme.colorScheme)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
-
-        assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
-            testName: "AuthenticatedPlaceholder"
-        )
-    }
 }
