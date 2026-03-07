@@ -13,15 +13,6 @@ struct AppSnapshotTests {
         var colorScheme: ColorScheme { self == .light ? .light : .dark }
     }
 
-    static let iPhone16Pro = ViewImageConfig(
-        safeArea: UIEdgeInsets(top: 62, left: 0, bottom: 34, right: 0),
-        size: CGSize(width: 402, height: 874),
-        traits: UITraitCollection(mutations: { mutableTraits in
-            mutableTraits.displayScale = 3
-            mutableTraits.userInterfaceStyle = .light
-        })
-    )
-
     @Test("Verify Launching Splash Screen", arguments: Theme.allCases)
     func testLaunchingSplash(theme: Theme) {
         let store = withDependencies {
@@ -34,14 +25,13 @@ struct AppSnapshotTests {
         }
         let view = AppView(store: store)
             .environment(\.colorScheme, theme.colorScheme)
-            .frame(width: 402, height: 874) // iPhone 16 Pro size
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 402, height: 874)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: AppSnapshotTests.iPhone16Pro),
+            as: .image(on: .iPhone16Pro),
             named: theme.rawValue,
             record: false,
             testName: "LaunchingSplash"
@@ -60,14 +50,13 @@ struct AppSnapshotTests {
         }
         let view = AppView(store: store)
             .environment(\.colorScheme, theme.colorScheme)
-            .frame(width: 402, height: 874) // iPhone 16 Pro size
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 402, height: 874)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: AppSnapshotTests.iPhone16Pro),
+            as: .image(on: .iPhone16Pro),
             named: theme.rawValue,
             record: false,
             testName: "AuthenticatedPlaceholder"

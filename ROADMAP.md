@@ -81,7 +81,7 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Login Screen UI:** LoginView implemented using TCA with Magic Link integration.
 - [x] **Google Sign-In:** Native SDK integration with decoupled architecture.
 - [x] **Login Snapshots:** Snapshots recorded and verified for all states (Login, Sent, Cooldown, Error).
-- [ ] **UI Polish (Login):** Fix `Spacer()` behavior to ensure legal footer remains at the bottom of the screen.
+- [x] **UI Polish (Login):** Fix `Spacer()` behavior to ensure legal footer remains at the bottom of the screen.
 - [x] **Error Handling (Magic Link):** Implement and capture snapshots for API failure states during magic link request.
 
 **Step 3: User Onboarding & Name Moderation (TDD)**
@@ -121,10 +121,13 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [ ] **Mockup Generation:** Ensure all above features have corresponding sketches in `UI/Mockups/`.
 
 ### Phase 4: Staging & Deployment
-1.  **Terraform Foundations:** Write the initial `.tf` files for Auth and Firestore to enable cloud deployment.
-2.  **IaC Deployment:** Push infrastructure to `inspired-yoga-app-staging`.
-3.  **Fastlane Cloud Scaffolding:** Implement `deploy_staging` and `deploy_prod` lanes.
-4.  **Beta Testing:** Distribute build to "Staging Testers" via Firebase App Distribution.
+1.  **Infrastructure: Firebase App Check Configuration:**
+    - Apple Portal: Generate App Attest/DeviceCheck .p8 keys.
+    - Firebase Console: Register iOS app binaries with App Check keys for Staging and Production.
+2.  **Terraform Foundations:** Write the initial `.tf` files for Auth and Firestore to enable cloud deployment.
+3.  **IaC Deployment:** Push infrastructure to `inspired-yoga-app-staging`.
+4.  **Fastlane Cloud Scaffolding:** Implement `deploy_staging` and `deploy_prod` lanes.
+5.  **Beta Testing:** Distribute build to "Staging Testers" via Firebase App Distribution.
 
 ---
 

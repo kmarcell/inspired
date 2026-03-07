@@ -92,14 +92,13 @@ struct OnboardingFeatureTests {
         }
         let view = OnboardingView(store: store)
             .environment(\.colorScheme, isDark ? .dark : .light)
-            .frame(width: 390, height: 844)
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: .iPhone13Pro),
+            as: .image(on: .iPhone16Pro),
             named: themeName,
             record: false,
             testName: "OnboardingView"
@@ -118,14 +117,13 @@ struct OnboardingFeatureTests {
         }
         let view = OnboardingView(store: store)
             .environment(\.colorScheme, isDark ? .dark : .light)
-            .frame(width: 390, height: 844)
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: .iPhone13Pro),
+            as: .image(on: .iPhone16Pro),
             named: themeName,
             record: false,
             testName: "OnboardingRateLimitError"
@@ -143,16 +141,15 @@ struct OnboardingFeatureTests {
         }
         let view = OnboardingView(store: store)
             .environment(\.colorScheme, isDark ? .dark : .light)
-            .frame(width: 390, height: 844)
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: .iPhone13Pro),
+            as: .image(on: .iPhone16Pro),
             named: themeName,
-            record: false, // Capturing permission denied
+            record: false,
             testName: "OnboardingPermissionDenied"
         )
     }

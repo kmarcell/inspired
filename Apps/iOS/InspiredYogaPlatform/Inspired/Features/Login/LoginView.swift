@@ -12,7 +12,7 @@ public struct LoginView: View {
         ZStack {
             Color.primaryBackground.ignoresSafeArea()
 
-            VStack(spacing: 40) {
+            VStack(spacing: 0) {
                 Spacer()
 
                 VStack(spacing: 12) {
@@ -168,40 +168,40 @@ public struct LoginView: View {
                         }
                     }
                 }
+                .padding(.top, 40)
                 .padding(.horizontal, 40)
 
                 Spacer()
 
-                VStack(spacing: 4) {
-                    Text("login.footer.legalPrefix")
+                VStack(spacing: 24) {
+                    VStack(spacing: 4) {
+                        Text("login.footer.legalPrefix")
+                            .font(.caption2)
+                            .foregroundStyle(Color.secondaryText)
+                        
+                        HStack(spacing: 4) {
+                            Text("login.footer.privacyPolicy")
+                                .fontWeight(.bold)
+                            Text("login.footer.and")
+                            Text("login.footer.terms")
+                                .fontWeight(.bold)
+                        }
                         .font(.caption2)
-                        .foregroundStyle(Color.secondaryText)
-                    
-                    HStack(spacing: 4) {
-                        Text("login.footer.privacyPolicy")
-                            .fontWeight(.bold)
-                        Text("login.footer.and")
-                        Text("login.footer.terms")
-                            .fontWeight(.bold)
+                        .foregroundStyle(Color.accentColor)
                     }
-                    .font(.caption2)
-                    .foregroundStyle(Color.accentColor)
-                }
-                .padding(.top, 40)
-                .multilineTextAlignment(.center)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(Text("login.footer.legal.accessibilityLabel"))
+                    .multilineTextAlignment(.center)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Text("login.footer.legal.accessibilityLabel"))
 
-                Spacer()
-
-                Button {
-                    // Action for Support/Report
-                } label: {
-                    Text("login.footer.support")
-                        .font(.footnote)
-                        .foregroundColor(.secondaryText)
+                    Button {
+                        // Action for Support/Report
+                    } label: {
+                        Text("login.footer.support")
+                            .font(.footnote)
+                            .foregroundColor(.secondaryText)
+                    }
+                    .accessibilityIdentifier("login.supportButton")
                 }
-                .accessibilityIdentifier("login.supportButton")
                 .padding(.bottom, 20)
             }
         }

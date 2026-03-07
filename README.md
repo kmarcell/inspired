@@ -246,6 +246,10 @@ To complete your local environment setup, please perform the following tasks:
 - [ ] **App Store Connect API Key:** Generate a `.p8` key in the Apple Developer Portal.
 - [ ] **Fastlane Environment:** Create `Apps/iOS/InspiredYogaPlatform/fastlane/.env` based on `.env.template` and add your API Key credentials.
 - [ ] **Code Signing:** Initialize `fastlane match` to manage certificates and profiles.
+- [ ] **Firebase App Check Infrastructure:**
+    - **Apple Portal:** Register an **App Attest** or **DeviceCheck** key and download the `.p8` file.
+    - **Firebase Console:** Go to **App Check > APIs** and register your iOS app by uploading the `.p8` key and providing your Team ID.
+    - **Xcode (Entitlements):** Ensure the **App Attest** capability is added to your target (This will be automated via `project.yml` once keys are ready).
 
 ---
 

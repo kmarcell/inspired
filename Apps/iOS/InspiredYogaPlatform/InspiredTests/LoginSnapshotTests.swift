@@ -8,12 +8,8 @@ import Testing
 @MainActor
 struct LoginSnapshotTests {
     enum Theme: String, CaseIterable {
-        case light
-        case dark
-        
-        var colorScheme: ColorScheme {
-            self == .light ? .light : .dark
-        }
+        case light, dark
+        var colorScheme: ColorScheme { self == .light ? .light : .dark }
     }
 
     @Test("Verify LoginView layout", arguments: Theme.allCases)
@@ -23,14 +19,13 @@ struct LoginSnapshotTests {
         }
         let view = LoginView(store: store)
             .environment(\.colorScheme, theme.colorScheme)
-            .frame(width: 390, height: 844)
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: .iPhone13Pro),
+            as: .image(on: .iPhone16Pro),
             named: theme.rawValue,
             record: false,
             testName: "LoginView"
@@ -46,14 +41,13 @@ struct LoginSnapshotTests {
         }
         let view = LoginView(store: store)
             .environment(\.colorScheme, theme.colorScheme)
-            .frame(width: 390, height: 844)
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: .iPhone13Pro),
+            as: .image(on: .iPhone16Pro),
             named: theme.rawValue,
             record: false,
             testName: "MagicLinkSent"
@@ -70,14 +64,13 @@ struct LoginSnapshotTests {
         }
         let view = LoginView(store: store)
             .environment(\.colorScheme, theme.colorScheme)
-            .frame(width: 390, height: 844)
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: .iPhone13Pro),
+            as: .image(on: .iPhone16Pro),
             named: theme.rawValue,
             record: false,
             testName: "MagicLinkCooldown"
@@ -93,14 +86,13 @@ struct LoginSnapshotTests {
         }
         let view = LoginView(store: store)
             .environment(\.colorScheme, theme.colorScheme)
-            .frame(width: 390, height: 844)
-        
+
         let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
             of: vc,
-            as: .image(on: .iPhone13Pro),
+            as: .image(on: .iPhone16Pro),
             named: theme.rawValue,
             record: false,
             testName: "RateLimitError"

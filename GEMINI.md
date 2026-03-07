@@ -134,6 +134,7 @@
     - **Scenarios:** Cover all requirement-driven scenarios and input variants (empty, boundary, edge cases).
 - **Snapshot Tests:**
     - **Goal:** UI validation against design mockups.
+    - **Environment Mandate:** All snapshot tests **MUST** be executed using the **iPhone 16 Pro (iOS 18.0)** simulator to ensure consistency in layout and rendering across development environments.
     - **Recording:** Always re-record reference snapshots immediately after UI changes to maintain a consistent source of truth.
     - **Themes:** Verify screens across all supported system themes (e.g., Light and Dark modes).
     - **States:** Generate snapshots for **Empty**, **Minimal Data**, and **Full Data** scenarios.
