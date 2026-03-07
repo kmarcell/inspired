@@ -16,6 +16,9 @@ packages:
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     from: 1.17.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: 8.0.0
 
 configs:
   Debug (Local): debug
@@ -32,6 +35,22 @@ targets:
       - path: Inspired
       - path: Inspired/Resources/Localization
         name: Localization
+    info:
+      path: Inspired/Info.plist
+      properties:
+        GIDClientID: ${GOOGLE_CLIENT_ID}
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - ${GOOGLE_REVERSED_CLIENT_ID}
+    entitlements:
+      path: Inspired/Resources/Inspired.entitlements
+      properties:
+        com.apple.developer.associated-domains:
+          - applinks:inspired-yoga-app-staging.firebaseapp.com
+          - applinks:inspired-yoga-app-staging.web.app
+          - applinks:inspired-yoga-app.firebaseapp.com
+          - applinks:inspired-yoga-app.web.app
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
@@ -44,11 +63,27 @@ targets:
         Debug (Local):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
           OTHER_SWIFT_FLAGS: $(inherited) -DDEBUG -DFIREBASE_EMULATOR
+          GOOGLE_CLIENT_ID: 99296584767-cqa5639sn905enlehcaj9le3tn49fad3.apps.googleusercontent.com
+          GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.99296584767-cqa5639sn905enlehcaj9le3tn49fad3
         Debug (Staging):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
+          GOOGLE_CLIENT_ID: 99296584767-cqa5639sn905enlehcaj9le3tn49fad3.apps.googleusercontent.com
+          GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.99296584767-cqa5639sn905enlehcaj9le3tn49fad3
         Release (Staging):
           PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired.staging
+          GOOGLE_CLIENT_ID: 99296584767-cqa5639sn905enlehcaj9le3tn49fad3.apps.googleusercontent.com
+          GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.99296584767-cqa5639sn905enlehcaj9le3tn49fad3
+        Debug (Production):
+          PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired
+          GOOGLE_CLIENT_ID: 143587775695-ocn7ein6nt1lf95uq244djip48vgg64f.apps.googleusercontent.com
+          GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.143587775695-ocn7ein6nt1lf95uq244djip48vgg64f
+        Release (Production):
+          PRODUCT_BUNDLE_IDENTIFIER: com.inspired-developers.Inspired
+          GOOGLE_CLIENT_ID: 143587775695-ocn7ein6nt1lf95uq244djip48vgg64f.apps.googleusercontent.com
+          GOOGLE_REVERSED_CLIENT_ID: com.googleusercontent.apps.143587775695-ocn7ein6nt1lf95uq244djip48vgg64f
     dependencies:
+      - package: GoogleSignIn
+        product: GoogleSignIn
       - package: ComposableArchitecture
       - package: ComposableArchitecture
         product: CasePaths
@@ -86,8 +121,7 @@ targets:
   InspiredTests:
     type: bundle.unit-test
     platform: iOS
-    sources: 
-      - path: InspiredTests
+    sources: [InspiredTests]
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

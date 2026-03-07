@@ -41,8 +41,8 @@ public struct LoginView: View {
                         store.send(.googleLoginButtonTapped)
                     } label: {
                         HStack(spacing: 12) {
-                            Text("G")
-                                .font(.system(size: 20, weight: .bold))
+                            Image(systemName: "g.square.fill")
+                                .font(.system(size: 24))
                                 .foregroundStyle(Color.brandGoogle)
                             Text("login.googleButton")
                         }

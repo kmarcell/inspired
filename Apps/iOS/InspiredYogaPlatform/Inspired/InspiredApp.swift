@@ -5,6 +5,7 @@ import FirebaseAuth
 import FirebaseStorage
 import ComposableArchitecture
 import OSLog
+import GoogleSignIn
 
 @main
 struct InspiredApp: App {
@@ -58,6 +59,9 @@ struct InspiredApp: App {
             rootView
                 .task {
                     await prepareEnvironment()
+                }
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
                 }
         }
     }

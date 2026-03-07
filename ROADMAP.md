@@ -79,9 +79,10 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Auth Unit Tests:** Swift Testing suites verified and passing.
 - [x] **Fastlane Lane Implementation:** Develop and verify the `test` lane (Emulator-based), ensuring **auto-acceptance of Swift macros**.
 - [x] **Login Screen UI:** LoginView implemented using TCA with Magic Link integration.
-- [x] **Login Snapshots:** Snapshots recorded and verified for all states (Login, Sent, Cooldown).
+- [x] **Google Sign-In:** Native SDK integration with decoupled architecture.
+- [x] **Login Snapshots:** Snapshots recorded and verified for all states (Login, Sent, Cooldown, Error).
 - [ ] **UI Polish (Login):** Fix `Spacer()` behavior to ensure legal footer remains at the bottom of the screen.
-- [ ] **Error Handling (Magic Link):** Implement and capture snapshots for API failure states during magic link request.
+- [x] **Error Handling (Magic Link):** Implement and capture snapshots for API failure states during magic link request.
 
 **Step 3: User Onboarding & Name Moderation (TDD)**
 - [x] **Onboarding Screen UI:** Implement `OnboardingView` with Display Name field and uneditable Username label.

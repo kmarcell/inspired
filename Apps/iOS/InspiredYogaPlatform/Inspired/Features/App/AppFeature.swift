@@ -20,6 +20,7 @@ public struct AppFeature: Sendable {
         case appLaunched
         case login(LoginFeature.Action)
         case onboarding(OnboardingFeature.Action)
+        case onboardingStateTriggered(userId: String, displayName: String)
         case currentUserResponse(Result<User?, Error>)
         case userProfileResponse(Result<User, Error>)
     }
@@ -32,6 +33,10 @@ public struct AppFeature: Sendable {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case let .onboardingStateTriggered(userId, displayName):
+                state = .onboarding(.init(userId: userId, displayName: displayName))
+                return .none
+
             case .appLaunched:
                 // If we've already injected a specific test state (e.g. Onboarding), don't run launch logic
                 guard state == .launching else { return .none }
@@ -63,11 +68,11 @@ public struct AppFeature: Sendable {
                 // If profile not found but we have auth, go to onboarding
                 if let profileError = error as? ProfileError, profileError == .notFound {
                     return .run { send in
-                        if let authUser = try await authClient.currentUser() {
-                            await send(.onboarding(.displayNameChanged(authUser.displayName ?? "")))
-                        } else {
+                        guard let authUser = try await authClient.currentUser() else {
                             await send(.currentUserResponse(.success(.none)))
+                            return
                         }
+                        await send(.onboardingStateTriggered(userId: authUser.id, displayName: authUser.displayName ?? ""))
                     }
                 }
                 print("❌ Profile fetch failed: \(error)")
