@@ -29,5 +29,11 @@
     "onboarding.username.label": "USERNAME",
     "onboarding.username.hint": "Your unique identifier is assigned automatically.",
     "onboarding.confirmButton": "Confirm & Join",
-    "onboarding.footer.info": "You can change your bio and profile picture later."
+    "onboarding.footer.info": "You can change your bio and profile picture later.",
+    "landing.navigation.profile": "Profile",
+    "landing.searchPlaceholder": "Search area, groups or teachers...",
+    "landing.navigation.communities": "Joined Communities",
+    "landing.navigation.notifications": "Notifications",
+    "landing.areaPrefix": "You're currently viewing",
+    "landing.postPlaceholder": "What's on your mind?"
 }

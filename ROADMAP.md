@@ -96,10 +96,18 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [ ] **Validation Guard:** Enforce display name length (2-50 chars) and character constraints in Firestore Security Rules.
 - [x] **Onboarding Snapshots:** Capture snapshots for empty and pre-filled states.
 
-**Step 4: Landing Page & Feed (TDD)**
+**Step 4: Landing Page Shell & Navigation**
+- [ ] **Landing Page Feature:** Create `LandingPageFeature` TCA component to manage global navigation state.
+- [ ] **Top Navigation Bar:** Implement the top bar with Profile avatar placeholder (Circle + SF Symbol `person.crop.circle.fill`), Search-styled button (navigates to search), Joined Communities (`person.2`), and Notifications (`bell`).
+- [ ] **Area Awareness:** Implement the adaptive area label ("You're currently viewing...").
+    - [ ] **TODO:** Define logic for mapping User IP to the closest DB area. (Currently mocked to "London").
+- [ ] **Post Entry Bar:** Implement the "What's on your mind?" bar above the feed (Opens Create Post screen placeholder, logs to console).
+- [ ] **UI Integration:** Replace the placeholder authenticated view in `AppView` with the real `LandingPageView`.
+- [ ] **Verification:** Snapshot tests (iPhone 16 Pro) and UI tests for landing page visibility.
+
+**Step 5: Community Feed & Discovery (TDD)**
 - [ ] **Feed Unit Tests:** Write tests for chronological sorting and area filtering using the mock Firestore client.
-- [ ] **Landing Shell UI:** Implement the global navigation and area label.
-- [ ] **Community Feed UI:** Implement the post-card list and "What's on your mind?" bar.
+- [ ] **Community Feed UI:** Implement the post-card list.
 - [ ] **Landing Snapshots:** Generate snapshots and verify against `UI/Mockups/5.2_LandingPageShell.svg` and `5.3_CommunityFeedPost.svg`.
 
 **Step 5: Privacy-First User Model & Security Rule Enforcement (TDD)**

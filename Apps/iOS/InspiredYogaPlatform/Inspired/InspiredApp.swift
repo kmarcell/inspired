@@ -17,6 +17,7 @@ struct InspiredApp: App {
         case live(StoreOf<AppFeature>)
         case onboarding(StoreOf<AppFeature>)
         case login(StoreOf<LoginFeature>)
+        case landing(StoreOf<LandingPageFeature>)
     }
 
     private let container: StoreContainer
@@ -40,6 +41,10 @@ struct InspiredApp: App {
                 })
             case "Login":
                 self.container = .login(Store(initialState: LoginFeature.State()) { LoginFeature() })
+            case "Landing":
+                self.container = .landing(Store(initialState: LandingPageFeature.State(user: .mock)) {
+                    LandingPageFeature()
+                })
             default:
                 self.container = .live(Store(initialState: AppFeature.State()) {
                     AppFeature()
@@ -81,6 +86,8 @@ struct InspiredApp: App {
             AppView(store: store)
         case .login(let store):
             LoginView(store: store)
+        case .landing(let store):
+            LandingPageView(store: store)
         }
     }
 
@@ -106,7 +113,7 @@ struct InspiredApp: App {
         switch container {
         case .live(let store), .onboarding(let store):
             store.send(.appLaunched)
-        case .login:
+        case .login, .landing:
             break
         }
     }
