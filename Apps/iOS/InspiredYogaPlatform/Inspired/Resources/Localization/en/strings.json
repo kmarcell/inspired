@@ -17,6 +17,7 @@
     "login.footer.support": "Report an Issue",
     "login.error.generic": "An unexpected error occurred. Please try again.",
     "login.error.invalidEmail": "Please enter a valid email address.",
+    "login.error.tooManyRequests": "Too many requests. Please try again in 15 minutes.",
     
     "onboarding.title": "Welcome!",
     "onboarding.subtitle": "Let's set up your profile.",

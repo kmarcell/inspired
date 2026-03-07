@@ -34,22 +34,16 @@ struct InspiredApp: App {
             default:
                 self.container = .live(Store(initialState: AppFeature.State()) {
                     AppFeature()
-                        .dependency(\.authenticationClient, .liveValue)
-                        .dependency(\.firestoreClient, .liveValue)
                 })
             }
         } else {
             self.container = .live(Store(initialState: AppFeature.State()) {
                 AppFeature()
-                    .dependency(\.authenticationClient, .liveValue)
-                    .dependency(\.firestoreClient, .liveValue)
             })
         }
         #else
         self.container = .live(Store(initialState: AppFeature.State()) {
             AppFeature()
-                .dependency(\.authenticationClient, .liveValue)
-                .dependency(\.firestoreClient, .liveValue)
         })
         #endif
 

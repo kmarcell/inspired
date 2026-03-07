@@ -116,4 +116,35 @@ struct LoginFeatureTests {
             $0.error = "Network Error"
         }
     }
+
+    @Test("Test Magic Link Rate Limit Failure")
+    @MainActor
+    func testMagicLinkRateLimitFailure() async {
+        struct RateLimitError: Error, LocalizedError {
+            var errorDescription: String? { "login.error.tooManyRequests" }
+        }
+        
+        let store = TestStore(initialState: LoginFeature.State()) {
+            LoginFeature()
+        } withDependencies: {
+            $0.authenticationClient.sendSignInLink = { _ in throw RateLimitError() }
+        }
+
+        await store.send(.emailChanged("test@example.com")) {
+            $0.email = "test@example.com"
+        }
+        await store.send(.sendMagicLinkTapped) {
+            $0.isLoading = true
+        }
+        
+        await store.receive { action in
+            if case let .sendMagicLinkResponse(.failure(error)) = action {
+                return error is RateLimitError
+            }
+            return false
+        } assert: {
+            $0.isLoading = false
+            $0.error = "login.error.tooManyRequests"
+        }
+    }
 }

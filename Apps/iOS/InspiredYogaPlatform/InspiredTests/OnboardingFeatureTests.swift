@@ -94,8 +94,33 @@ struct OnboardingFeatureTests {
             of: vc,
             as: .image(on: .iPhone13Pro),
             named: themeName,
-            record: false, // Finalized with all labels
+            record: false, 
             testName: "OnboardingView"
+        )
+    }
+
+    @Test("Onboarding Validation Failure Snapshots", arguments: ["light", "dark"])
+    func testOnboardingValidationFailureSnapshots(themeName: String) {
+        let isDark = themeName == "dark"
+        var state = OnboardingFeature.State(userId: "123", displayName: "BadName")
+        state.error = "Please choose a more inspired name."
+        
+        let store = Store(initialState: state) {
+            OnboardingFeature()
+        }
+        let view = OnboardingView(store: store)
+            .environment(\.colorScheme, isDark ? .dark : .light)
+            .frame(width: 390, height: 844)
+        
+        let vc = UIHostingController(rootView: view)
+        vc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+
+        assertSnapshot(
+            of: vc,
+            as: .image(on: .iPhone13Pro),
+            named: themeName,
+            record: false, // Capturing validation failure
+            testName: "OnboardingValidationFailure"
         )
     }
 }
