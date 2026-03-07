@@ -227,7 +227,30 @@ To prevent email provider throttling and Firebase billing exhaustion, the follow
 3.  **Client-Side "Cooldown" State:**
     *   The UI enforces a 60-second lockout period to manage user expectations and reduce accidental double-taps.
 
-### 4.7 Seeding & Environment Strategies
+### 4.7 Cloud Functions API Reference
+All backend logic is exposed via **HTTPS Callable Functions**. These require an authenticated Firebase Auth session and a valid App Check token.
+
+#### 1. `validateDisplayName`
+*   **Purpose**: Validates a proposed display name for profanity, length, and character constraints.
+*   **Authentication**: Required (`request.auth != null`).
+*   **App Check**: Required.
+*   **Request Data**:
+    ```json
+    { "displayName": "string" }
+    ```
+*   **Success Response** (`200 OK`):
+    ```json
+    { 
+      "isValid": "boolean",
+      "reason": "string?" // Present if isValid is false
+    }
+    ```
+*   **Error Codes**:
+    *   `unauthenticated`: User session is missing or expired.
+    *   `resource-exhausted`: Rate limit hit (1 request per 2 seconds).
+    *   `invalid-argument`: Missing or malformed `displayName`.
+
+### 4.8 Seeding & Environment Strategies
 To maintain security and testability, we employ different seeding strategies based on the environment:
 
 | Feature | Local Emulator | Staging / Production |

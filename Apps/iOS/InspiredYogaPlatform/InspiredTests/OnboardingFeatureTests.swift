@@ -152,7 +152,7 @@ struct OnboardingFeatureTests {
             of: vc,
             as: .image(on: .iPhone13Pro),
             named: themeName,
-            record: true, // Capturing permission denied
+            record: false, // Capturing permission denied
             testName: "OnboardingPermissionDenied"
         )
     }

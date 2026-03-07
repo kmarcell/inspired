@@ -3,6 +3,8 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseAuth
 import FirebaseStorage
+import FirebaseFunctions
+import FirebaseAppCheck
 import ComposableArchitecture
 import OSLog
 import GoogleSignIn
@@ -20,6 +22,12 @@ struct InspiredApp: App {
     private let container: StoreContainer
 
     init() {
+        #if DEBUG
+        // Setup App Check Debug Provider for emulator testing
+        let providerFactory = AppCheckDebugProviderFactory()
+        AppCheck.setAppCheckProviderFactory(providerFactory)
+        #endif
+
         FirebaseApp.configure()
         
         // 1. Initialize the correct store container first
@@ -105,13 +113,19 @@ struct InspiredApp: App {
 
     #if FIREBASE_EMULATOR
     private func setupEmulator() {
+        print("🚀 Connecting to Firebase Emulators at 127.0.0.1...")
+        
+        let host = "127.0.0.1"
+        
         let settings = Firestore.firestore().settings
-        settings.host = "localhost:8081"
+        settings.host = "\(host):8081"
         settings.isSSLEnabled = false
+        settings.cacheSettings = MemoryCacheSettings()
         Firestore.firestore().settings = settings
         
-        Auth.auth().useEmulator(withHost: "localhost", port: 9099)
-        Storage.storage().useEmulator(withHost: "localhost", port: 9199)
+        Auth.auth().useEmulator(withHost: host, port: 9099)
+        Storage.storage().useEmulator(withHost: host, port: 9199)
+        Functions.functions().useEmulator(withHost: host, port: 5001)
     }
     #endif
 }

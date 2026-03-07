@@ -2,6 +2,7 @@ import ComposableArchitecture
 import SnapshotTesting
 import SwiftUI
 import Testing
+import UIKit
 @testable import Inspired
 
 @Suite("App Snapshot Tests")
@@ -15,10 +16,10 @@ struct AppSnapshotTests {
     static let iPhone16Pro = ViewImageConfig(
         safeArea: UIEdgeInsets(top: 62, left: 0, bottom: 34, right: 0),
         size: CGSize(width: 402, height: 874),
-        traits: UITraitCollection { mutableTraits in
+        traits: UITraitCollection(mutations: { mutableTraits in
             mutableTraits.displayScale = 3
             mutableTraits.userInterfaceStyle = .light
-        }
+        })
     )
 
     @Test("Verify Launching Splash Screen", arguments: Theme.allCases)
@@ -42,7 +43,7 @@ struct AppSnapshotTests {
             of: vc,
             as: .image(on: AppSnapshotTests.iPhone16Pro),
             named: theme.rawValue,
-            record: false, // Disabling recording after initial capture
+            record: false,
             testName: "LaunchingSplash"
         )
     }
@@ -68,7 +69,7 @@ struct AppSnapshotTests {
             of: vc,
             as: .image(on: AppSnapshotTests.iPhone16Pro),
             named: theme.rawValue,
-            record: false, // Disabling recording after initial capture
+            record: false,
             testName: "AuthenticatedPlaceholder"
         )
     }
