@@ -218,8 +218,12 @@ To prevent email provider throttling and Firebase billing exhaustion, the follow
     *   **Provider:** DeviceCheck or AppAttest (iOS).
     *   **Result:** Requests from unauthorized clients (scripts, bots, modified binaries) are rejected before triggering an email send or backend operation.
 2.  **Server-Side Rate Limiting (Cloud Functions):**
-    *   **Mechanism:** If needed for higher granularity, a Cloud Function wrapper for `sendSignInLink` will track request counts in a temporary `/rate_limits/{email_or_ip}` Firestore collection.
-    *   **Policy:** Max 5 requests per 15 minutes. Documents are automatically purged via TTL policies.
+    *   **Mechanism**: A Firestore-based request log (`/_internal_rate_limits/validateName_{uid}`) tracks the last call time.
+    *   **Policy (validateDisplayName)**: Max 1 request per 2 seconds per UID.
+    *   **Policy (sendSignInLink)**: If using a Cloud Function wrapper, max 5 requests per 15 minutes. Documents are automatically purged via TTL policies.
+3.  **Authentication & App Check**:
+    *   `validateDisplayName` is restricted to authenticated users only (`request.auth != null`).
+    *   App Check is enforced to reject requests from unofficial app binaries.
 3.  **Client-Side "Cooldown" State:**
     *   The UI enforces a 60-second lockout period to manage user expectations and reduce accidental double-taps.
 

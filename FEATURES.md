@@ -257,6 +257,7 @@ This section documents the precise data contracts between the iOS application an
 1.  **Client-Side Cooldown**:
     - After tapping "Send," the button accessory is disabled for **60 seconds**.
     - The UI provides feedback (e.g., a countdown or "Sent") to prevent repeated taps.
+    - **Throttling Enforcement**: If a rate limit error is received from the backend, the button remains disabled until the cooldown period expires.
 2.  **Firebase App Check**:
     - Mandatory enforcement of App Check (using DeviceCheck/AppAttest) to ensure only valid app binaries can request Magic Links. This prevents bot-driven billing exhaustion.
 3.  **Rate Limiting**:
@@ -366,8 +367,11 @@ This section documents the precise data contracts between the iOS application an
 **Moderation Logic:**
 - **Pre-submission Check**: Tapping "Confirm" triggers a call to the `validateDisplayName` Cloud Function.
 - **Natural Language API**: The function uses Google's `moderateText` to scan for profanity, insults, or hate speech.
+- **Rate Limiting**:
+    - Users are limited to one validation request every 2 seconds.
+    - **UX**: If the rate limit is hit, the "Confirm" button is temporarily disabled, and a "Slow down!" message is displayed.
+- **Security Guard**: Restrict endpoint to authenticated users only and enforce App Check.
 - **Feedback**: If moderation fails, the UI displays: "Please choose a more inspired name."
-- **Enforcement**: Profiles with flagged names are blocked from creating posts via Firestore Security Rules.
 
 ### 5.5 Localization
 **Goal:** Ensure the platform can be translated and culturally adapted.

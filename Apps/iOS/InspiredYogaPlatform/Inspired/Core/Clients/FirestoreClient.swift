@@ -1,10 +1,13 @@
 import ComposableArchitecture
 import Foundation
 import FirebaseFirestore
+import FirebaseFunctions
 
 public enum ProfileError: Error, Equatable {
     case permissionDenied
     case notFound
+    case invalidName(String)
+    case rateLimited
     case unknown
 }
 
@@ -38,11 +41,34 @@ extension FirestoreClient: DependencyKey {
             try Firestore.firestore().collection("users").document(user.id).setData(from: user)
         },
         validateDisplayName: { name in
-            // Placeholder: In production, this calls a Cloud Function
-            // For now, assume anything > 2 chars is valid unless it's a specific "vulgar" mock
-            try await Task.sleep(nanoseconds: 500_000_000)
-            if name.lowercased().contains("vulgar") { return false }
-            return name.count >= 2
+            let functions = Functions.functions()
+            do {
+                let result = try await functions.httpsCallable("validateDisplayName").call(["displayName": name])
+                
+                guard let data = result.data as? [String: Any],
+                      let isValid = data["isValid"] as? Bool else {
+                    throw ProfileError.unknown
+                }
+                
+                if !isValid {
+                    let reason = data["reason"] as? String ?? "Invalid name."
+                    throw ProfileError.invalidName(reason)
+                }
+                
+                return true
+            } catch let error as NSError {
+                if error.domain == FunctionsErrorDomain {
+                    switch error.code {
+                    case FunctionsErrorCode.unauthenticated.rawValue:
+                        throw ProfileError.permissionDenied
+                    case FunctionsErrorCode.resourceExhausted.rawValue:
+                        throw ProfileError.rateLimited
+                    default:
+                        break
+                    }
+                }
+                throw error
+            }
         },
         fetchPosts: { area in
             let snapshot = try await Firestore.firestore().collection("posts")

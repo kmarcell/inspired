@@ -24,6 +24,8 @@
     "onboarding.displayName.label": "DISPLAY NAME",
     "onboarding.displayName.placeholder": "e.g. Jane Doe",
     "onboarding.displayName.hint": "This is how you'll appear in the community.",
+    "onboarding.error.rateLimited": "Slow down! You are checking names too quickly.",
+    "onboarding.error.permissionDenied": "You must be signed in to join.",
     "onboarding.username.label": "USERNAME",
     "onboarding.username.hint": "Your unique identifier is assigned automatically.",
     "onboarding.confirmButton": "Confirm & Join",

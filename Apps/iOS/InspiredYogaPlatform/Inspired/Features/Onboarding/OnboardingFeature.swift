@@ -9,6 +9,7 @@ public struct OnboardingFeature: Sendable {
         public var displayName: String = ""
         public var proposedUsername: String = ""
         public var isLoading: Bool = false
+        public var isRateLimited: Bool = false
         public var error: String? = nil
         
         public init(userId: String, displayName: String = "") {
@@ -23,6 +24,7 @@ public struct OnboardingFeature: Sendable {
         case confirmButtonTapped
         case validationResponse(Result<Bool, Error>)
         case createProfileResponse(Result<User, Error>)
+        case rateLimitReset
         case delegate(Delegate)
         
         public enum Delegate: Sendable {
@@ -31,6 +33,7 @@ public struct OnboardingFeature: Sendable {
     }
 
     @Dependency(\.firestoreClient) var firestoreClient
+    @Dependency(\.continuousClock) var clock
 
     public init() {}
 
@@ -72,15 +75,34 @@ public struct OnboardingFeature: Sendable {
                             return newUser
                         }))
                     }
-                } else {
-                    state.isLoading = false
-                    state.error = "Please choose a more inspired name."
-                    return .none
                 }
+                return .none
 
             case let .validationResponse(.failure(error)):
                 state.isLoading = false
-                state.error = error.localizedDescription
+                if let profileError = error as? ProfileError {
+                    switch profileError {
+                    case let .invalidName(reason):
+                        state.error = reason
+                    case .rateLimited:
+                        state.error = "onboarding.error.rateLimited"
+                        state.isRateLimited = true
+                        return .run { send in
+                            try await self.clock.sleep(for: .seconds(2))
+                            await send(.rateLimitReset)
+                        }
+                    case .permissionDenied:
+                        state.error = "onboarding.error.permissionDenied"
+                    default:
+                        state.error = error.localizedDescription
+                    }
+                } else {
+                    state.error = error.localizedDescription
+                }
+                return .none
+
+            case .rateLimitReset:
+                state.isRateLimited = false
                 return .none
 
             case let .createProfileResponse(.success(user)):

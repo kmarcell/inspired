@@ -89,7 +89,7 @@ public struct OnboardingView: View {
                     if let error = store.error {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
-                            Text(error)
+                            Text(LocalizedStringKey(error))
                         }
                         .font(.footnote)
                         .foregroundStyle(Color.statusFailure)
@@ -113,7 +113,7 @@ public struct OnboardingView: View {
                     .padding()
                     .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
                     .foregroundStyle(.white)
-                    .disabled(store.isLoading || store.displayName.count < 2)
+                    .disabled(store.isLoading || store.isRateLimited || store.displayName.count < 2)
                     .accessibilityIdentifier("onboarding.confirmButton")
 
                     Text("onboarding.footer.info")

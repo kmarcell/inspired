@@ -90,6 +90,9 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Onboarding Persistence:** Update `AppFeature` routing to ensure users are returned to Onboarding until profile completion.
 - [x] **Prefill Logic:** Auto-populate Display Name from Google Auth metadata.
 - [ ] **Moderation Cloud Function:** Implement `validateDisplayName` callable function using Google Cloud Natural Language API.
+    - [ ] **Security Guard:** Restrict endpoint to authenticated users only (`request.auth != null`).
+    - [ ] **Spam Protection:** Integrate **Firebase App Check** to prevent bot-driven billing exhaustion.
+    - [ ] **Rate Limiting:** Implement server-side throttling (e.g., max 10 requests per 10 minutes per UID).
 - [ ] **Validation Guard:** Enforce display name length (2-50 chars) and character constraints in Firestore Security Rules.
 - [x] **Onboarding Snapshots:** Capture snapshots for empty and pre-filled states.
 
