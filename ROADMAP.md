@@ -106,9 +106,13 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Verification:** Snapshot tests (iPhone 16 Pro) and UI tests for landing page visibility.
 
 **Step 5: Community Feed & Discovery (TDD)**
-- [ ] **Feed Unit Tests:** Write tests for chronological sorting and area filtering using the mock Firestore client.
-- [ ] **Community Feed UI:** Implement the post-card list.
-- [ ] **Landing Snapshots:** Generate snapshots and verify against `UI/Mockups/5.2_LandingPageShell.svg` and `5.3_CommunityFeedPost.svg`.
+- [x] **Feed Post Tile UI:** Implement high-fidelity `FeedPostTile` with Author, Source, and Stat elements.
+- [x] **Feed Snapshots:** Verify tile variations (Short/Long content) across themes on iPhone 16 Pro.
+- [ ] **Feed Data Expansion:** Expand `infrastructure/seeds/posts.json` with more diverse test data for feed verification.
+- [ ] **Firestore Client (Feed):** Implement `fetchFeed` API supporting chronological sorting and community filtering.
+- [ ] **Community Feed Feature:** Create `CommunityFeedFeature` TCA reducer to manage feed state (loading, posts, pagination).
+- [ ] **Feed Integration:** Replace placeholders in `LandingPageView` with the live `CommunityFeedView`.
+- [ ] **Verification:** Snapshot tests for the full landing page with live mock data.
 
 **Step 5: Privacy-First User Model & Security Rule Enforcement (TDD)**
 - [x] **Data Model Refactor:** Remove `isTeacher` and standardize on `privacySettings`.

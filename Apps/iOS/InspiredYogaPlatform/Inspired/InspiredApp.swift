@@ -30,7 +30,7 @@ struct InspiredApp: App {
         #endif
 
         FirebaseApp.configure()
-        
+
         // 1. Initialize the correct store container first
         #if DEBUG
         if let testScreen = ProcessInfo.processInfo.environment["TEST_SCREEN"] {
@@ -108,7 +108,7 @@ struct InspiredApp: App {
             }
         }
         #endif
-        
+
         // Signal launch to the appropriate store once environment is primed
         switch container {
         case .live(let store), .onboarding(let store):
