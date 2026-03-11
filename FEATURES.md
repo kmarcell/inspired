@@ -21,6 +21,7 @@ This file serves as the canonical source for all feature requirements, UI compon
 12. **Localization** (TBD)
 13. **Issue Reporting & Support** (TBD)
 14. **Accessibility** (Requirements Defined)
+15. **Maintenance Mode** (Triggered via Remote Config)
 
 ---
 
@@ -199,6 +200,34 @@ This section documents the precise data contracts between the iOS application an
 - **Mechanism:** To determine if the current user has liked a post without bloating data, the client must perform a **batched query** for every new page of feed posts.
 - **Batching:** Query the `likes` sub-collections where `userId == currentUser.id` for the specific `postIds` in the current view.
 - **Consistency:** Storing by `userId` as the document ID in the sub-collection ensures a user can only like a post once.
+
+---
+
+### 2.4 Remote Config & Feature Flags
+*Service: Firebase Remote Config*
+
+Remote Config is used for global application state, A/B testing, and emergency kill-switches.
+
+**2.4.1 Maintenance Mode Schema (`is_maintenance_mode`)**
+**JSON Value:**
+```json
+{
+  "is_active": true,
+  "title": "Yoga Break in Progress",
+  "message": "We're currently performing some essential maintenance to keep the platform flowing smoothly.",
+  "expected_back_at": "2026-03-10T09:00:00Z",
+  "allow_admin_bypass": false
+}
+```
+
+**Field Documentation:**
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `is_active` | `Boolean` | Master toggle for Maintenance Mode. |
+| `title` | `String` | Headline displayed on the Maintenance Screen. |
+| `message` | `String` | Detailed explanation or status update. |
+| `expected_back_at` | `ISO8601` | Optional timestamp for when the service is expected to return. |
+| `allow_admin_bypass` | `Boolean` | If true, users with `isAdmin` custom claims can still log in for verification. |
 
 ---
 
@@ -410,3 +439,23 @@ This section documents the precise data contracts between the iOS application an
 4.  **Scenario: Unauthenticated Access**
     - Requester (Not logged in)
     - **Result:** **Permission Denied** for any profile read.
+
+### 5.8 Maintenance Mode Screen
+**Goal:** Prevent user interaction during critical backend updates and provide status transparency.
+
+**Behavior:**
+1.  **The Interceptor:**
+    - Upon app launch (or return from background), the app fetches the latest **Remote Config**.
+    - If `is_maintenance_mode.is_active` is `true`, the app immediately presents a modal, full-screen **Maintenance View**.
+2.  **Visual Elements:**
+    - **Background:** Primary brand color or a subtle "Zen" gradient.
+    - **Icon:** A large, stylized SF Symbol (e.g., `hammer.fill` or `timer`).
+    - **Title & Message:** Dynamic text mapped from the Remote Config fields.
+    - **Countdown/Time:** If `expected_back_at` is provided, display the formatted time (e.g., "Expected back at 09:00 AM").
+3.  **Persistence:**
+    - This screen cannot be dismissed by the user.
+    - The app continues to poll Remote Config (e.g., every 5 minutes) to automatically dismiss the screen once the flag is toggled off.
+4.  **Login Block:**
+    - If Maintenance Mode is active, all login buttons (Google, Magic Link) are disabled or hidden to prevent new session creation.
+5.  **Offline Handling:**
+    - If the app cannot fetch Remote Config due to network issues, it should default to the **last known state**. If no state exists, it defaults to `is_active: false`.

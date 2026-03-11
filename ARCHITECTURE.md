@@ -274,7 +274,8 @@ Based on the 10,000-user usage model on the **Firebase Blaze (Pay-as-you-go)** p
 | **Firebase Auth** | 10k Active Users | **$0** | No cost for standard OAuth/Email providers. |
 | **FCM** | 1.5M Notifications | **$0** | Free and unlimited. |
 | **Google Places API** | 5,000 Autocomplete/Detail | **$10 - $20** | This is the highest variable cost. Usage must be strictly controlled (e.g., caching/fuzzing). |
-| **TOTAL ESTIMATE** | **-** | **$22 - $42** | **Fits within $50/month cap.** |
+| **Backup & Recovery** | Daily Snapshots | **$5 - $10** | **GCS Coldline:** ~$0.004/GB (approx $1/mo for 150GB). **Firestore:** Standard read rates for export operations (approx $5-$9/mo depending on DB size). |
+| **TOTAL ESTIMATE** | **-** | **$30 - $50** | **Fits within $50/month cap.** |
 
 **Budget Mitigation Strategy:**
 *   **Alerting:** Set budget alerts at $25 (50%) and $40 (80%) in GCP Console.
@@ -282,7 +283,44 @@ Based on the 10,000-user usage model on the **Firebase Blaze (Pay-as-you-go)** p
 
 ---
 
-## 6. Architect's Review & Validation
+## 6. Disaster Recovery & Backup Strategy
+
+To ensure business continuity and protect against catastrophic failures (e.g., accidental deletion, region outage, or corruption), the platform implements a multi-layer backup strategy.
+
+### 6.1 Infrastructure State (Terraform)
+*   **Risk:** Loss or corruption of the Terraform State file, leading to an inability to manage infrastructure.
+*   **Strategy:** **GCS Remote Backend** with **Object Versioning**.
+*   **Implementation:**
+    *   The Terraform state is stored in a dedicated, private GCS bucket (e.g., `tf-state-inspired-yoga`).
+    *   **Versioning** is enabled on this bucket, allowing rollback to any previous state file version in case of corruption.
+    *   **State Locking** is enabled to prevent concurrent modifications.
+
+### 6.2 Database & Data (Firestore)
+*   **Risk:** Accidental deletion of collections or malicious data corruption.
+*   **Strategy:** **Daily Scheduled Exports**.
+*   **Implementation:**
+    *   **Mechanism:** A Cloud Scheduler job triggers a specialized Cloud Function (or `gcloud` operation) every 24 hours.
+    *   **Destination:** Exports are written to a dedicated "Coldline" GCS bucket to minimize storage costs.
+    *   **Retention:** A GCS Lifecycle Rule automatically deletes backups older than **30 days**.
+*   **Recovery:** Data is restored via the `gcloud firestore import` command, which can restore specific collections or the entire database.
+
+### 6.3 Authentication Data (User Identity)
+*   **Risk:** Loss of the User ID <-> Email mapping, rendering the database orphaned.
+*   **Strategy:** **Daily Auth Export**.
+*   **Implementation:**
+    *   A scheduled script (via Cloud Functions) utilizes the Firebase Admin SDK (`auth.listUsers()`) to dump all user records to a JSON file in the secure backup bucket.
+    *   **Security:** This file contains sensitive PII and is strictly locked down via IAM roles.
+
+### 6.4 Recovery Procedures
+*   **Infrastructure Failure:** Run `terraform init` and `terraform apply` using the last known good state version from the GCS bucket.
+*   **Data Corruption:**
+    1.  **Stop Writes:** Switch the platform to "Maintenance Mode" (via Remote Config or Security Rules).
+    2.  **Import:** Execute `gcloud firestore import gs://[BUCKET]/[TIMESTAMP]` to restore the affected collections.
+    3.  **Verify:** Validate data integrity on a staging instance before re-enabling production traffic.
+
+---
+
+## 7. Architect's Review & Validation
 
 **Critical Validation Points:**
 1.  **Denormalization Strategy:** Ensure Firestore schemas balance read performance with the risk of stale data.
@@ -291,7 +329,7 @@ Based on the 10,000-user usage model on the **Firebase Blaze (Pay-as-you-go)** p
 
 ---
 
-## 7. Security Vulnerability Log
+## 8. Security Vulnerability Log
 
 | ID | Date | Issue | Remediation | Learning |
 | :--- | :--- | :--- | :--- | :--- |
