@@ -151,6 +151,7 @@ async function run() {
     
     await seedCollection('users', 'users.json');
     await seedCollection('studios', 'studios.json');
+    await seedCollection('communities', 'communities.json');
     await seedCollection('posts', 'posts.json');
     console.log('🚀 Seeding complete!');
     process.exit(0);

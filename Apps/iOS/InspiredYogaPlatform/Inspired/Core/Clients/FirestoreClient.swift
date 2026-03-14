@@ -2,6 +2,7 @@ import ComposableArchitecture
 import Foundation
 import FirebaseFirestore
 import FirebaseFunctions
+import OSLog
 
 public enum ProfileError: Error, Equatable {
     case permissionDenied
@@ -16,76 +17,169 @@ public struct FirestoreClient: Sendable {
     public var fetchUserProfile: @Sendable (_ userId: String) async throws -> User
     public var createUserProfile: @Sendable (_ user: User) async throws -> Void
     public var validateDisplayName: @Sendable (_ name: String) async throws -> Bool
-    public var fetchPosts: @Sendable (_ area: String) async throws -> [Post]
-    public var fetchStudios: @Sendable (_ area: String) async throws -> [Studio]
+    public var fetchFeed: @Sendable (_ area: String, _ communityIds: [String], _ daysBack: Int) async throws -> [Post]
+    public var fetchSuggestedCommunities: @Sendable (_ area: String) async throws -> [Community]
+    public var detectNearestArea: @Sendable () async throws -> String
     public var fetchUserLikes: @Sendable (_ postIds: [String]) async throws -> [String: Bool]
 }
 
 extension FirestoreClient: DependencyKey {
-    public static let liveValue = Self(
-        fetchUserProfile: { userId in
-            do {
-                let snapshot = try await Firestore.firestore().collection("users").document(userId).getDocument()
-                if !snapshot.exists {
-                    throw ProfileError.notFound
-                }
-                return try snapshot.data(as: User.self)
-            } catch let error as NSError {
-                if error.domain == FirestoreErrorDomain, error.code == FirestoreErrorCode.permissionDenied.rawValue {
-                    throw ProfileError.permissionDenied
-                }
-                throw error
+    public static let liveValue: FirestoreClient = Self(
+        fetchUserProfile: { (userId: String) async throws -> User in
+            let snapshot = try await Firestore.firestore().collection("users").document(userId).getDocument()
+            if !snapshot.exists {
+                throw ProfileError.notFound
             }
+            return try snapshot.decodedModel(as: User.self, withId: true)
         },
-        createUserProfile: { user in
+        createUserProfile: { (user: User) async throws -> Void in
             try Firestore.firestore().collection("users").document(user.id).setData(from: user)
         },
-        validateDisplayName: { name in
+        validateDisplayName: { (name: String) async throws -> Bool in
             let functions = Functions.functions()
-            do {
-                let result = try await functions.httpsCallable("validateDisplayName").call(["displayName": name])
-                
-                guard let data = result.data as? [String: Any],
-                      let isValid = data["isValid"] as? Bool else {
-                    throw ProfileError.unknown
-                }
-                
-                if !isValid {
-                    let reason = data["reason"] as? String ?? "Invalid name."
-                    throw ProfileError.invalidName(reason)
-                }
-                
-                return true
-            } catch let error as NSError {
-                if error.domain == FunctionsErrorDomain {
-                    switch error.code {
-                    case FunctionsErrorCode.unauthenticated.rawValue:
-                        throw ProfileError.permissionDenied
-                    case FunctionsErrorCode.resourceExhausted.rawValue:
-                        throw ProfileError.rateLimited
-                    default:
-                        break
-                    }
-                }
-                throw error
+            let result = try await functions.httpsCallable("validateDisplayName").call(["displayName": name])
+            
+            guard let data = result.data as? [String: Any],
+                  let isValid = data["isValid"] as? Bool else {
+                throw ProfileError.unknown
             }
+            
+            if !isValid {
+                let reason = data["reason"] as? String ?? "Invalid name."
+                throw ProfileError.invalidName(reason)
+            }
+            
+            return true
         },
-        fetchPosts: { area in
-            let snapshot = try await Firestore.firestore().collection("posts")
+        fetchFeed: { (area: String, communityIds: [String], daysBack: Int) async throws -> [Post] in
+            let db = Firestore.firestore()
+            let cutoffDate = Calendar.current.date(byAdding: .day, value: -daysBack, to: Date()) ?? Date()
+            
+            let areaQuery = db.collection("posts")
+                .whereField("source.type", isEqualTo: "area")
                 .whereField("source.name", isEqualTo: area)
+                .whereField("createdAt", isGreaterThan: cutoffDate)
+                .order(by: "createdAt", descending: true)
+                .limit(to: 25)
+            
+            let areaSnapshot = try await areaQuery.getDocuments()
+            var allPosts = try areaSnapshot.documents.compactMap { try $0.decodedModel(as: Post.self, withId: true) }
+            
+            let chunks = communityIds.chunked(into: 30)
+            for chunk in chunks {
+                let commQuery = db.collection("posts")
+                    .whereField("source.id", in: chunk)
+                    .whereField("createdAt", isGreaterThan: cutoffDate)
+                    .order(by: "createdAt", descending: true)
+                    .limit(to: 25)
+                
+                let commSnapshot = try await commQuery.getDocuments()
+                let commPosts = try commSnapshot.documents.compactMap { try $0.decodedModel(as: Post.self, withId: true) }
+                allPosts.append(contentsOf: commPosts)
+            }
+            
+            return Array(allPosts
+                .sorted(by: { $0.createdAt > $1.createdAt })
+                .prefix(25))
+        },
+        fetchSuggestedCommunities: { (area: String) async throws -> [Community] in
+            let db = Firestore.firestore()
+            let snapshot = try await db.collection("communities")
+                .order(by: "engagementScore", descending: true)
+                .limit(to: 10)
                 .getDocuments()
-            return try snapshot.documents.compactMap { try $0.data(as: Post.self) }
+            
+            return try snapshot.documents.compactMap { try $0.decodedModel(as: Community.self, withId: true) }
         },
-        fetchStudios: { area in
-            // Basic proximity discovery (Exact name for now as per seeder)
-            let snapshot = try await Firestore.firestore().collection("studios").getDocuments()
-            return try snapshot.documents.compactMap { try $0.data(as: Studio.self) }
+        detectNearestArea: { () async throws -> String in
+            return "Askew"
         },
-        fetchUserLikes: { postIds in
-            // Placeholder for real likes fetch
+        fetchUserLikes: { (postIds: [String]) async throws -> [String: Bool] in
             return [:]
         }
     )
+}
+
+// --- Helpers ---
+
+protocol FirestoreDocumentSnapshot {
+    var documentID: String { get }
+    func data() -> [String: Any]?
+}
+
+extension DocumentSnapshot: FirestoreDocumentSnapshot {}
+
+extension FirestoreDocumentSnapshot {
+    func decodedModel<T: Decodable>(as type: T.Type, withId: Bool = false) throws -> T {
+        guard var data = self.data() else {
+            throw NSError(domain: "FirestoreClient", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data in snapshot"])
+        }
+        if withId || data["id"] == nil {
+            data["id"] = documentID
+        }
+        return try FirestoreClient.decode(data, as: T.self)
+    }
+}
+
+extension FirestoreClient {
+    private static let logger = Logger(subsystem: "com.inspired.app", category: "FirestoreClient")
+
+    static func decode<T: Decodable>(_ data: [String: Any], as type: T.Type) throws -> T {
+        do {
+            let sanitizedData = sanitize(data)
+            let jsonData = try JSONSerialization.data(withJSONObject: sanitizedData)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .custom { decoder in
+                let container = try decoder.singleValueContainer()
+                if let timestamp = try? container.decode(Timestamp.self) {
+                    return timestamp.dateValue()
+                }
+                if let string = try? container.decode(String.self) {
+                    let formatter = ISO8601DateFormatter()
+                    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                    if let date = formatter.date(from: string) {
+                        return date
+                    }
+                    formatter.formatOptions = [.withInternetDateTime]
+                    if let date = formatter.date(from: string) {
+                        return date
+                    }
+                }
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format")
+            }
+            return try decoder.decode(T.self, from: jsonData)
+        } catch {
+            logger.error("❌ Decoding failed for \(String(describing: type)): \(error)")
+            if let decodingError = error as? DecodingError {
+                switch decodingError {
+                case .keyNotFound(let key, let context):
+                    logger.error("   - Key not found: \(key.stringValue) (Path: \(context.codingPath.map { $0.stringValue }.joined(separator: ".")))")
+                case .typeMismatch(let type, let context):
+                    logger.error("   - Type mismatch: expected \(String(describing: type)) (Path: \(context.codingPath.map { $0.stringValue }.joined(separator: ".")))")
+                case .valueNotFound(let type, let context):
+                    logger.error("   - Value not found for \(String(describing: type)) (Path: \(context.codingPath.map { $0.stringValue }.joined(separator: ".")))")
+                case .dataCorrupted(let context):
+                    logger.error("   - Data corrupted: \(context.debugDescription) (Path: \(context.codingPath.map { $0.stringValue }.joined(separator: ".")))")
+                @unknown default:
+                    logger.error("   - Unknown decoding error")
+                }
+            }
+            throw error
+        }
+    }
+    
+    private static func sanitize(_ object: Any) -> Any {
+        if let timestamp = object as? Timestamp {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            return formatter.string(from: timestamp.dateValue())
+        } else if let dictionary = object as? [String: Any] {
+            return dictionary.mapValues { sanitize($0) }
+        } else if let array = object as? [Any] {
+            return array.map { sanitize($0) }
+        }
+        return object
+    }
 }
 
 extension FirestoreClient: TestDependencyKey {
@@ -93,12 +187,13 @@ extension FirestoreClient: TestDependencyKey {
         fetchUserProfile: { _ in .mock },
         createUserProfile: { _ in },
         validateDisplayName: { _ in true },
-        fetchPosts: { _ in .mock },
-        fetchStudios: { _ in .mock },
+        fetchFeed: { _, _, _ in .mock },
+        fetchSuggestedCommunities: { _ in .mock },
+        detectNearestArea: { "Askew" },
         fetchUserLikes: { ids in Dictionary(uniqueKeysWithValues: ids.map { ($0, false) }) }
     )
 
-    public static let testValue = Self()
+    public static let testValue = previewValue
 }
 
 extension DependencyValues {
@@ -125,17 +220,36 @@ extension Array where Element == Post {
             createdAt: Date(timeIntervalSince1970: 1739865600)
         ),
         Post(
-            id: "post_hammersmith_001",
+            id: "post_ravenscourt_001",
             author: .init(
-                id: "user_student_001",
-                username: "zen_explorer#2002",
+                id: "user_teacher_001",
+                username: "yoga_maya#1001",
                 thumbnailUrl: nil,
-                avatarPrivacy: .groupsOnly
+                avatarPrivacy: .public
             ),
-            content: "Anyone know a good studio in Hammersmith for complete beginners?",
-            source: .init(type: .area, name: "Hammersmith"),
-            stats: .init(likeCount: 3, commentCount: 8),
+            content: "Outdoor session in Ravenscourt Park was beautiful today! 🌳",
+            source: .init(type: .community, name: "Ravenscourt Park Yoga"),
+            stats: .init(likeCount: 42, commentCount: 8),
             createdAt: Date(timeIntervalSince1970: 1739874600)
+        )
+    ]
+}
+
+extension Array where Element == Community {
+    public static let mock: [Community] = [
+        Community(
+            id: "area_askew",
+            name: "Askew",
+            description: "Community feed for the Askew area.",
+            location_prefix: "W12",
+            engagementScore: 850
+        ),
+        Community(
+            id: "comm_ravenscourt_yoga",
+            name: "Ravenscourt Park Yoga",
+            description: "Outdoor yoga sessions.",
+            location_prefix: "W6",
+            engagementScore: 450
         )
     ]
 }
@@ -151,8 +265,19 @@ extension Array where Element == Studio {
             isClaimed: true,
             ownerId: "user_teacher_001",
             reviewCount: 42,
+            location_prefix: "W12",
+            engagementScore: 85,
             moderationSettings: .init(autoApproveMemberComments: true, guestCommentsEnabled: false),
             location: .init(lat: 51.5033, lng: -0.2445)
         )
     ]
+}
+
+// --- Helpers ---
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
+    }
 }

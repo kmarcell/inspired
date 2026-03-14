@@ -8,6 +8,8 @@
     "isClaimed": true,
     "ownerId": "user_teacher_001",
     "reviewCount": 42,
+    "location_prefix": "W12",
+    "engagementScore": 85,
     "moderationSettings": {
       "autoApproveMemberComments": true,
       "guestCommentsEnabled": false
@@ -26,6 +28,8 @@
     "isClaimed": false,
     "ownerId": null,
     "reviewCount": 12,
+    "location_prefix": "W6",
+    "engagementScore": 30,
     "moderationSettings": {
       "autoApproveMemberComments": false,
       "guestCommentsEnabled": false

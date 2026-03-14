@@ -57,6 +57,35 @@ graph TD
     - **Workflow:** Use Firestore Security Rules and Cloud Functions to enforce studio-owner approval before community content becomes public.
     - **Automated Moderation:** Utilize **Firebase Extensions** (e.g., "Moderate Content with Perspective API") for initial automated filtering of comments and posts.
     - **Markdown Constraints:** Store content as Markdown with a maximum limit of **500 characters** per entry to ensure performance and readability across all clients.
+*   **Pagination & Limits:**
+    - **Query Limit:** All feed and discovery queries are limited to a maximum of **25 documents per request** to ensure low latency and minimize Firestore read costs.
+    - **Tiered Fetching:** To minimize unnecessary reads while ensuring a "live" feel, the client follows a tiered discovery strategy:
+        1.  **30-Day Window:** Initial query for recent activity.
+        2.  **6-Month Window:** Fallback query if the 30-day window is empty.
+        3.  **Cross-Area Discovery:** If local results are sparse, the query expands to neighbouring postcode prefixes.
+    - **Implementation:** Utilize Firestore **Query Cursors** (`startAfter`) for seamless, infinite-scrolling pagination.
+
+### 2.3 Feed Generation Strategy (Scale-Adaptive)
+The platform uses a two-stage strategy to balance cost and performance as the user base grows.
+
+#### Stage 1: Client-Side Merge-Sort (Current: <100k Users)
+To maintain low write costs and avoid complex composite indexes, the feed is aggregated on the client:
+1.  **Parallel Execution:** The iOS app fires multiple parallel queries:
+    - **Area Query:** Fetch top 25 posts for the `currentArea`.
+    - **Community Query (Chunked):** Fetch top 25 posts using the `whereField("source.id", in: [...])` filter. Since Firestore limits `IN` queries to 30 items, the user's `joinedCommunities` list is split into chunks of 30, each triggering a parallel query.
+2.  **Merging Logic:** The `FeedReducer` awaits all results, merges the arrays, sorts them by `createdAt` (descending), and takes the top 25 for rendering.
+3.  **Pagination:** Subsequent pages use the timestamp of the last visible post as a `startAfter` cursor for all sub-queries.
+
+#### Stage 2: Feed Fan-out (Target: >100k Users)
+Once write volume is justified by high read demand, the system will pivot to a "Write-on-Post" model:
+*   **Mechanism:** A Cloud Function triggers on `posts.onCreate`. It fetches the member list of the source community/area and writes the post ID into `individual_feeds/{userId}/posts/{postId}` for every member.
+*   **Performance:** Feed fetching becomes a single O(1) query to a single collection, drastically reducing latency for heavy users.
+
+### 2.4 IP-to-Area Mapping (Location Privacy)
+*   **Mechanism:** To avoid external API costs and maintain privacy, we utilize **Request Headers** from the hosting provider (e.g., `x-appengine-citylatlong` or Cloudflare headers) within a Cloud Function.
+*   **Centroid Proximity:** neighbouring areas are determined by calculating the distance between **Postcode Centroids**.
+*   **Data Source:** Postcode centroid data is derived from the **ONS Postcode Directory**, used under the **Open Government Licence (OGL)**.
+*   **Privacy:** Exact GPS is never requested; the IP is resolved to a postcode prefix (e.g., "W12") before being compared against indexed centroids.
 *   **Limitations:**
     *   **Document Size:** Max 1 MiB per document.
     *   **Write Frequency:** ~1 write/sec per document (can be scaled via sharding if needed for massive groups).

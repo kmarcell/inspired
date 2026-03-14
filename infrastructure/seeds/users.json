@@ -5,7 +5,7 @@
     "displayName": "Maya Sharma",
     "bio": "Certified Vinyasa teacher. Finding peace in movement.",
     "lastSearchArea": "Askew",
-    "joinedCommunities": ["area_askew"],
+    "joinedCommunities": ["area_askew", "comm_ravenscourt_yoga"],
     "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_std.jpg",
     "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
     "privacySettings": {
@@ -17,37 +17,54 @@
     "updatedAt": "2026-01-01T10:00:00Z"
   },
   {
-    "id": "user_student_001",
-    "username": "zen_explorer#2002",
-    "displayName": "Jane Doe",
-    "bio": "Learning to breathe one day at a time.",
+    "id": "user_privacy_001",
+    "username": "public_avatar#1111",
+    "displayName": "Public Avatar User",
+    "bio": "I have a public avatar but Maya hasn't joined my groups.",
+    "lastSearchArea": "Chelsea",
+    "joinedCommunities": ["area_chelsea"],
+    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p1_std.jpg",
+    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p1_thumb.jpg",
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-03-01T10:00:00Z",
+    "updatedAt": "2026-03-01T10:00:00Z"
+  },
+  {
+    "id": "user_privacy_002",
+    "username": "overlap_user#2222",
+    "displayName": "Overlap User",
+    "bio": "I am in Askew with Maya. My avatar is groups-only.",
     "lastSearchArea": "Askew",
     "joinedCommunities": ["area_askew"],
-    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_std.jpg",
-    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_thumb.jpg",
+    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_std.jpg",
+    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
     "privacySettings": {
       "isProfilePublic": false,
       "avatarPrivacy": "groups-only",
       "showJoinedGroups": "members-only"
     },
-    "createdAt": "2026-02-15T14:30:00Z",
-    "updatedAt": "2026-02-15T14:30:00Z"
+    "createdAt": "2026-03-01T11:00:00Z",
+    "updatedAt": "2026-03-01T11:00:00Z"
   },
   {
-    "id": "user_student_002",
-    "username": "liam_yogi#3003",
-    "displayName": "Liam Smith",
-    "bio": "Keep it secret, keep it safe.",
+    "id": "user_privacy_003",
+    "username": "no_overlap#3333",
+    "displayName": "No Overlap User",
+    "bio": "I am in Chelsea. Maya is not. My avatar is groups-only.",
     "lastSearchArea": "Chelsea",
-    "joinedCommunities": ["area_chelsea", "user_sub_user_teacher_001"],
-    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/liam_std.jpg",
-    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/liam_thumb.jpg",
+    "joinedCommunities": ["area_chelsea"],
+    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p3_std.jpg",
+    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p3_thumb.jpg",
     "privacySettings": {
       "isProfilePublic": false,
-      "avatarPrivacy": "public",
+      "avatarPrivacy": "groups-only",
       "showJoinedGroups": "members-only"
     },
-    "createdAt": "2026-03-01T09:00:00Z",
-    "updatedAt": "2026-03-01T09:00:00Z"
+    "createdAt": "2026-03-01T12:00:00Z",
+    "updatedAt": "2026-03-01T12:00:00Z"
   }
 ]

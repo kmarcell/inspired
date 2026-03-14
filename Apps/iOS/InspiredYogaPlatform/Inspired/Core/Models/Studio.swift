@@ -10,6 +10,8 @@ public struct Studio: Equatable, Identifiable, Codable {
     public let isClaimed: Bool
     public let ownerId: String?
     public let reviewCount: Int
+    public let location_prefix: String
+    public let engagementScore: Int
     public let moderationSettings: ModerationSettings
     public let location: Coordinates
 

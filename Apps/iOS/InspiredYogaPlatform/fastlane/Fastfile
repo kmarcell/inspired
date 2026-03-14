@@ -28,6 +28,7 @@ platform :ios do
     UI.message("🧪 Fastlane: TEST_USER_PASSWORD is set: #{!ENV['TEST_USER_PASSWORD'].nil?}")
 
     # 1. Pre-test Automation
+    sh("xcodegen generate --spec ../project.yml")
     sh("cd ../../../.. && ./scripts/sync-strings.sh")
     sh("cd ../../../.. && ./scripts/generate-assets.sh")
 

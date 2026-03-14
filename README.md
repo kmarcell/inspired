@@ -268,11 +268,7 @@ To pause the platform for critical updates (e.g., database migrations or disaste
 4.  **Verification:** Open the iOS app. It will immediately present the non-dismissible Maintenance Screen.
 5.  **Rollback:** Set `is_active` back to `false` and publish to restore full access.
 
----
-
-## Maintenance & Teardown
-
-### Teardown & Rollback (Wiping the Environment)
+### 10.2 Infrastructure Teardown & Rollback
 If you need to start from a clean state or zero out all costs, you can tear down the entire infrastructure. This will delete all Firestore data, Storage blobs, and Cloud Functions.
 ```bash
 # Use the teardown script (requires confirmation)
@@ -291,6 +287,6 @@ This repository uses a structured approach to documentation to ensure engineerin
 | **[GEMINI.md](./GEMINI.md)** | **Engineering Core.** Defines platform-agnostic mandates for security, cost control, documentation synchronization, and engineering standards. | All Developers / AI Agents |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | **System Design.** The canonical source for all technical decisions, service interactions (GCP, Firebase), regional choices, and budget specifications. | System Architects / Tech Leads |
 | **[FEATURES.md](./FEATURES.md)** | **Product Specification.** Defines business requirements, UI behaviors, and precise NoSQL data schemas/contracts. | Product Owners / Developers |
-| **[SWIFT.md](./SWIFT.md)** | **iOS Engineer Standards.** Detailed guide for iOS-specific tools (Fastlane, XcodeGen), coding standards, and implementation patterns (TCA). | iOS Engineers |
+| **[SWIFT.md](./SWIFT.md)** | **iOS Implementation.** Detailed guide for iOS-specific tools (Fastlane, XcodeGen), coding standards, and implementation patterns (TCA). | iOS Engineers |
 | **[ROADMAP.md](./ROADMAP.md)** | **Strategic Plan.** High-level task tracking and phase definitions for the platform's evolution. | Project Managers / All |
 | **[UserFlows.md](./UserFlows.md)** | **Testing Scenarios.** Defines the critical user paths and accessibility verification requirements for automated UI tests. | QA / Developers |

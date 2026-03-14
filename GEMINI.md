@@ -8,6 +8,7 @@
 - **Privacy:** This file is listed in `.gitignore` and is intended for local use only. It will never be committed to the repository.
 - **Precedence:** Instructions in `@PERSONAL_MANDATES.md` should be treated as supplemental to the core mandates defined in `@GEMINI.md`.
 - **Mandate Consistency:** When adding or updating any mandate or rule (in `@GEMINI.md` or `@PERSONAL_MANDATES.md`), it must be rigorously checked for consistency against all existing mandates. If a conflict is identified, the user must be consulted to provide a resolution that maintains a consistent and non-contradictory set of rules before the change is applied.
+- **Task Tracking Mandate:** If the user issues a request containing multiple distinct tasks, all such tasks MUST be immediately codified as To-Do items in `TODO.md` before any implementation begins. This ensures full coverage and provides a shared source of truth for progress.
 
 ## Backend & Data Architecture
 - **Synchronization & Integrity Mandate:** **@FEATURES.md**, **@ARCHITECTURE.md**, and **@GEMINI.md** must be kept in perfect synchronization. 
@@ -191,6 +192,11 @@
     - **Step 5: Iteration:** If the layout or logic deviates from the mockup, adjust the code, re-generate the snapshot, and repeat. Continuous maintenance of **@FEATURES.md** and its data sections is required as features evolve.
 
 ## Development Workflow
+- **Initial Research Mandate:** **ALWAYS** read the root **`README.md`** file at the start of any new session or task to ensure full alignment with the current project state, setup instructions, and available tooling.
+- **Planning & Approval Mandate:** If a request contains multiple distinct tasks, **ALWAYS** clarify the proposed plan first. If the user asks questions or modifies the plan, **STOP** and wait for explicit agreement and approval before proceeding with any implementation.
+- **Task Tracking Mandate:** Before starting any multi-step task or plan, **ALWAYS** generate a new section in **`TODO.md`** with a date and timestamp (e.g., `## [2026-03-13 14:30] Task Name`) and list all sub-tasks as To-Do items. This provides a shared source of truth for progress tracking.
+- **Automation & Fastlane Mandate:** **ALWAYS** prefer using **Fastlane** for all repetitive automation tasks, including building, testing, and deployment, as documented in the project's Fastlane configuration.
+- **File Operations Mandate:** **NEVER** use shell commands like `sed`, `cat`, or `redirects` to modify or read files. Always use the provided file-specific tools (`read_file`, `write_file`, `replace`, etc.) to ensure safety, precision, and proper error handling. Shell commands should only be used for project-specific tasks (e.g., `git`, `firebase`, `xcodebuild`) where specialized tools are not available.
 - **Explicit Commit Approval:** **NEVER** commit or push changes without asking for and receiving explicit, verbal confirmation from the user in the current turn. Previous approvals do not persist.
 - **Syntax & Compiler Coordination:** If a code modification fails due to precise matching issues, or if compiler errors persist after a single corrective attempt, the AI must **STOP immediately**. Do not attempt multiple trial-and-error fixes. State the issue clearly and ask the user for assistance or a syntax fix to maintain coordination and efficiency.
 - **Expertise & Proactive Review:** Before recommending or implementing a requested solution, the developer (AI) must perform a proactive "Architecture & Security Review." This includes:
@@ -206,5 +212,6 @@
     - **Crash Log Correlation:** In the event of a suspected environment crash, the developer must check system diagnostic reports for platform-specific crash logs falling within the recorded test execution window.
     - **Analysis & Resolution:** The root cause of the crash must be analyzed, documented, and fixed before resuming feature development to maintain environment integrity.
 - **Verification:** Follow platform-specific human interface guidelines for all UI work.
+- **Test Failure Reporting Mandate:** If any automated tests fail during execution (e.g., `fastlane test`, `xcodebuild`), **ALWAYS** identify and echo the names of the specific failing tests in your response. This ensures the user has immediate visibility into what broke without having to parse large log files.
 - **Workflow:** Research and strategy must precede execution.
 - **Finality:** Always run tests and verify behavior before considering a task complete.

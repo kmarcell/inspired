@@ -7,28 +7,23 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
-    // Helper to extract userId from community subscription ID (user_sub_xyz)
-    function getUserIdFromSub(communityId) {
-      return communityId.replace("user_sub_", "");
+    // Helper to check if user is a member of a community
+    function isMember(communityId) {
+      return request.auth != null && communityId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities;
+    }
+
+    // Helper to check if a community is public
+    function isCommunityPublic(communityId) {
+      return get(/databases/$(database)/documents/communities/$(communityId)).data.privacySettings.isPublic == true;
     }
 
     // 1. User Profiles
     match /users/{userId} {
-      // Full read for the owner
       allow read: if isOwner(userId);
-      
-      // Restricted read for others: Only if the profile is public
       allow get: if request.auth != null && resource.data.privacySettings.isProfilePublic == true;
-      
-      // Full write for the owner BUT enforced by constraints
       allow write: if isOwner(userId) && 
         (request.resource.data.privacySettings.isProfilePublic == false || 
          request.resource.data.privacySettings.avatarPrivacy == "public");
-
-      // Subscription Logic: Allow adding a community ID to joinedCommunities
-      // Note: This is a simplified check. Real-world would use a custom function 
-      // or Cloud Function for complex array diffing.
-      // Constraint: If the added ID is a user subscription, that user must be public.
       allow update: if isOwner(userId) && 
         (request.resource.data.joinedCommunities.size() >= resource.data.joinedCommunities.size());
     }
@@ -38,22 +33,36 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
     }
+
+    // 3. Communities
+    match /communities/{communityId} {
+      allow get: if resource.data.privacySettings.isPublic == true || isMember(communityId);
+      allow list: if resource.data.privacySettings.isPublic == true;
+      allow write: if false; // TBD: Admin logic
+    }
     
-    // 3. Community Posts
+    // 4. Community Posts
     match /posts/{postId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.resource.data.author.id == request.auth.uid;
+      // Area posts are public. Community posts depend on community privacy or membership.
+      allow read: if resource.data.source.type == "area" || 
+                    isCommunityPublic(resource.data.source.id) || 
+                    isMember(resource.data.source.id);
+                    
+      allow create: if request.auth != null && 
+                      request.resource.data.author.id == request.auth.uid &&
+                      (request.resource.data.source.type == "area" || isMember(request.resource.data.source.id));
+                      
       allow update, delete: if request.auth != null && resource.data.author.id == request.auth.uid;
     }
     
-    // 4. Comments (Sub-collection)
+    // 5. Comments (Sub-collection)
     match /posts/{postId}/comments/{commentId} {
-      allow read: if true;
+      allow read: if true; // Linked to parent post visibility in real-world, keeping simple for now
       allow create: if request.auth != null;
       allow update, delete: if request.auth != null && resource.data.author.id == request.auth.uid;
     }
     
-    // 5. Likes (Sub-collection)
+    // 6. Likes (Sub-collection)
     match /posts/{postId}/likes/{userId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;

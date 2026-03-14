@@ -97,6 +97,8 @@ This section documents the precise data contracts between the iOS application an
   "isClaimed": false,
   "ownerId": null,
   "reviewCount": 125,
+  "location_prefix": "W2",
+  "engagementScore": 45,
   "moderationSettings": {
     "autoApproveMemberComments": true,
     "guestCommentsEnabled": false
@@ -116,9 +118,47 @@ This section documents the precise data contracts between the iOS application an
 | `isClaimed` | `Boolean` | Flag indicating if the profile has been verified by an owner. | No |
 | `ownerId` | `String` | User ID of the verified owner (if claimed). | No |
 | `address` | `String` | Public business address. | No |
+| `location_prefix`| `String`| Postcode outward code (e.g. "W12") for proximity search. | No |
+| `engagementScore`| `Number`| Calculated metric for popularity ranking. | No |
 | `about` | `Markdown` | Formatted studio description (Max 500 chars). | No |
 | `rating` | `Number` | Average user rating (0-5.0). | No |
 | `location` | `Geopoint` | Exact coordinates for business location. | No |
+
+---
+
+### 2.3 Community Schema
+*Collection: `/communities/{communityId}`*
+
+Communities are the primary containers for group interactions. Areas (e.g., "Askew") are also represented as Communities.
+
+**JSON Example:**
+```json
+{
+  "id": "area_askew",
+  "name": "Askew",
+  "description": "The community for Askew and surrounding areas.",
+  "location_prefix": "W12",
+  "linkedStudioId": "studio_askew_001",
+  "engagementScore": 850,
+  "privacySettings": {
+    "isPublic": true,
+    "membersCanPost": true
+  },
+  "links": {
+    "whatsapp": "https://chat.whatsapp.com/...",
+    "linkedin": "https://linkedin.com/company/..."
+  }
+}
+```
+
+**Field Documentation:**
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | `String` | Unique ID (prefix `area_` for locations, `comm_` for groups). |
+| `name` | `String` | Display name. |
+| `location_prefix`| `String`| OGL Postcode prefix for area-based discovery. |
+| `engagementScore`| `Number`| Metric: `(Members * 1) + (Posts in last 7 days * 5)`. |
+| `linkedStudioId` | `String?`| Optional reference to a physical Yoga Studio. |
 
 ---
 
@@ -344,11 +384,23 @@ Remote Config is used for global application state, A/B testing, and emergency k
 1.  **Unified Feed:** Mixed chronological stream of posts from "Joined Communities" and the "Selected Area".
 2.  **Area Switching:** Changing the area in the Search Bar updates the navigation label and the feed content.
 3.  **Feed List Behavior:**
-    - **Pagination:** TBD.
-    - **Refresh Logic:** TBD.
-4.  **Empty Feed Handling (TBD):** Logic for expanding discovery to neighboring areas if the local feed is sparse.
+    - **Pagination:** Maximum **100 posts per page**. Further loads use cursor-based pagination.
+    - **Refresh Logic:** Pull-to-refresh resets the query to the last 30 days.
+4.  **Empty Feed Handling (Discovery Logic):**
+    - **Tier 1:** Query for posts in the selected area from the last **30 days**.
+    - **Tier 2:** If Tier 1 is empty, extend the query to the last **6 months**.
+    - **Tier 3 (Discovery Mode):** If Tier 2 is empty, transition the view to **"Communities Near You"**.
+        - Display a list of public groups and teachers in neighbouring areas.
+        - **UI Style:** Matches the "Search Results" list.
+        - **Fallback:** If neighbouring areas are also sparse, suggest popular communities from major hubs (e.g., London).
+
+**5.3.1 Join vs. Follow Interaction**
+- **Groups & Studios:** The action button is labeled **"Join"**. Tapping the tile or button navigates to the Community Profile for final confirmation.
+- **Personal Communities:** For public user profiles (teachers), the action is labeled **"Follow"**.
+- **Interaction:** Tapping any suggested community tile leads to the full profile first. One-tap "Join/Follow" from the list is deferred to minimize accidental subscriptions.
 
 **Developer Notes (TCA):**
+
 - **FeedReducer Side-effects:** Upon receiving a successful page fetch of posts, the reducer should immediately trigger a `fetchUserLikes(postIds:)` action. This batched query populates the user's specific "liked" state for the visible cards.
 - **Like Action:** Use a **Firestore Transaction** to atomically increment the `likeCount` on the Post document while creating the individual Like document in the sub-collection.
 
@@ -459,3 +511,4 @@ Remote Config is used for global application state, A/B testing, and emergency k
     - If Maintenance Mode is active, all login buttons (Google, Magic Link) are disabled or hidden to prevent new session creation.
 5.  **Offline Handling:**
     - If the app cannot fetch Remote Config due to network issues, it should default to the **last known state**. If no state exists, it defaults to `is_active: false`.
+

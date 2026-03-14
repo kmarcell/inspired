@@ -85,30 +85,7 @@ targets:
       - package: GoogleSignIn
         product: GoogleSignIn
       - package: ComposableArchitecture
-      - package: ComposableArchitecture
-        product: CasePaths
-      - package: ComposableArchitecture
-        product: CustomDump
-      - package: ComposableArchitecture
-        product: Dependencies
-      - package: ComposableArchitecture
-        product: DependenciesMacros
-      - package: ComposableArchitecture
-        product: IdentifiedCollections
-      - package: ComposableArchitecture
-        product: Perception
-      - package: ComposableArchitecture
-        product: PerceptionCore
-      - package: ComposableArchitecture
-        product: IssueReporting
-      - package: ComposableArchitecture
-        product: XCTestDynamicOverlay
-      - package: ComposableArchitecture
-        product: ConcurrencyExtras
-      - package: ComposableArchitecture
-        product: CombineSchedulers
-      - package: ComposableArchitecture
-        product: Clocks
+        product: ComposableArchitecture
       - package: Firebase
         product: FirebaseAuth
       - package: Firebase
@@ -131,8 +108,6 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: Inspired
-      - package: SnapshotTesting
-      - package: ComposableArchitecture
       - package: ComposableArchitecture
         product: CasePaths
       - package: ComposableArchitecture
@@ -157,6 +132,8 @@ targets:
         product: CombineSchedulers
       - package: ComposableArchitecture
         product: Clocks
+      - package: SnapshotTesting
+        product: SnapshotTesting
 
   InspiredUITests:
     type: bundle.ui-testing

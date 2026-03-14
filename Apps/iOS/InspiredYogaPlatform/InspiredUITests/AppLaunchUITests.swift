@@ -19,7 +19,7 @@ final class AppLaunchUITests: BaseUITestCase {
     /// Scenario B: Persistent Session Restoration
     func testAppLaunchRoutingToFeed() throws {
         // Simulate a restored identity from Firebase Auth using standard UserDefaults arguments
-        let password = ProcessInfo.processInfo.environment["TEST_USER_PASSWORD"] ?? "missing_password"
+        let password = try XCTUnwrap(ProcessInfo.processInfo.environment["TEST_USER_PASSWORD"])
         app.launchArguments.append(contentsOf: ["-TEST_UID", "user_teacher_001", "-TEST_PWD", password])
         app.launch()
 

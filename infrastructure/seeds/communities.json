@@ -1,0 +1,50 @@
+[
+  {
+    "id": "area_askew",
+    "name": "Askew",
+    "description": "Community feed for the Askew area.",
+    "location_prefix": "W12",
+    "linkedStudioId": "studio_askew_001",
+    "engagementScore": 850,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "area_chelsea",
+    "name": "Chelsea",
+    "description": "Community feed for Chelsea.",
+    "location_prefix": "SW3",
+    "linkedStudioId": null,
+    "engagementScore": 1200,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "area_hammersmith",
+    "name": "Hammersmith",
+    "description": "Yoga in Hammersmith.",
+    "location_prefix": "W6",
+    "linkedStudioId": "studio_hammersmith_shadow_001",
+    "engagementScore": 600,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_ravenscourt_yoga",
+    "name": "Ravenscourt Park Yoga",
+    "description": "Outdoor yoga sessions in Ravenscourt Park.",
+    "location_prefix": "W6",
+    "linkedStudioId": null,
+    "engagementScore": 450,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  }
+]

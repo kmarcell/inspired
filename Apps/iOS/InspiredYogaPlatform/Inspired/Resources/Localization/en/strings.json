@@ -35,5 +35,8 @@
     "landing.navigation.communities": "Joined Communities",
     "landing.navigation.notifications": "Notifications",
     "landing.areaPrefix": "You're currently viewing",
-    "landing.postPlaceholder": "What's on your mind?"
+    "landing.postPlaceholder": "What's on your mind?",
+    "landing.discovery.title": "Discover Communities",
+    "landing.discovery.subtitle": "Explore what's happening nearby.",
+    "landing.feed.error.title": "Couldn't load feed"
 }

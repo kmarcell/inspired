@@ -9,86 +9,64 @@ public struct FeedPostTile: View {
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Header
-            HStack(alignment: .center, spacing: 12) {
-                AvatarView(thumbnailUrl: post.author.thumbnailUrl, size: 36)
+            // Header: Avatar, Username, Time, Area
+            HStack(alignment: .top, spacing: 12) {
+                AvatarView(size: 32)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(post.author.username)
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.primaryText)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primaryText)
                     
-                    Text("2h ago") // Placeholder for actual time formatting logic
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.secondaryText)
+                    Text("2h ago") // TODO: Use actual relative time
+                        .font(.caption2)
+                        .foregroundColor(.secondaryText)
                 }
                 
                 Spacer()
                 
-                // Source Tag
                 Text(post.source.name)
-                    .font(.system(size: 10, weight: .medium))
-                    .padding(.horizontal, 10)
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.secondaryText)
                     .padding(.vertical, 4)
-                    .background(Color.secondary.opacity(0.1), in: Capsule())
-                    .foregroundStyle(Color.secondaryText)
+                    .padding(.horizontal, 8)
+                    .background(Color.primaryText.opacity(0.05))
+                    .cornerRadius(8)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
             
             // Content
             Text(post.content)
-                .font(.system(size: 15))
-                .foregroundStyle(Color.primaryText)
-                .lineSpacing(4)
-                .padding(.horizontal, 16)
+                .font(.body)
+                .foregroundColor(.primaryText)
+                .lineLimit(4)
+                .multilineTextAlignment(.leading)
             
-            Divider()
-                .padding(.horizontal, 16)
-                .padding(.top, 4)
-            
-            // Footer
-            HStack(spacing: 24) {
-                // Like Button
-                Button {} label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "heart")
-                            .font(.system(size: 16))
-                        Text("\(post.stats.likeCount)")
-                            .font(.system(size: 14))
-                    }
-                    .foregroundStyle(Color.secondaryText)
-                }
-                
-                // Comment Button
-                Button {} label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "bubble.right")
-                            .font(.system(size: 16))
-                        Text("\(post.stats.commentCount)")
-                            .font(.system(size: 14))
-                    }
-                    .foregroundStyle(Color.secondaryText)
-                }
+            // Stats Footer
+            HStack(spacing: 20) {
+                Label("\(post.stats.likeCount)", systemImage: "heart")
+                Label("\(post.stats.commentCount)", systemImage: "bubble.right")
                 
                 Spacer()
                 
-                // Share Button
-                Button {} label: {
+                Button(action: {}) {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 16))
-                        .foregroundStyle(Color.secondaryText)
                 }
+                .accessibilityLabel("Share")
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .font(.caption)
+            .foregroundColor(.secondaryText)
         }
+        .padding(16)
         .background(Color.primarySurface)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.primaryText.opacity(0.05), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(post.author.username), \(post.content), \(post.stats.likeCount) likes, \(post.stats.commentCount) comments")
     }
 }
 

@@ -100,19 +100,28 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Landing Page Feature:** Create `LandingPageFeature` TCA component to manage global navigation state.
 - [x] **Top Navigation Bar:** Implement the top bar with Profile avatar placeholder (Circle + SF Symbol `person.crop.circle.fill`), Search-styled button (navigates to search), Joined Communities (`person.2`), and Notifications (`bell`).
 - [x] **Area Awareness:** Implement the adaptive area label ("You're currently viewing...").
-    - [ ] **TODO:** Define logic for mapping User IP to the closest DB area. (Currently mocked to "London").
+    - [ ] **TODO:** Implement Cloud Function for Header-Based IP-to-Area detection.
 - [x] **Post Entry Bar:** Implement the "What's on your mind?" bar above the feed (Opens Create Post screen placeholder, logs to console).
 - [x] **UI Integration:** Replace the placeholder authenticated view in `AppView` with the real `LandingPageView`.
 - [x] **Verification:** Snapshot tests (iPhone 16 Pro) and UI tests for landing page visibility.
 
-**Step 5: Community Feed & Discovery (TDD)**
+**Step 5: Community Feed & Discovery (TDD)** (Completed 2026-03-11)
 - [x] **Feed Post Tile UI:** Implement high-fidelity `FeedPostTile` with Author, Source, and Stat elements.
 - [x] **Feed Snapshots:** Verify tile variations (Short/Long content) across themes on iPhone 16 Pro.
-- [ ] **Feed Data Expansion:** Expand `infrastructure/seeds/posts.json` with more diverse test data for feed verification.
-- [ ] **Firestore Client (Feed):** Implement `fetchFeed` API supporting chronological sorting and community filtering.
-- [ ] **Community Feed Feature:** Create `CommunityFeedFeature` TCA reducer to manage feed state (loading, posts, pagination).
-- [ ] **Feed Integration:** Replace placeholders in `LandingPageView` with the live `CommunityFeedView`.
-- [ ] **Verification:** Snapshot tests for the full landing page with live mock data.
+- [ ] **Postcode Metadata:** Seed `postcode_metadata` collection using ONS Open Data (OGL).
+    - [ ] **TODO:** Define proximity logic for mapping postcode centroids to neighbouring prefixes.
+- [x] **Feed Data Expansion:** Expand `infrastructure/seeds/posts.json` with diverse test data (varied dates, sources).
+- [x] **Firestore Client (Feed Logic):**
+    - [x] **Pagination:** Implement cursor-based fetching with a 25-post limit.
+    - [x] **Tiered Discovery:** Implement the 30-day -> 6-month query fallback sequence.
+- [x] **Community Feed Feature:** Create TCA reducer to manage feed state, engagement scores, and tiered fetching.
+- [ ] **Empty State (Discovery Mode):** 
+    - [ ] **UI Implementation:** Create "Communities Near You" view (Search-list style).
+    - [ ] **Engagement Metrics:** Implement `engagementScore` calculation: `(Members * 1) + (Posts in last 7 days * 5)`.
+    - [ ] **Fallback Logic:** Implement suggestion of popular communities from major hubs (e.g., London).
+- [x] **Feed Integration:** Replace placeholders in `LandingPageView` with the live `CommunityFeedView`.
+- [x] **Verification:** Snapshot tests for empty vs. full feed states.
+- [ ] **Scroll View** Fix ScrollView and make sure the ForEach is not in a VStack to improve performance.
 
 **Step 5: Privacy-First User Model & Security Rule Enforcement (TDD)**
 - [x] **Data Model Refactor:** Remove `isTeacher` and standardize on `privacySettings`.

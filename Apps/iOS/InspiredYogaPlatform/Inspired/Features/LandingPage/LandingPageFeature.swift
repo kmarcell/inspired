@@ -7,9 +7,11 @@ public struct LandingPageFeature {
     public struct State: Equatable {
         public var user: User
         public var currentArea: String = "London"
+        public var feed: CommunityFeedFeature.State
         
         public init(user: User) {
             self.user = user
+            self.feed = .init(user: user)
         }
     }
     
@@ -19,11 +21,16 @@ public struct LandingPageFeature {
         case joinedCommunitiesButtonTapped
         case notificationsButtonTapped
         case createPostButtonTapped
+        case feed(CommunityFeedFeature.Action)
     }
     
     public init() {}
     
     public var body: some ReducerOf<Self> {
+        Scope(state: \.feed, action: \.feed) {
+            CommunityFeedFeature()
+        }
+        
         Reduce { state, action in
             switch action {
             case .profileButtonTapped:
@@ -44,6 +51,9 @@ public struct LandingPageFeature {
                 
             case .createPostButtonTapped:
                 print("DEBUG: Create Post button tapped")
+                return .none
+                
+            case .feed:
                 return .none
             }
         }

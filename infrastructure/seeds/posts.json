@@ -16,45 +16,83 @@
       "likeCount": 15,
       "commentCount": 2
     },
-    "createdAt": "2026-02-18T08:00:00Z"
+    "createdAt": "2026-03-07T08:00:00Z"
   },
   {
-    "id": "post_maya_personal_001",
+    "id": "post_ravenscourt_001",
     "author": {
       "id": "user_teacher_001",
       "username": "yoga_maya#1001",
       "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
       "avatarPrivacy": "public"
     },
-    "content": "Just uploaded a new meditation guide for my subscribers. Breathe deep! ✨",
+    "content": "Outdoor session in Ravenscourt Park was beautiful today! 🌳",
     "source": {
       "type": "community",
-      "id": "user_sub_user_teacher_001",
-      "name": "yoga_maya#1001"
+      "id": "comm_ravenscourt_yoga",
+      "name": "Ravenscourt Park Yoga"
     },
     "stats": {
-      "likeCount": 25,
-      "commentCount": 5
-    },
-    "createdAt": "2026-03-01T10:00:00Z"
-  },
-  {
-    "id": "post_hammersmith_001",
-    "author": {
-      "id": "user_student_001",
-      "username": "zen_explorer#2002",
-      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/jane_thumb.jpg",
-      "avatarPrivacy": "groups-only"
-    },
-    "content": "Anyone know a good studio in Hammersmith for complete beginners?",
-    "source": {
-      "type": "area",
-      "name": "Hammersmith"
-    },
-    "stats": {
-      "likeCount": 3,
+      "likeCount": 42,
       "commentCount": 8
     },
-    "createdAt": "2026-02-18T10:30:00Z"
+    "createdAt": "2026-03-07T10:00:00Z"
+  },
+  {
+    "id": "post_overlap_001",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Shared a great class with Maya in Askew today. Highly recommend!",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 5,
+      "commentCount": 1
+    },
+    "createdAt": "2026-03-07T11:00:00Z"
+  },
+  {
+    "id": "post_chelsea_001",
+    "author": {
+      "id": "user_privacy_001",
+      "username": "public_avatar#1111",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p1_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Chelsea mornings are best spent on the mat. Who else is joining the 7 AM class?",
+    "source": {
+      "type": "area",
+      "name": "Chelsea"
+    },
+    "stats": {
+      "likeCount": 8,
+      "commentCount": 3
+    },
+    "createdAt": "2026-03-07T07:00:00Z"
+  },
+  {
+    "id": "post_long_content_001",
+    "author": {
+      "id": "user_privacy_003",
+      "username": "no_overlap#3333",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p3_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "source": {
+      "type": "area",
+      "name": "Chelsea"
+    },
+    "stats": {
+      "likeCount": 0,
+      "commentCount": 0
+    },
+    "createdAt": "2026-03-06T18:00:00Z"
   }
 ]
