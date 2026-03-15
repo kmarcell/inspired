@@ -10,7 +10,10 @@ struct LandingPageSnapshotTests {
 
     @Test("Verify LandingPage Loading state", arguments: SnapshotTheme.allCases)
     func testLandingPageLoading(theme: SnapshotTheme) {
-        let store = Store(initialState: LandingPageFeature.State(user: .mock)) {
+        var state = LandingPageFeature.State(user: .mock)
+        state.feed.isLoading = true
+        
+        let store = Store(initialState: state) {
             LandingPageFeature()
         } withDependencies: {
             $0.firestoreClient.fetchFeed = { _, _, _ in
@@ -33,6 +36,7 @@ struct LandingPageSnapshotTests {
         let mockPosts: [Post] = [.mock, .mockLong, .mockShort, .mock, .mockLong]
         var state = LandingPageFeature.State(user: .mock)
         state.feed.posts = mockPosts
+        state.feed.isLoading = false
 
         let store = Store(initialState: state) {
             LandingPageFeature()
