@@ -15,6 +15,7 @@
     - **Feature Updates:** When adding or changing a feature in **@FEATURES.md**, the developer must check, document, and provide JSON examples for data usage. 
     - **Impact Review:** Review the implications for service and data usage (e.g., throughput, cost, latency).
     - **Architecture Sync:** If a feature change or security review impacts service or data usage, **@ARCHITECTURE.md** must be updated immediately, including all relevant architectural diagrams.
+    - **Cloud Function Index:** Any addition, removal, or logic change to a Cloud Function must be reflected in the **Cloud Functions Index** in **@ARCHITECTURE.md** to maintain a canonical API reference.
     - **Data Seeding:** If data structures change, backend seeding and seeder scripts must be updated to reflect the new requirements.
     - **Security & Validation:** Any change to data or service usage requires an update to the Security Rules. This must be followed by a security check, rule analysis, and an update to the automated rules test suite to ensure 100% coverage and compliance.
 - **Unified Cloud Strategy:** Use a unified cloud platform managed via Infrastructure as Code. Specific service and tool choices are documented in **[@ARCHITECTURE.md](./ARCHITECTURE.md)**.
