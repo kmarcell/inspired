@@ -7,13 +7,9 @@ import Testing
 @Suite("Community Feed Snapshot Tests")
 @MainActor
 struct CommunityFeedSnapshotTests {
-    enum Theme: String, CaseIterable {
-        case light, dark
-        var colorScheme: ColorScheme { self == .light ? .light : .dark }
-    }
 
-    @Test("Verify CommunityFeed Loading state", arguments: Theme.allCases)
-    func testFeedLoading(theme: Theme) {
+    @Test("Verify CommunityFeed Loading state", arguments: SnapshotTheme.allCases)
+    func testFeedLoading(theme: SnapshotTheme) {
         var state = CommunityFeedFeature.State(user: .mock)
         state.isLoading = true
         
@@ -22,26 +18,16 @@ struct CommunityFeedSnapshotTests {
                 CommunityFeedFeature()
             })
         }
-        .environment(\.colorScheme, theme.colorScheme)
-        .frame(width: 393)
-        .background(Color.primaryBackground)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
-        vc.overrideUserInterfaceStyle = theme == .dark ? .dark : .light
-        vc.view.backgroundColor = theme == .dark ? .black : .white
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "Feed_Loading"
         )
     }
 
-    @Test("Verify CommunityFeed Empty state", arguments: Theme.allCases)
-    func testFeedEmpty(theme: Theme) {
+    @Test("Verify CommunityFeed Empty state", arguments: SnapshotTheme.allCases)
+    func testFeedEmpty(theme: SnapshotTheme) {
         var state = CommunityFeedFeature.State(user: .mock)
         state.isLoading = false
         state.isDiscoveryMode = false
@@ -52,26 +38,16 @@ struct CommunityFeedSnapshotTests {
                 CommunityFeedFeature()
             })
         }
-        .environment(\.colorScheme, theme.colorScheme)
-        .frame(width: 393)
-        .background(Color.primaryBackground)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
-        vc.overrideUserInterfaceStyle = theme == .dark ? .dark : .light
-        vc.view.backgroundColor = theme == .dark ? .black : .white
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "Feed_Empty"
         )
     }
 
-    @Test("Verify CommunityFeed with Data", arguments: Theme.allCases)
-    func testFeedWithData(theme: Theme) {
+    @Test("Verify CommunityFeed with Data", arguments: SnapshotTheme.allCases)
+    func testFeedWithData(theme: SnapshotTheme) {
         let mockPosts: [Post] = [.mock, .mockLong, .mockShort, .mock, .mockLong]
         
         var state = CommunityFeedFeature.State(user: .mock)
@@ -83,20 +59,10 @@ struct CommunityFeedSnapshotTests {
                 CommunityFeedFeature()
             })
         }
-        .environment(\.colorScheme, theme.colorScheme)
-        .frame(width: 393)
-        .background(Color.primaryBackground)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
-        vc.overrideUserInterfaceStyle = theme == .dark ? .dark : .light
-        vc.view.backgroundColor = theme == .dark ? .black : .white
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "Feed_WithData"
         )
     }

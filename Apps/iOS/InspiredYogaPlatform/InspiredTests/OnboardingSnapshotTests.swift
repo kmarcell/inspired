@@ -8,30 +8,22 @@ import Testing
 @MainActor
 struct OnboardingSnapshotTests {
     
-    @Test("Onboarding Snapshots", arguments: ["light", "dark"])
-    func testOnboardingSnapshots(themeName: String) {
-        let isDark = themeName == "dark"
+    @Test("Onboarding Snapshots", arguments: SnapshotTheme.allCases)
+    func testOnboardingSnapshots(theme: SnapshotTheme) {
         let store = Store(initialState: OnboardingFeature.State(userId: "123", displayName: "Maya Sharma")) {
             OnboardingFeature()
         }
         let view = OnboardingView(store: store)
-            .environment(\.colorScheme, isDark ? .dark : .light)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: themeName,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "OnboardingView"
         )
     }
 
-    @Test("Onboarding Rate Limit Snapshots", arguments: ["light", "dark"])
-    func testOnboardingRateLimitSnapshots(themeName: String) {
-        let isDark = themeName == "dark"
+    @Test("Onboarding Rate Limit Snapshots", arguments: SnapshotTheme.allCases)
+    func testOnboardingRateLimitSnapshots(theme: SnapshotTheme) {
         var state = OnboardingFeature.State(userId: "123", displayName: "Maya Sharma")
         state.error = "onboarding.error.rateLimited"
         state.isRateLimited = true
@@ -40,23 +32,16 @@ struct OnboardingSnapshotTests {
             OnboardingFeature()
         }
         let view = OnboardingView(store: store)
-            .environment(\.colorScheme, isDark ? .dark : .light)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: themeName,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "OnboardingRateLimitError"
         )
     }
 
-    @Test("Onboarding Permission Denied Snapshots", arguments: ["light", "dark"])
-    func testOnboardingPermissionDeniedSnapshots(themeName: String) {
-        let isDark = themeName == "dark"
+    @Test("Onboarding Permission Denied Snapshots", arguments: SnapshotTheme.allCases)
+    func testOnboardingPermissionDeniedSnapshots(theme: SnapshotTheme) {
         var state = OnboardingFeature.State(userId: "123", displayName: "Maya Sharma")
         state.error = "onboarding.error.permissionDenied"
         
@@ -64,16 +49,10 @@ struct OnboardingSnapshotTests {
             OnboardingFeature()
         }
         let view = OnboardingView(store: store)
-            .environment(\.colorScheme, isDark ? .dark : .light)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: themeName,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "OnboardingPermissionDenied"
         )
     }

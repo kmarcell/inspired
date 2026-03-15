@@ -8,13 +8,9 @@ import UIKit
 @Suite("App Snapshot Tests")
 @MainActor
 struct AppSnapshotTests {
-    enum Theme: String, CaseIterable {
-        case light, dark
-        var colorScheme: ColorScheme { self == .light ? .light : .dark }
-    }
 
-    @Test("Verify Launching Splash Screen", arguments: Theme.allCases)
-    func testLaunchingSplash(theme: Theme) {
+    @Test("Verify Launching Splash Screen", arguments: SnapshotTheme.allCases)
+    func testLaunchingSplash(theme: SnapshotTheme) {
         let store = withDependencies {
             $0.authenticationClient.currentUser = { .mock }
             $0.firestoreClient.fetchUserProfile = { _ in .mock }
@@ -24,16 +20,10 @@ struct AppSnapshotTests {
             }
         }
         let view = AppView(store: store)
-            .environment(\.colorScheme, theme.colorScheme)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "LaunchingSplash"
         )
     }

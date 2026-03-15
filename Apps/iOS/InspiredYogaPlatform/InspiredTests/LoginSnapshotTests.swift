@@ -7,55 +7,39 @@ import Testing
 @Suite("Login Snapshot Tests")
 @MainActor
 struct LoginSnapshotTests {
-    enum Theme: String, CaseIterable {
-        case light, dark
-        var colorScheme: ColorScheme { self == .light ? .light : .dark }
-    }
 
-    @Test("Verify LoginView layout", arguments: Theme.allCases)
-    func testLoginView(theme: Theme) {
+    @Test("Verify LoginView layout", arguments: SnapshotTheme.allCases)
+    func testLoginView(theme: SnapshotTheme) {
         let store = Store(initialState: LoginFeature.State()) {
             LoginFeature()
         }
         let view = LoginView(store: store)
-            .environment(\.colorScheme, theme.colorScheme)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "LoginView"
         )
     }
 
-    @Test("Verify Magic Link Sent state", arguments: Theme.allCases)
-    func testMagicLinkSent(theme: Theme) {
+    @Test("Verify Magic Link Sent state", arguments: SnapshotTheme.allCases)
+    func testMagicLinkSent(theme: SnapshotTheme) {
         var state = LoginFeature.State()
         state.magicLinkSent = true
         let store = Store(initialState: state) {
             LoginFeature()
         }
         let view = LoginView(store: store)
-            .environment(\.colorScheme, theme.colorScheme)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "MagicLinkSent"
         )
     }
 
-    @Test("Verify Magic Link Cooldown state", arguments: Theme.allCases)
-    func testMagicLinkCooldown(theme: Theme) {
+    @Test("Verify Magic Link Cooldown state", arguments: SnapshotTheme.allCases)
+    func testMagicLinkCooldown(theme: SnapshotTheme) {
         var state = LoginFeature.State()
         state.magicLinkSent = true
         state.cooldownRemaining = 45
@@ -63,38 +47,26 @@ struct LoginSnapshotTests {
             LoginFeature()
         }
         let view = LoginView(store: store)
-            .environment(\.colorScheme, theme.colorScheme)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "MagicLinkCooldown"
         )
     }
 
-    @Test("Verify Rate Limit error state", arguments: Theme.allCases)
-    func testRateLimitError(theme: Theme) {
+    @Test("Verify Rate Limit error state", arguments: SnapshotTheme.allCases)
+    func testRateLimitError(theme: SnapshotTheme) {
         var state = LoginFeature.State()
         state.error = "login.error.tooManyRequests"
         let store = Store(initialState: state) {
             LoginFeature()
         }
         let view = LoginView(store: store)
-            .environment(\.colorScheme, theme.colorScheme)
-
-        let vc = UIHostingController(rootView: view)
-        vc.view.frame = CGRect(origin: .zero, size: ViewImageConfig.iPhone16Pro.size!)
 
         assertSnapshot(
-            of: vc,
-            as: .image(on: .iPhone16Pro),
-            named: theme.rawValue,
-            record: false,
+            of: view,
+            theme: theme,
             testName: "RateLimitError"
         )
     }
