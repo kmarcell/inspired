@@ -127,7 +127,26 @@ Once write volume is justified by high read demand, the system will pivot to a "
 
 ---
 
-## 3. Usage & Throughput Estimates (Abstract Level)
+## 3. Cloud Functions Index
+
+This index serves as the canonical list of all serverless backend logic. All functions must be authenticated and utilize App Check where applicable.
+
+| Function Name | Trigger Type | Primary Responsibility | Security / Mandate |
+| :--- | :--- | :--- | :--- |
+| **`validateDisplayName`** | HTTPS Callable | Profanity and constraint filtering for new display names. | Auth Required + App Check. |
+| **`generateUsernameSuffix`** | Firestore (onCreate) | Appends a random 4-digit suffix to create a unique `username#1234`. | System Trigger. |
+| **`onUserDelete`** | Auth (onDelete) | Purges all PII from Firestore and Storage upon account deletion. | **Right to be Forgotten Mandate.** |
+| **`moderateContent`** | Firestore (onCreate) | Automated toxic language filtering via Perspective API extension. | Content Safety. |
+| **`approveStudioContent`**| Firestore (onCreate) | Gates studio-specific content until owner approval is granted. | Studio Integrity. |
+| **`discoverStudios`** | Scheduled | Discovers and seeds new yoga studios as "Shadow Profiles". | Automated Discovery. |
+| **`dailyFirestoreExport`**| Scheduled | Daily database dump to GCS Coldline for disaster recovery. | **DR Mandate.** |
+| **`dailyAuthExport`** | Scheduled | Daily export of UID <-> Email mapping for identity recovery. | **DR Mandate.** |
+| **`storageHygiene`** | Firestore (onUpdate)| Deletes old image blobs when a user updates their profile picture. | Cost Control. |
+| **`sendNotifications`** | Firestore (onCreate)| Triggers FCM alerts for new chat messages or group posts. | Real-time Engagement. |
+
+---
+
+## 4. Usage & Throughput Estimates (Abstract Level)
 
 Based on a starting community of 10,000 active users:
 
