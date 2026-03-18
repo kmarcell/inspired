@@ -24,7 +24,7 @@ public struct CommunityFeedFeature {
     }
     
     public enum Action: Equatable, Sendable {
-        case onAppear
+        case refresh
         case areaDetected(Result<String, FeedError>)
         case fetchFeed(daysBack: Int)
         case feedResponse(Result<[Post], FeedError>, daysBack: Int)
@@ -40,7 +40,7 @@ public struct CommunityFeedFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .onAppear:
+            case .refresh:
                 state.isLoading = true
                 return .run { send in
                     await send(.areaDetected(Result { try await firestoreClient.detectNearestArea() }

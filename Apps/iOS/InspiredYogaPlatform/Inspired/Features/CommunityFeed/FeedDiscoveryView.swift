@@ -39,6 +39,7 @@ struct FeedDiscoveryView: View {
                 .cornerRadius(12)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(Color.primaryBackground)
                 .accessibilityIdentifier("feed.discovery.\(community.id)")
             }
         } header: {
@@ -54,7 +55,6 @@ struct FeedDiscoveryView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(Color.primaryBackground)
         }
         .textCase(nil) // Disable default uppercase header
     }

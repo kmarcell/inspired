@@ -52,4 +52,25 @@ struct LandingPageSnapshotTests {
             testName: "LandingPage_WithData"
         )
     }
+
+    @Test("Verify LandingPage Discovery mode", arguments: SnapshotTheme.allCases)
+    func testLandingPageDiscovery(theme: SnapshotTheme) {
+        var state = LandingPageFeature.State(user: .mock)
+        state.feed.posts = []
+        state.feed.isLoading = false
+        state.feed.isDiscoveryMode = true
+        state.feed.suggestedCommunities = .mocks
+
+        let store = Store(initialState: state) {
+            LandingPageFeature()
+        }
+
+        let view = LandingPageView(store: store)
+
+        assertSnapshot(
+            of: view,
+            theme: theme,
+            testName: "LandingPage_Discovery"
+        )
+    }
 }

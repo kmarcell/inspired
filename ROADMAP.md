@@ -121,7 +121,8 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
     - [ ] **Fallback Logic:** Implement suggestion of popular communities from major hubs (e.g., London).
 - [x] **Feed Integration:** Replace placeholders in `LandingPageView` with the live `CommunityFeedView`.
 - [x] **Verification:** Snapshot tests for empty vs. full feed states.
-- [ ] **Scroll View** Fix ScrollView and make sure the ForEach is not in a VStack to improve performance.
+- [x] **Scroll View:** Fix ScrollView and make sure the ForEach is not in a VStack to improve performance.
+- [x] **Pull to Refresh:** Implement pull to refresh on the feed list.
 
 **Step 5: Privacy-First User Model & Security Rule Enforcement (TDD)**
 - [x] **Data Model Refactor:** Remove `isTeacher` and standardize on `privacySettings`.
@@ -131,7 +132,7 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 
 #### 3.2 Advanced Feature Design & Specification (Prerequisite for Phase 4)
 *Phase 3.2 must be complete before moving to Phase 4 Staging Deployment.*
-- [ ] **Email Registration Flow:** Design the "Create Account" screen for non-Google users.
+- [x] **Email Registration Flow:** Design the "Create Account" screen for non-Google users.
 - [ ] **Write Post Flow:** Define the full-screen composer UI, Markdown support, and Area/Community tagging.
 - [ ] **Search UI & Experience:** Define how search results (Areas, Communities, Teachers) are displayed and navigated.
 - [ ] **Yoga Studio & Community Profiles:** Define the full UI and data requirements for claimed studio pages.

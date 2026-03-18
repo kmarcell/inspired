@@ -46,25 +46,22 @@ public struct LandingPageView: View {
             }
             
             // Section 2: Feed Content
-            Section {
-                if store.feed.isLoading && store.feed.posts.isEmpty {
-                    FeedLoadingView()
-                } else if let error = store.feed.error {
-                    FeedErrorView(error: error)
-                } else if store.feed.isDiscoveryMode {
-                    FeedDiscoveryView(store: store.scope(state: \.feed, action: \.feed))
-                } else {
-                    CommunityFeedView(store: store.scope(state: \.feed, action: \.feed))
-                }
+            if store.feed.isLoading {
+                FeedLoadingView()
+            } else if let error = store.feed.error {
+                FeedErrorView(error: error)
+            } else if store.feed.posts.isEmpty && store.feed.isDiscoveryMode {
+                FeedDiscoveryView(store: store.scope(state: \.feed, action: \.feed))
+            } else {
+                CommunityFeedView(store: store.scope(state: \.feed, action: \.feed))
             }
-            .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(Color.primaryBackground.ignoresSafeArea())
         .navigationBarHidden(true)
-        .onAppear {
-            store.send(.feed(.onAppear))
+        .refreshable {
+            await store.send(.feed(.refresh)).finish()
         }
     }
 }

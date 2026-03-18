@@ -9,16 +9,19 @@ public struct CommunityFeedView: View {
     }
     
     public var body: some View {
-        ForEach(store.posts) { post in
-            FeedPostTile(post: post)
-                .accessibilityIdentifier("feed.post.\(post.id)")
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets())
-                .padding(.horizontal)
-                .padding(.bottom, 16)
-                .onTapGesture {
-                    store.send(.postTapped(id: post.id))
-                }
+        Section {
+            ForEach(store.posts) { post in
+                FeedPostTile(post: post)
+                    .accessibilityIdentifier("feed.post.\(post.id)")
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.primaryBackground)
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
+                    .onTapGesture {
+                        store.send(.postTapped(id: post.id))
+                    }
+            }
         }
     }
 }

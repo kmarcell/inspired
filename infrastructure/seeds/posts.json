@@ -19,6 +19,462 @@
     "createdAt": "2026-03-07T08:00:00Z"
   },
   {
+    "id": "post_askew_002",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Shared a great class with Maya in Askew today. Highly recommend!",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 5,
+      "commentCount": 1
+    },
+    "createdAt": "2026-03-07T11:00:00Z"
+  },
+  {
+    "id": "post_askew_003",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Early bird session in Askew was so energizing. Love this community!",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 12,
+      "commentCount": 4
+    },
+    "createdAt": "2026-03-07T06:30:00Z"
+  },
+  {
+    "id": "post_askew_004",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Anyone tried the new green juice spot near the Askew studio?",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 3,
+      "commentCount": 0
+    },
+    "createdAt": "2026-03-07T12:45:00Z"
+  },
+  {
+    "id": "post_askew_005",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Focusing on breathwork today. Remember to breathe through the challenge.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 20,
+      "commentCount": 5
+    },
+    "createdAt": "2026-03-07T14:20:00Z"
+  },
+  {
+    "id": "post_askew_006",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Just finished my 10th class this month! Feeling stronger every day.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 8,
+      "commentCount": 2
+    },
+    "createdAt": "2026-03-07T16:10:00Z"
+  },
+  {
+    "id": "post_askew_007",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "New workshop announcement coming tomorrow! Stay tuned, Askew yogis.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 35,
+      "commentCount": 12
+    },
+    "createdAt": "2026-03-07T18:00:00Z"
+  },
+  {
+    "id": "post_askew_008",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Sunsets in Askew are perfect for a late-day flow.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 14,
+      "commentCount": 1
+    },
+    "createdAt": "2026-03-07T19:30:00Z"
+  },
+  {
+    "id": "post_askew_009",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Kindness is a practice, just like yoga. Be kind to yourself today.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 50,
+      "commentCount": 6
+    },
+    "createdAt": "2026-03-08T08:15:00Z"
+  },
+  {
+    "id": "post_askew_010",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Who is going to the community meditation session this weekend?",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 6,
+      "commentCount": 3
+    },
+    "createdAt": "2026-03-08T10:00:00Z"
+  },
+  {
+    "id": "post_askew_011",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "A gentle reminder: your worth is not measured by your productivity.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 28,
+      "commentCount": 4
+    },
+    "createdAt": "2026-03-08T11:45:00Z"
+  },
+  {
+    "id": "post_askew_012",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Found a great new yoga mat! Grip is fantastic for hot yoga.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 11,
+      "commentCount": 2
+    },
+    "createdAt": "2026-03-08T13:30:00Z"
+  },
+  {
+    "id": "post_askew_013",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "The transition between poses is just as important as the poses themselves.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 19,
+      "commentCount": 3
+    },
+    "createdAt": "2026-03-08T15:10:00Z"
+  },
+  {
+    "id": "post_askew_014",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Askew mornings are so quiet and peaceful. Best time for practice.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 7,
+      "commentCount": 0
+    },
+    "createdAt": "2026-03-08T07:00:00Z"
+  },
+  {
+    "id": "post_askew_015",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Practice doesn't make perfect, practice makes progress.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 44,
+      "commentCount": 9
+    },
+    "createdAt": "2026-03-08T17:40:00Z"
+  },
+  {
+    "id": "post_askew_016",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Grateful for the support of this community during a tough week.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 22,
+      "commentCount": 5
+    },
+    "createdAt": "2026-03-08T19:20:00Z"
+  },
+  {
+    "id": "post_askew_017",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Let's explore some new poses in tonight's advanced flow.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 16,
+      "commentCount": 7
+    },
+    "createdAt": "2026-03-08T20:50:00Z"
+  },
+  {
+    "id": "post_askew_018",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Restorative yoga tonight. Exactly what my body needed.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 13,
+      "commentCount": 1
+    },
+    "createdAt": "2026-03-09T21:15:00Z"
+  },
+  {
+    "id": "post_askew_019",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Monday morning intention: I am present and open to new opportunities.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 31,
+      "commentCount": 4
+    },
+    "createdAt": "2026-03-09T08:30:00Z"
+  },
+  {
+    "id": "post_askew_020",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Trying a new style of meditation today. It's challenging but rewarding.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 9,
+      "commentCount": 2
+    },
+    "createdAt": "2026-03-09T10:45:00Z"
+  },
+  {
+    "id": "post_askew_021",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "The power of community is undeniable. Thank you for being part of ours.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 55,
+      "commentCount": 10
+    },
+    "createdAt": "2026-03-09T12:30:00Z"
+  },
+  {
+    "id": "post_askew_022",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Does anyone have recommendations for a good yoga retreat near London?",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 4,
+      "commentCount": 8
+    },
+    "createdAt": "2026-03-09T14:15:00Z"
+  },
+  {
+    "id": "post_askew_023",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Alignment isn't just physical; it's mental and emotional too.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 21,
+      "commentCount": 3
+    },
+    "createdAt": "2026-03-09T16:00:00Z"
+  },
+  {
+    "id": "post_askew_024",
+    "author": {
+      "id": "user_privacy_002",
+      "username": "overlap_user#2222",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+      "avatarPrivacy": "groups-only"
+    },
+    "content": "Looking for a partner for some acro-yoga practice. Anyone interested?",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 5,
+      "commentCount": 2
+    },
+    "createdAt": "2026-03-09T17:45:00Z"
+  },
+  {
+    "id": "post_askew_025",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Final thought for the day: You are enough, just as you are.",
+    "source": {
+      "type": "area",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 62,
+      "commentCount": 15
+    },
+    "createdAt": "2026-03-09T20:30:00Z"
+  },
+  {
     "id": "post_ravenscourt_001",
     "author": {
       "id": "user_teacher_001",
@@ -37,25 +493,6 @@
       "commentCount": 8
     },
     "createdAt": "2026-03-07T10:00:00Z"
-  },
-  {
-    "id": "post_overlap_001",
-    "author": {
-      "id": "user_privacy_002",
-      "username": "overlap_user#2222",
-      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
-      "avatarPrivacy": "groups-only"
-    },
-    "content": "Shared a great class with Maya in Askew today. Highly recommend!",
-    "source": {
-      "type": "area",
-      "name": "Askew"
-    },
-    "stats": {
-      "likeCount": 5,
-      "commentCount": 1
-    },
-    "createdAt": "2026-03-07T11:00:00Z"
   },
   {
     "id": "post_chelsea_001",

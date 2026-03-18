@@ -4,12 +4,15 @@ struct FeedErrorView: View {
     let error: String
     
     var body: some View {
-        ContentUnavailableView(
-            "landing.feed.error.title",
-            systemImage: "exclamationmark.triangle",
-            description: Text(error)
-        )
-        .listRowSeparator(.hidden)
+        Section {
+            ContentUnavailableView(
+                "landing.feed.error.title",
+                systemImage: "exclamationmark.triangle",
+                description: Text(error)
+            )
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.primaryBackground)
+        }
     }
 }
 

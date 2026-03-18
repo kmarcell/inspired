@@ -63,7 +63,7 @@ public struct AppFeature: Sendable {
 
             case let .userProfileResponse(.success(user)):
                 state = .authenticated(LandingPageFeature.State(user: user))
-                return .none
+                return .send(.authenticated(.feed(.refresh)))
 
             case let .userProfileResponse(.failure(error)):
                 // If profile not found but we have auth, go to onboarding
