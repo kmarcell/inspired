@@ -9,38 +9,14 @@ struct FeedDiscoveryView: View {
         // This allows the discovery items to scroll vertically along with the rest of the list.
         Section {
             ForEach(store.suggestedCommunities) { community in
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(community.name)
-                                .font(.headline)
-                                .foregroundColor(.primaryText)
-                            Text(community.description)
-                                .font(.subheadline)
-                                .foregroundColor(.secondaryText)
-                                .lineLimit(2)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundColor(.secondaryText)
+                CommunityTile(community: community)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowBackground(Color.primaryBackground)
+                    .accessibilityIdentifier("feed.discovery.\(community.id)")
+                    .onTapGesture {
+                        // Action handled by parent or via TCA if needed
                     }
-                    
-                    HStack {
-                        Label("\(community.engagementScore)", systemImage: "person.2")
-                        Spacer()
-                        Text(community.location_prefix)
-                    }
-                    .font(.caption)
-                    .foregroundColor(.secondaryText)
-                }
-                .padding()
-                .background(Color.primarySurface)
-                .cornerRadius(12)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                .listRowBackground(Color.primaryBackground)
-                .accessibilityIdentifier("feed.discovery.\(community.id)")
             }
         } header: {
             VStack(alignment: .leading, spacing: 4) {

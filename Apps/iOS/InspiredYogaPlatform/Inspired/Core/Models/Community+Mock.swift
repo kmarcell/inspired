@@ -35,5 +35,6 @@ extension Community {
 }
 
 extension Array where Element == Community {
+    public static let mock: [Community] = [.mock, .mock2, .mock3, .mock4]
     public static let mocks: [Community] = [.mock, .mock2, .mock3, .mock4]
 }

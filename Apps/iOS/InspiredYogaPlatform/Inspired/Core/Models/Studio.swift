@@ -1,7 +1,7 @@
 import Foundation
 import CoreLocation
 
-public struct Studio: Equatable, Identifiable, Codable {
+public struct Studio: Equatable, Identifiable, Codable, Sendable {
     public let id: String
     public let name: String
     public let address: String
@@ -15,12 +15,12 @@ public struct Studio: Equatable, Identifiable, Codable {
     public let moderationSettings: ModerationSettings
     public let location: Coordinates
 
-    public struct ModerationSettings: Equatable, Codable {
+    public struct ModerationSettings: Equatable, Codable, Sendable {
         public var autoApproveMemberComments: Bool
         public var guestCommentsEnabled: Bool
     }
 
-    public struct Coordinates: Equatable, Codable {
+    public struct Coordinates: Equatable, Codable, Sendable {
         public let lat: Double
         public let lng: Double
     }

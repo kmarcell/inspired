@@ -235,44 +235,6 @@ extension Array where Element == Post {
     ]
 }
 
-extension Array where Element == Community {
-    public static let mock: [Community] = [
-        Community(
-            id: "area_askew",
-            name: "Askew",
-            description: "Community feed for the Askew area.",
-            location_prefix: "W12",
-            engagementScore: 850
-        ),
-        Community(
-            id: "comm_ravenscourt_yoga",
-            name: "Ravenscourt Park Yoga",
-            description: "Outdoor yoga sessions.",
-            location_prefix: "W6",
-            engagementScore: 450
-        )
-    ]
-}
-
-extension Array where Element == Studio {
-    public static let mock: [Studio] = [
-        Studio(
-            id: "studio_askew_001",
-            name: "Askew Road Zen Den",
-            address: "123 Askew Rd, London W12 9AU",
-            about: "A cozy, community-focused space for all levels.",
-            rating: 4.9,
-            isClaimed: true,
-            ownerId: "user_teacher_001",
-            reviewCount: 42,
-            location_prefix: "W12",
-            engagementScore: 85,
-            moderationSettings: .init(autoApproveMemberComments: true, guestCommentsEnabled: false),
-            location: .init(lat: 51.5033, lng: -0.2445)
-        )
-    ]
-}
-
 // --- Helpers ---
 extension Array {
     func chunked(into size: Int) -> [[Element]] {

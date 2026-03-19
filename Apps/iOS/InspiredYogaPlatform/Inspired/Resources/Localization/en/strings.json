@@ -38,5 +38,11 @@
     "landing.postPlaceholder": "What's on your mind?",
     "landing.discovery.title": "Discover Communities",
     "landing.discovery.subtitle": "Explore what's happening nearby.",
-    "landing.feed.error.title": "Couldn't load feed"
+    "landing.feed.error.title": "Couldn't load feed",
+
+    "search.placeholder": "Search area, groups or studios...",
+    "search.cancel": "Cancel",
+    "search.discovery.title": "Recommended for you",
+    "search.error.title": "Search Failed",
+    "search.error.generic": "We couldn't perform your search. Please try again."
 }

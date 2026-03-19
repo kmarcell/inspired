@@ -512,3 +512,29 @@ Remote Config is used for global application state, A/B testing, and emergency k
 5.  **Offline Handling:**
     - If the app cannot fetch Remote Config due to network issues, it should default to the **last known state**. If no state exists, it defaults to `is_active: false`.
 
+### 5.9 Search & Discovery Mode
+**Goal:** Provide a contextual discovery entry point and a robust entity search (Areas, Communities, Studios).
+
+**5.9.1 Discovery Mode (Empty State)**
+- **Trigger:** Tapping the Search Bar on the Landing Page.
+- **Content:** "Recommended for you" list.
+- **Logic:** Displays a list of public communities and studios near the user's `lastSearchArea` or IP-detected area.
+- **UI Component:** Reuses the `FeedDiscoveryView` layout.
+
+**5.9.2 Search Query Logic (Mocked Mapping)**
+To ensure a rich experience during development, the search engine (Cloud Function) implements the following mapping logic:
+
+| Query Type | Input Example | Logic / Result |
+| :--- | :--- | :--- |
+| **Postcode Prefix** | "W14" | Returns all Communities and Studios with `location_prefix == "W14"`. |
+| **Known Area Name** | "Hammersmith" | Maps "Hammersmith" to **W6**. Returns Area results for Hammersmith and entities in W6. |
+| **Known Area Name** | "Askew" | Maps "Askew" to **W12**. Returns Area results for Askew and entities in W12. |
+| **Exact Entity Name**| "Askew Road Zen Den" | Returns the specific Studio document. |
+| **Partial Keyword** | "Zen" | Returns all entities where the name or description contains "Zen". |
+
+**5.9.3 Mixed Results Rendering**
+- Results are displayed in a single unified list.
+- **Priority:** Area Matches > Name Matches > Keyword Matches.
+- **Action:** Tapping a result navigates to the respective Profile or Community view.
+
+

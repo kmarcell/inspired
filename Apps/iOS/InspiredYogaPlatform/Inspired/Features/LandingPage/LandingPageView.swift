@@ -9,6 +9,7 @@ public struct LandingPageView: View {
     }
     
     public var body: some View {
+        @Bindable var store = store
         List {
             // Section 1: Consolidated Header
             Section {
@@ -62,6 +63,11 @@ public struct LandingPageView: View {
         .navigationBarHidden(true)
         .refreshable {
             await store.send(.feed(.refresh)).finish()
+        }
+        .fullScreenCover(
+            item: $store.scope(state: \.search, action: \.search)
+        ) { searchStore in
+            SearchView(store: searchStore)
         }
     }
 }

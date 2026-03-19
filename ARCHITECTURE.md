@@ -143,6 +143,24 @@ This index serves as the canonical list of all serverless backend logic. All fun
 | **`dailyAuthExport`** | Scheduled | Daily export of UID <-> Email mapping for identity recovery. | **DR Mandate.** |
 | **`storageHygiene`** | Firestore (onUpdate)| Deletes old image blobs when a user updates their profile picture. | Cost Control. |
 | **`sendNotifications`** | Firestore (onCreate)| Triggers FCM alerts for new chat messages or group posts. | Real-time Engagement. |
+| **`search`** | HTTPS Callable | Multi-entity search (Areas, Communities, Studios). | Auth Required + App Check. |
+
+---
+
+## 4. Search & Discovery Strategy
+The search experience is powered by a centralized Cloud Function to ensure consistent logic across platforms and to protect database structure.
+
+### 4.1 Tiered Entity Matching
+The `search` function implements a priority-based matching algorithm:
+1.  **Postcode Prefix:** Direct match against `location_prefix`.
+2.  **Area Translation:** Maps descriptive names (e.g., "Hammersmith") to their canonical postcode prefixes (W6).
+3.  **Name Search:** Case-insensitive partial matching on the `name` field of all entities.
+4.  **Keyword Search:** Scans `description` and `about` fields for relevant tags.
+
+### 4.2 Proximity-Based Suggestions (Discovery)
+When no query is provided, the function returns "Discovery" results:
+-   **Context:** Uses the user's `currentAreaPrefix` passed in the request.
+-   **Result Set:** Communities and Studios within the same prefix, followed by neighboring prefixes (determined by centroid distance).
 
 ---
 

@@ -8,6 +8,7 @@ public struct LandingPageFeature {
         public var user: User
         public var currentArea: String = "London"
         public var feed: CommunityFeedFeature.State
+        @Presents public var search: SearchFeature.State?
         
         public init(user: User) {
             self.user = user
@@ -22,6 +23,7 @@ public struct LandingPageFeature {
         case notificationsButtonTapped
         case createPostButtonTapped
         case feed(CommunityFeedFeature.Action)
+        case search(PresentationAction<SearchFeature.Action>)
     }
     
     public init() {}
@@ -29,6 +31,9 @@ public struct LandingPageFeature {
     public var body: some ReducerOf<Self> {
         Scope(state: \.feed, action: \.feed) {
             CommunityFeedFeature()
+        }
+        .ifLet(\.$search, action: \.search) {
+            SearchFeature()
         }
         
         Reduce { state, action in
@@ -38,7 +43,11 @@ public struct LandingPageFeature {
                 return .none
                 
             case .searchButtonTapped:
-                print("DEBUG: Search button tapped")
+                // Use location_prefix if available, otherwise fallback to "W12" for mock
+                state.search = SearchFeature.State(currentAreaPrefix: state.user.lastSearchArea ?? "W12")
+                return .none
+                
+            case .search:
                 return .none
                 
             case .joinedCommunitiesButtonTapped:
