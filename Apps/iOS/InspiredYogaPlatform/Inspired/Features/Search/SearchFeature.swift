@@ -19,7 +19,7 @@ public struct SearchFeature {
     
     public enum Action: BindableAction, Equatable, Sendable {
         case binding(BindingAction<State>)
-        case onAppear
+        case loadSuggestions
         case searchResponse(Result<[SearchResult], SearchError>)
         case resultTapped(SearchResult)
         case suggestionTapped(Community)
@@ -36,8 +36,9 @@ public struct SearchFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .onAppear:
+            case .loadSuggestions:
                 guard state.query.isEmpty else { return .none }
+                guard state.suggestedCommunities.isEmpty else { return .none }
                 state.isLoading = true
                 return .run { [prefix = state.currentAreaPrefix] send in
                     do {
@@ -53,7 +54,7 @@ public struct SearchFeature {
                 if state.query.isEmpty {
                     state.results = []
                     // Trigger discovery reload if empty
-                    return .send(.onAppear)
+                    return .send(.loadSuggestions)
                 }
                 
                 state.isLoading = true

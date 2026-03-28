@@ -6,7 +6,7 @@ import Testing
 @MainActor
 struct SearchFeatureTests {
     @Test("Discovery load on appear")
-    func testOnAppearLoad() async {
+    func testLoadSuggestions() async {
         let store = TestStore(initialState: SearchFeature.State(currentAreaPrefix: "W12")) {
             SearchFeature()
         } withDependencies: {
@@ -17,7 +17,7 @@ struct SearchFeatureTests {
             }
         }
         
-        await store.send(.onAppear) {
+        await store.send(.loadSuggestions) {
             $0.isLoading = true
         }
         
@@ -28,6 +28,24 @@ struct SearchFeatureTests {
             $0.isLoading = false
             $0.suggestedCommunities = [.mock]
         }
+    }
+
+    @Test("Discovery load caching")
+    func testLoadSuggestionsCaching() async {
+        var state = SearchFeature.State(currentAreaPrefix: "W12")
+        state.suggestedCommunities = [.mock]
+        
+        let store = TestStore(initialState: state) {
+            SearchFeature()
+        } withDependencies: {
+            $0.searchClient.search = { _, _ in
+                Issue.record("searchClient.search should not be called when suggestions are cached")
+                return []
+            }
+        }
+        
+        await store.send(.loadSuggestions)
+        // Should return .none immediately, no state change
     }
     
     @Test("Search query debounce")

@@ -43,6 +43,7 @@
     "search.placeholder": "Search area, groups or studios...",
     "search.cancel": "Cancel",
     "search.discovery.title": "Recommended for you",
+    "search.results.title %@": "Results for '%@'",
     "search.error.title": "Search Failed",
     "search.error.generic": "We couldn't perform your search. Please try again."
 }

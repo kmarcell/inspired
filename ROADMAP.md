@@ -134,7 +134,9 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 *Phase 3.2 must be complete before moving to Phase 4 Staging Deployment.*
 - [x] **Email Registration Flow:** Design the "Create Account" screen for non-Google users.
 - [ ] **Write Post Flow:** Define the full-screen composer UI, Markdown support, and Area/Community tagging.
-- [ ] **Search UI & Experience:** Define how search results (Areas, Communities, Teachers) are displayed and navigated.
+- [x] **Search UI & Experience:** Define how search results (Areas, Communities, Teachers) are displayed and navigated.
+    - [x] **TODO:** Implement caching for empty-query recommendations to prevent redundant searches.
+    - [x] **TODO:** On "No Results" state, display recommended communities instead of an empty search screen.
 - [ ] **Yoga Studio & Community Profiles:** Define the full UI and data requirements for claimed studio pages.
 - [ ] **Shadow Profile Claiming:** Define the technical and UI flow for verifying studio ownership.
 - [ ] **Hashtags & Mentions:** Define interaction logic, search behavior, and rendering mandates.

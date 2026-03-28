@@ -121,8 +121,22 @@ If SwiftData is configured to use CloudKit:
 - All relationships must be marked optional.
 
 
-## Project structure
+## Project structure & Schemes
 
+- **Root Directory:** `Apps/iOS/InspiredYogaPlatform/`
+- **Application Logic:** `Inspired/` (Contains Features, Clients, Models, and UI Components).
+- **Unit & Snapshot Tests:** `InspiredTests/` (Offline, deterministic testing).
+- **UI Tests:** `InspiredUITests/` (Integration testing against Firebase Emulators).
+
+### Xcode Targets & Environment Schemes
+- **`Inspired`**: The main application target.
+- **`InspiredTests`**: Unit and Snapshot testing bundle.
+- **`InspiredUITests`**: UI testing bundle.
+- **`Inspired (Local)`**: **Primary development scheme.** Configured for local development using the `Debug (Local)` configuration. It points to the **Firebase Emulator** (`-DFIREBASE_EMULATOR`) and uses local environment variables.
+- **`Inspired (Staging)`**: Points to the Firebase Staging environment for integration testing and QA.
+- **`Inspired (Production)`**: Points to the live Production environment.
+
+### Mandates
 - Use a consistent project structure, with folder layout determined by app features.
 - Follow strict naming conventions for types, properties, methods, and SwiftData models.
 - Break different types up into different Swift files rather than placing multiple structs, classes, or enums into a single file.

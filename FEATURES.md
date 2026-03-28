@@ -534,7 +534,14 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 
 **5.9.3 Mixed Results Rendering**
 - Results are displayed in a single unified list.
+- **Header:** The list header is localized using the format: `"Results for '%@'"` (with single quotes around the query).
 - **Priority:** Area Matches > Name Matches > Keyword Matches.
 - **Action:** Tapping a result navigates to the respective Profile or Community view.
+
+**5.9.4 Search States & Feedback**
+- **Loading State:** A centered `CircularLoaderView` is displayed while the search or discovery query is in flight.
+- **No Results State:** If a query returns zero results, the view should display the "Recommended for you" list (same as Discovery Mode) to keep the user engaged. (Planned improvement).
+- **Error State:** If the search client fails, a `ContentUnavailableView` with an exclamation mark icon and a localized error message is displayed.
+- **Layout Consistency:** All initial states (Discovery, Loading, Error, No Results) maintain a consistent **16pt gap** from the Search Bar background.
 
 

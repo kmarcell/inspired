@@ -45,7 +45,7 @@ public struct LandingPageFeature {
             case .searchButtonTapped:
                 // Use location_prefix if available, otherwise fallback to "W12" for mock
                 state.search = SearchFeature.State(currentAreaPrefix: state.user.lastSearchArea ?? "W12")
-                return .none
+                return .send(.search(.presented(.loadSuggestions)))
                 
             case .search:
                 return .none
