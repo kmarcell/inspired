@@ -18,7 +18,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 ### ios seed_emulator
 
 ```sh
-[bundle exec] fastlane ios seed_emulator
+fastlane ios seed_emulator
 ```
 
 Seed the local emulator with initial data
@@ -26,15 +26,15 @@ Seed the local emulator with initial data
 ### ios test
 
 ```sh
-[bundle exec] fastlane ios test
+fastlane ios test
 ```
 
-Run all unit and snapshot tests (Local Emulator)
+Run unit and snapshot tests (Local Emulator). Optional: only_testing:'Tests/ClassName/TestMethod'
 
 ### ios deploy_staging
 
 ```sh
-[bundle exec] fastlane ios deploy_staging
+fastlane ios deploy_staging
 ```
 
 Deploy a new version to Firebase App Distribution (Staging)
@@ -42,7 +42,7 @@ Deploy a new version to Firebase App Distribution (Staging)
 ### ios analyze_accessibility
 
 ```sh
-[bundle exec] fastlane ios analyze_accessibility
+fastlane ios analyze_accessibility
 ```
 
 Analyze Accessibility (Generate Hierarchy & Screenshots)
@@ -50,7 +50,7 @@ Analyze Accessibility (Generate Hierarchy & Screenshots)
 ### ios deploy_prod
 
 ```sh
-[bundle exec] fastlane ios deploy_prod
+fastlane ios deploy_prod
 ```
 
 Deploy a new version to TestFlight (Production)

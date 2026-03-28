@@ -1,0 +1,141 @@
+# Gemini CLI Safety Policy - iOS Development Suite (2026)
+# Purpose: Block raw shell scripting, enforce Fastlane, protect environments and assets.
+
+[general]
+system_hint = """
+Strict Policy: Raw shell scripts (.sh, .zsh, .bash) are FORBIDDEN.
+1. You MUST use 'fastlane' for all build, test, and deployment tasks.
+2. Direct 'xcodebuild' is only allowed for discovery (list, showBuildSettings).
+3. Use 'xcrun simctl' for simulator operations.
+4. Infrastructure and Production environments are READ-ONLY for AI.
+"""
+
+# --- Granular Rules for xcodebuild ---
+
+[[rules.command_execution]]
+command_prefix = "xcodebuild test"
+decision = "deny"
+deny_message = "Direct 'xcodebuild test' is restricted. Please use 'fastlane test'."
+
+[[rules.command_execution]]
+command_prefix = "xcodebuild list"
+decision = "allow"
+auto_approve = true
+
+[[rules.command_execution]]
+command_prefix = "xcodebuild -showBuildSettings"
+decision = "allow"
+auto_approve = true
+
+# --- Emulator & Infrastructure Guards ---
+
+[[rules.command_execution]]
+command_prefix = "firebase emulators:start"
+decision = "deny"
+deny_message = "Per README.md, the Firebase Emulator must be run in a DEDICATED system terminal, not within the Gemini CLI shell."
+
+[[rules.command_execution]]
+command_prefix = [
+    "terraform destroy",
+    "./scripts/teardown.sh",
+    "firebase firestore:delete",
+]
+decision = "deny"
+deny_message = "Destructive infrastructure operations are restricted for AI agents. Please execute these manually in a secure shell."
+
+# --- Production & Environment Guards ---
+
+[[rules.command_execution]]
+command_prefix = [
+    "firebase use production",
+    "firebase deploy --project production",
+    "./scripts/deploy.sh prod",
+]
+decision = "deny"
+deny_message = "Direct interaction with the Production environment is restricted to prevent accidental outages or data loss."
+
+[[rules.command_execution]]
+command_prefix = ["npm run seed:staging", "npm run seed:prod"]
+decision = "deny"
+deny_message = "Seeding non-local environments is restricted to prevent data pollution. Use 'npm run seed:local' instead."
+
+# --- Asset Protection (XcodeGen) ---
+
+[[rule]]
+toolName = ["write_file", "replace"]
+pathPattern = ".*\\.xcodeproj/.*"
+decision = "deny"
+priority = 100
+deny_message = "The .xcodeproj is managed by XcodeGen. Do not edit it directly; modify project.yml instead."
+
+# --- Global Deny List ---
+
+[tools.denied]
+commands = [
+    "sh",
+    "bash",
+    "zsh",
+    "tcsh",
+    "ksh",
+    "perl",
+    "python",
+    "ruby",
+    "node",
+    "rm",
+    "rmdir",
+    "srm",
+    "sudo",
+    "su",
+    "chmod",
+    "chown",
+    "curl -X",
+    "wget",
+    "sed -i",
+    "format",
+    "fdisk",
+    "diskutil",
+]
+reason = "Destructive tools and raw interpreters are disabled. Use Fastlane or approved diagnostic tools."
+
+# --- Global Auto-Approve List ---
+
+[tools.auto_approve]
+commands = [
+    # --- File & Navigation ---
+    "ls",
+    "find",
+    "grep",
+    "egrep",
+    "cat",
+    "mkdir",
+    "touch",
+    "mv",
+    "cp",
+    "open",
+
+    # --- Git Operations ---
+    "git status",
+    "git diff",
+    "git log",
+    "git show",
+    "git rev-parse",
+
+    # --- iOS & Xcode Core Tools ---
+    "fastlane",
+    "xcode-select",
+    "xcrun simctl",
+    "xcrun simctl io booted screenshot",
+    "plutil",
+    "defaults",
+    "swift build",
+    "swift test",
+
+    # --- Environment & Diagnostics ---
+    "pod --version",
+    "brew list",
+    "log show",
+    "sw_vers",
+]
+
+[rules.patterns]
+block_patterns = ["(\\w+)\\.sh", "bin/(ba|z)?sh", "rm\\s+-rf", "eval\\s+"]

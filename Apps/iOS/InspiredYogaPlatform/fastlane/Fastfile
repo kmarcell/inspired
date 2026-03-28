@@ -18,7 +18,7 @@ platform :ios do
     sh("cd ../../../.. && node infrastructure/scripts/seeder.js local")
   end
 
-  desc "Run all unit and snapshot tests (Local Emulator)"
+  desc "Run unit and snapshot tests (Local Emulator). Optional: only_testing:'Tests/ClassName/TestMethod'"
   lane :test do |options|
     # Increase timeout for slow showBuildSettings calls
     ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
@@ -45,7 +45,8 @@ platform :ios do
       scheme: "Inspired (Local)",
       configuration: "Debug (Local)",
       derived_data_path: "./build",
-      xcargs: "-skipMacroValidation"
+      xcargs: "-skipMacroValidation",
+      only_testing: options[:only_testing]
     )
   end
 

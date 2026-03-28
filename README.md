@@ -143,12 +143,17 @@ firebase deploy --only firestore:rules,firestore:indexes --export-on-exit ./emul
 
 ## 5. Testing & Deployment (Fastlane)
 
-We use **Fastlane** to ensure consistent, automated test runs and builds across all tiers.
+We use **Fastlane** to ensure consistent, automated test runs and builds across all tiers. For detailed documentation on all available lanes, see the **[Fastlane README](./Apps/iOS/InspiredYogaPlatform/fastlane/README.md)**.
+
+> **Execution Note:** Since Fastlane is installed via **Homebrew** (as per Section 2), always run commands using `fastlane <lane_name>` directly. **Do not** use `bundle exec fastlane`.
 
 ### 5.1 Running Automated Tests
-We use multiple test suites to ensure system integrity:
+We use multiple test suites to ensure system integrity. 
+
+> **Important:** Never use `xcodebuild test` or `xcodebuild test-without-building` directly. Always use the **`fastlane test`** pipeline to ensure all pre-build scripts (assets, strings) and environment configurations are properly initialized.
 
 *   **iOS Tests:** `fastlane test` (Runs unit and snapshot tests).
+    *   **Run Specific Test(s):** `fastlane test only_testing:"InspiredTests/LoginFeatureTests"`
 *   **Security Rules:** `npm run test:rules` (Verifies Firestore access control logic).
 
 #### Running Rules Tests
