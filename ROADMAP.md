@@ -37,7 +37,7 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 *Phase 2 is considered complete only when all feature To-Dos/Ideas in @FEATURES.md are clarified.*
 1.  **Draft Feature Requirements:** Describe User Stories in **@FEATURES.md**. (In Progress: Login & Landing Shell done).
 2.  **Define Studio Claiming Flow:** Establish the verification process for studio owners to claim shadow profiles.
-3.  **Generate Mockups:** Create low-fidelity layout sketches for every UI component. (In Progress).
+3.  **Generate Mockups:** Create low-fidelity layout sketches for every UI component. (In Progress: Joined Communities View added).
 4.  [x] **Localization Strategy:** JSON established as shared format; initial languages (en, de, fr, it, pt, es, hu) chosen.
 5.  [x] **Terraform Generation Strategy:** Mandated direct use of `.tf` (HCL) files.
 6.  [x] **Issue Reporting Flow:** External Google Form with `userId` pre-filling.
@@ -124,7 +124,16 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Scroll View:** Fix ScrollView and make sure the ForEach is not in a VStack to improve performance.
 - [x] **Pull to Refresh:** Implement pull to refresh on the feed list.
 
-**Step 5: Privacy-First User Model & Security Rule Enforcement (TDD)**
+**Step 6: Joined Communities & Summaries (TDD)**
+- [ ] **Joined Communities UI:** Implement the management screen with standard `NavigationStack` push.
+- [ ] **Community Summary Tile:** Create the tile with avatar, last activity, unread badge, and 3-post summary (max 100 chars/2 lines).
+- [ ] **Post Summary Logic:** Implement parallel fetching for top 3 posts per community in `FirestoreClient`.
+- [ ] **Swipe-to-Unjoin:** Implement swipe action with confirmation dialog ("Are you sure you want to leave...").
+- [ ] **Empty State Discovery:** Implement "Explore Communities" logic that pops the view and focuses search.
+- [ ] **Recommendation Caching:** Implement in-memory caching for area-based recommendations in `FirestoreClient`.
+- [ ] **Verification:** Snapshot tests for full/empty states and tile variations.
+
+**Step 7: Privacy-First User Model & Security Rule Enforcement (TDD)**
 - [x] **Data Model Refactor:** Remove `isTeacher` and standardize on `privacySettings`.
 - [x] **Security Rule Implementation:** Implement "Community Overlap" and Profile Privacy logic in Firestore Rules.
 - [x] **Privacy Constraint Enforcement:** Implement logic to force avatar to `public` if profile is `public`.

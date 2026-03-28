@@ -75,6 +75,8 @@ To maintain low write costs and avoid complex composite indexes, the feed is agg
     - **Community Query (Chunked):** Fetch top 25 posts using the `whereField("source.id", in: [...])` filter. Since Firestore limits `IN` queries to 30 items, the user's `joinedCommunities` list is split into chunks of 30, each triggering a parallel query.
 2.  **Merging Logic:** The `FeedReducer` awaits all results, merges the arrays, sorts them by `createdAt` (descending), and takes the top 25 for rendering.
 3.  **Pagination:** Subsequent pages use the timestamp of the last visible post as a `startAfter` cursor for all sub-queries.
+4.  **Community Summaries (Parallel Query):** To populate the "Joined Communities" view efficiently, the client fires parallel queries for the top 3 posts for each community in the user's list. To manage costs, only the top 10 most active communities are prefetched, with others lazy-loading on scroll.
+5.  **Caching (Recommended Communities):** The result of the proximity-based discovery query (See 4.2) is cached in memory within the `FirestoreClient`. This cache is only invalidated on app launch or when the `currentAreaPrefix` changes, reducing redundant API calls between the Search and Joined Communities screens.
 
 #### Stage 2: Feed Fan-out (Target: >100k Users)
 Once write volume is justified by high read demand, the system will pivot to a "Write-on-Post" model:
@@ -92,7 +94,7 @@ Once write volume is justified by high read demand, the system will pivot to a "
     *   **Complexity:** No built-in `JOIN` support; relationships are managed via sub-collections or redundant denormalized data.
 *   **Documentation:** [Cloud Firestore Quotas](https://firebase.google.com/docs/firestore/quotas)
 
-### 2.3 Cloud Storage for Firebase
+### 2.5 Cloud Storage for Firebase
 *   **Purpose:** Blob storage for profile pictures and media.
 *   **Capabilities:** Public/Private access controlled by Storage Rules.
 *   **Content Delivery (CDN):**
@@ -109,19 +111,19 @@ Once write volume is justified by high read demand, the system will pivot to a "
     *   **Processing:** Local iOS-native downsampling (0.7 JPEG compression) is mandatory before upload.
 *   **Documentation:** [Cloud Storage Documentation](https://firebase.google.com/docs/storage)
 
-### 2.4 iOS Content Caching Strategy
+### 2.6 iOS Content Caching Strategy
 *   **Mechanism:** Use **Native `URLCache`** and `URLSession` configuration.
 *   **Server Alignment:** Configure `StorageMetadata` (e.g., `Cache-Control: public, max-age=3600`) via the Firebase SDK during upload.
 *   **Performance:** This ensures that images are stored in the local on-disk cache of the iPhone, reducing repeat network requests for the same session.
 
-### 2.5 Cloud Functions (Node.js / Python)
+### 2.7 Cloud Functions (Node.js / Python)
 *   **Purpose:** Server-side logic, moderation workflows, and PII scrubbing.
 *   **Limitations:**
     *   **Cold Starts:** Initial latency for infrequently used functions (minimized by keeping functions "warm" or using small footprints).
     - **Execution Time:** Max 9 minutes per execution.
 *   **Documentation:** [Cloud Functions Documentation](https://firebase.google.com/docs/functions)
 
-### 2.6 Data Serialization Standards
+### 2.8 Data Serialization Standards
 *   **Dates & Timestamps:** All date fields must be serialized as **ISO 8601** strings (e.g., `2026-02-18T10:00:00Z`) in JSON seed files and API responses to ensure platform-independent parsing. Firestore Timestamps are used internally but converted for client transport.
 *   **Enums:** Enum values in data (e.g., `privacySettings`) must strictly match the string raw values defined in the iOS `Codable` structs.
 

@@ -11,8 +11,42 @@ This file serves as the canonical source for all feature requirements, UI compon
 2.  **Landing Page Shell** (Navigation & Layout)
 3.  **Community Feed & Post Card** (Unified Discovery & Mixed Content)
 4.  **User Profiles & Teacher Privacy** (TBD)
-5.  **Communities & Joined Groups** (TBD)
+5.  **Communities & Joined Groups** (Status: In Design - Joined list with post summaries, unread counts, and swipe-to-unjoin.)
 6.  **Notifications & Alerts** (TBD)
+...
+### 5.10 Joined Communities View
+**Goal:** A dedicated management screen for all groups and areas the user has joined.
+**Mockup:** `UI/Mockups/5.10_JoinedCommunities.svg`
+
+**Navigation:**
+- **Trigger:** Tapping the 'JC' (person.2) icon on the Landing Page.
+- **Transition:** Standard `NavigationStack` push (Slide from right).
+- **Header:** Title "Joined Communities" with a back button.
+
+**Visual Layout (Community List):**
+- **Community Tile:**
+    - **Header:** Circle 'A' (Community/Studio Avatar) + Bold Name.
+    - **Activity:** Relative timestamp of the last post (e.g., "Active 5m ago").
+    - **Badges:** Unread notification count (SF Symbol `bell.badge.fill` + number).
+    - **Post Summaries (The "Preview"):**
+        - Displays up to **3 most recent posts** globally for that community.
+        - **Content:** Max 100 characters per post, truncated at 2 lines.
+        - **Separation:** A thin horizontal line between each post summary.
+- **Interactions:**
+    - **Drill-down:** Tapping the tile navigates to the community's specific feed.
+    - **Unjoin (Swipe Left):**
+        - Triggers a **Confirmation Dialog**: "Are you sure you want to leave [Community Name]?"
+        - Options: "Leave" (Destructive) and "Cancel".
+
+**Empty State (Discovery Mode):**
+- **Trigger:** When `joinedCommunities` is empty.
+- **UI:** A friendly message ("You haven't joined any communities yet") and a large **"Explore Communities"** button.
+- **Action:** Tapping the button closes the view and focuses the Search Bar on the Landing Page with the keyboard open.
+- **Recommendations:** Displays the "Recommended for you" list (cached from the Search feature) below the empty state message.
+
+**Technical Constraints:**
+- **Caching:** Recommended communities are cached in the `FirestoreClient` and only refreshed on app launch or if the user's `currentArea` changes.
+- **Post Summaries:** The client fetches the top 3 posts for the visible community tiles in parallel (See @ARCHITECTURE.md for fetching strategy).
 7.  **New Post Flow** (TBD)
 8.  **Teacher Finder & Studio Discovery** (Shadow Profile Seeding)
 9.  **Yoga Studio Profiles & Claiming Flow** (TBD)
