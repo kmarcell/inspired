@@ -46,7 +46,16 @@ platform :ios do
       configuration: "Debug (Local)",
       derived_data_path: "./build",
       xcargs: "-skipMacroValidation",
-      only_testing: options[:only_testing]
+      only_testing: options[:only_testing],
+
+      # AI Optimization: Suppress raw stdout to save tokens
+      suppress_xcodebuild_output: true,
+      disable_concurrent_testing: true,
+
+      # Generate machine-readable reports for failure diagnosis
+      output_types: "junit,html",
+      output_directory: "./fastlane/test_output",
+      buildlog_path: "./fastlane/test_output/logs"
     )
   end
 
@@ -75,7 +84,16 @@ platform :ios do
         scheme: "Inspired (Local)",
         configuration: "Debug (Local)",
         only_testing: "InspiredUITests/LoginUITests/testLoginScreenVoiceOver",
-        xcargs: "-skipMacroValidation"
+        xcargs: "-skipMacroValidation",
+
+        # AI Optimization: Suppress raw stdout to save tokens
+        suppress_xcodebuild_output: true,
+        disable_concurrent_testing: true,
+
+        # Generate machine-readable reports for failure diagnosis
+        output_types: "junit,html",
+        output_directory: "./fastlane/test_output",
+        buildlog_path: "./fastlane/test_output/logs"
       )
       # Read the generated hierarchy files for AI analysis
       sh("cat ../../../../Accessibility/*.txt")

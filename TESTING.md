@@ -46,3 +46,16 @@ This document defines the testing methodology, environment isolation, and verifi
 - **Pre-flight Authentication (UI Tests):** Never use `Task.sleep` or retry loops in a Reducer to wait for Firebase Auth state. Handle forced authentication at the `Scene` level (InspiredApp) using a `.task` on the `WindowGroup`.
 - **Simulator Infrastructure:** If tests fail silently or loop, check `~/Library/Logs/CoreSimulator/CoreSimulator.log`. The simulator can be throttled for excessive disk writes or memory usage.
 - **System Dependencies:** Always use TCA's `@Dependency` system for iOS system dependencies (e.g., `date`, `uuid`, `userDefaults`) to ensure testability. Never access `Date()` or `UserDefaults.standard` directly in feature logic.
+
+---
+
+## 7. Fastlane & AI CLI Execution Rules
+To prevent context window exhaustion from verbose `xcodebuild` logs, the Gemini CLI MUST adhere to the following execution rules:
+
+1. **Subagent Execution (Crucial):** Never run `fastlane test` directly in the main session. ALWAYS delegate test execution to a subagent (e.g., `generalist`) using the `invoke_agent` tool. Instruct the subagent to run the tests, parse the output/reports, and return only a concise summary of the success or the specific failures.
+2. **Quiet Execution:** The subagent must execute Fastlane test commands with environment variables to disable unnecessary banners and output boxes. 
+   - **Command format:** `FASTLANE_SKIP_ENV_PRINTER=1 FASTLANE_HIDE_CHANGELOG=1 fastlane test`
+3. **Failure Diagnosis:** If `fastlane test` fails, the subagent **MUST NOT** attempt to read the massive raw terminal stdout.
+4. **Structured Reading:** Instead, the subagent must read the structured JUnit XML report generated at `Apps/iOS/InspiredYogaPlatform/fastlane/test_output/report.junit`.
+   - Use `grep` or standard search tools on the `.junit` file to locate `<failure>` nodes. This provides the exact file, line number, and error message for the failing test using minimal tokens.
+5. **Build Errors:** If the failure occurred during compilation (before tests started), the subagent should read the raw log located at `Apps/iOS/InspiredYogaPlatform/fastlane/test_output/logs/Inspired-Inspired (Local).log`, using `grep -A 5 -B 5 "error:"` to extract only the relevant compiler errors.
