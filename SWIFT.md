@@ -80,36 +80,13 @@ You are a **Senior iOS Engineer**, specializing in SwiftUI, SwiftData, and relat
 - **Image Processing (iOS):** Use native `ImageRenderer` or `UIImage` resizing capabilities before uploading. Target dimensions are defined in **[@FEATURES.md](./FEATURES.md#411-standard-image-resolutions)**.
 
 
-## Testing Strategy
-
-- **TDD:** Test behavior first, implementation second. Confirm the test fails before writing the fix.
-- **Environment Distinction:**
-    - **Unit & Snapshot Tests:** Must use **in-code Swift mocks** (via TCA `.testValue`). These must be 100% offline and deterministic.
-    - **UI Tests:** Must run against the **Firebase Emulator**.
-- **Snapshot Testing (SnapshotTesting Framework):**
-    - **Re-recording:** Always re-record reference snapshots (`record: true`) immediately after UI code changes.
-    - **Theme Awareness:** Verify screens in both **Light** and **Dark** modes in a single test function using arguments.
-- **UI Tests:**
-    - **Accessibility Identifiers:** Use the pattern `feature.{id}.element` (e.g., `login.emailField`).
-    - **VoiceOver Feedback Loop:** Every significant state must call `app.captureAccessibilityHierarchy(name:)`. This call must generate a paired **.txt** (hierarchy) and **.png** (screenshot) in the root `Accessibility/` directory.
-    - **Analysis:** The `fastlane analyze_accessibility` lane will expose these artifacts for AI analysis to ensure the hierarchy matches the visual intent.
-    - **Logging:** Findings must be recorded in `ACCESSIBILITY_IMPROVEMENTS.md` using the pattern `[iOS] -> [Screen Name] -> [Issue] -> [Action]`.
-
-
 ## Critical Implementation Learnings
 
 - **TCA Naming Convention:** Always name TCA features with the suffix `Feature` (e.g., `LoginFeature`, `AppFeature`). Never use the suffix `Reducer`. This applies to both the file name and the struct name.
-- **TCA TestStore Syntax (Non-Equatable Actions):** When testing actions that contain non-equatable data (like `Error` or `Result`), use the explicit predicate and assert closure syntax: `await store.receive({ action in if case let .failure(error) = action { return error is ExpectedError }; return false }) assert: { ... state changes ... }`.
 - **Full-Screen Support (Letterboxing):** Always ensure `INFOPLIST_KEY_UILaunchScreen_Generation` is set to `YES` in the `project.yml` settings to prevent letterboxing on modern iPhones.
 - **iOS 17 Trait Collection API:** `UITraitCollection(traitsFrom:)` is deprecated. Use the `UITraitCollection(mutations:)` initializer or the trailing closure variant: `UITraitCollection { mutableTraits in mutableTraits.displayScale = 3 }`.
 - **Update Loops:** Be extremely cautious with `.onAppear` in root views. Swapping child views in a `switch` (e.g., in `AppView`) can re-fire `.onAppear` on the parent, causing recursive state updates and simulator instability.
-- **Pre-flight Authentication (UI Tests):** Never use `Task.sleep` or retry loops in a Reducer to wait for Firebase Auth state. Handle forced authentication at the `Scene` level (InspiredApp) using a `.task` on the `WindowGroup`. Ensure the Auth state is fully primed before sending the initial `.appLaunched` action to the Store.
-- **Simulator Infrastructure:** If tests fail silently or loop, check `~/Library/Logs/CoreSimulator/CoreSimulator.log` and system diagnostic reports (e.g., `launchd_sim` in `/Library/Logs/DiagnosticReports/`). The simulator can be throttled or killed for excessive disk writes or memory usage.
 - **XcodeGen Sync:** Execute `xcodegen generate` after any file move or target configuration change before running tests or builds.
-- **UI Test Configuration:** When passing arguments to the app during UI tests (e.g., to force a specific user ID), prefer using `app.launchArguments` (standard `-KEY VALUE` format) over `launchEnvironment`. The app should check `UserDefaults` for these keys.
-- **Clean Test State:** Always recreate the `XCUIApplication` instance in `setUp()` for every test case to ensure a pristine environment and avoid state pollution from previous tests.
-- **Seed Data Integrity:** Ensure seed JSON files match the exact `Codable` schema of your models, including optional fields and enum raw values. `DecodingError`s in `seeder.js` or the app can fail tests silently or cause fallback behaviors that obscure the root cause.
-- **System Dependencies:** Always use TCA's `@Dependency` system for iOS system dependencies (e.g., `date`, `uuid`, `userDefaults`, `mainQueue`) to ensure testability. Never access `UserDefaults.standard` or `Date()` directly in feature logic.
 
 
 ## SwiftData instructions

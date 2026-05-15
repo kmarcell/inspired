@@ -59,7 +59,23 @@ This file serves as the canonical source for all feature requirements, UI compon
 
 ---
 
-## 2. NoSQL Data Schemas (JSON Specification)
+## 2. Product Design & Implementation Mandates
+
+### 2.1 Mockup-Driven Development (The Feedback Loop)
+This loop ensures that the visual intent and functional requirements never drift.
+1.  **Step 1: Mockup Generation:** For every UI component or screen, a low-fidelity mockup (SVG or wireframe) must be generated first.
+2.  **Step 2: Storage:** Mockups must be checked into the repository under the root `UI/Mockups/` directory using **Git LFS**.
+3.  **Step 3: Implementation:** Use the mockup as the primary visual specification for the SwiftUI implementation.
+4.  **Step 4: Validation:** After implementation, generate a high-fidelity **Snapshot Test**. Compare the snapshot's layout to the mockup's intent.
+5.  **Step 5: Iteration:** If the layout or logic deviates, adjust the code, re-generate the snapshot, and repeat until they align perfectly.
+
+### 2.2 Deferred Choice & Reversibility
+- **No Unsolicited Pop-ups:** The app must never trigger system pop-ups (e.g., location sharing, push notifications) without a clear, user-initiated context.
+- **Granular Control:** All privacy decisions and information sharing must be fully reversible and controllable from the app's settings at any time.
+
+---
+
+## 3. NoSQL Data Schemas (JSON Specification)
 
 This section documents the precise data contracts between the iOS application and Cloud Firestore.
 

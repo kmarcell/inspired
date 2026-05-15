@@ -47,6 +47,9 @@ graph TD
 ### 2.2 Cloud Firestore (NoSQL)
 *   **Purpose:** Core database for profiles, groups, and real-time chat.
 *   **Architecture:** Document-Collection model.
+*   **Database Migrations & Lifecycle:**
+    - **Development Phase:** High-velocity development allows for data loss. Schema changes may involve wiping the database and re-seeding.
+    - **Production Phase:** Zero data loss. All structural changes must be performed via versioned migration scripts.
 *   **Relationship Resolution (Client-side Join):** To maintain performance and minimize document size, many-to-many relationships (e.g., "Has user liked this post?") are resolved via **Client-side Joins**.
 *   **Security & Privacy:** Access control is governed by the **Community-based Privacy** model. See [Section 3](#3-security--privacy-architecture) for details.
 *   **Optimization Strategy (Future):** At extreme scale (millions of users), the `get()` call in security rules may impact costs. Future optimizations include:
@@ -181,6 +184,8 @@ Based on a starting community of 10,000 active users:
 ---
 
 ## 3. Security & Privacy Architecture
+
+**Data Protection Mandate:** Security takes precedence over UX and performance. No data is shared without explicit user approval. All architectural decisions must prioritize data integrity and user privacy.
 
 This section serves as the canonical source for all backend access control and data privacy logic.
 
