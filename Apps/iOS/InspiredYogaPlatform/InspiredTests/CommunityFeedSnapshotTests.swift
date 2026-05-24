@@ -24,15 +24,8 @@ struct CommunityFeedSnapshotTests {
 
     @Test("Verify FeedDiscoveryView", arguments: SnapshotTheme.allCases)
     func testFeedDiscoveryView(theme: SnapshotTheme) {
-        var state = CommunityFeedFeature.State(user: .mock)
-        state.suggestedCommunities = .mocks
-        
-        let store = Store(initialState: state) {
-            CommunityFeedFeature()
-        }
-        
         let view = List {
-            FeedDiscoveryView(store: store)
+            FeedDiscoveryView(communities: .mocks)
         }
         .listStyle(.plain)
 

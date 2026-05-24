@@ -3,7 +3,7 @@ import SwiftUI
 import FirebaseAuth
 
 @Reducer
-public struct AppFeature: Sendable {
+public struct AppFeature {
     @ObservableState
     public enum State: Equatable {
         case launching

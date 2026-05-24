@@ -19,6 +19,7 @@ public struct LandingNavBarActions: View {
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(Color.primaryText)
             }
+            .buttonStyle(.plain)
             .accessibilityIdentifier("landing.communitiesButton")
             .accessibilityLabel(Text("landing.navigation.communities"))
             
@@ -27,6 +28,7 @@ public struct LandingNavBarActions: View {
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(Color.primaryText)
             }
+            .buttonStyle(.plain)
             .accessibilityIdentifier("landing.notificationsButton")
             .accessibilityLabel(Text("landing.navigation.notifications"))
         }

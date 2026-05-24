@@ -30,7 +30,7 @@ public func assertSnapshot<V: View>(
     of view: V,
     theme: SnapshotTheme,
     testName: String,
-    record: Bool = false,
+    record: Bool? = nil,
     file: StaticString = #file,
     line: UInt = #line
 ) {
@@ -46,11 +46,13 @@ public func assertSnapshot<V: View>(
     // Set explicit background colors to ensure consistency across environments
     vc.view.backgroundColor = theme == .dark ? UIColor.black : UIColor.white
 
-    assertSnapshot(
+    let shouldRecord = record ?? (ProcessInfo.processInfo.environment["RECORD_SNAPSHOTS"] == "1")
+
+    SnapshotTesting.assertSnapshot(
         of: vc,
         as: .image(on: .iPhone16Pro),
         named: theme.rawValue,
-        record: record,
+        record: shouldRecord,
         file: file,
         testName: testName,
         line: line

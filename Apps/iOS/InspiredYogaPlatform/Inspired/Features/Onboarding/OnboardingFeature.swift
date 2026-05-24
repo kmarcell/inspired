@@ -2,7 +2,7 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-public struct OnboardingFeature: Sendable {
+public struct OnboardingFeature {
     @ObservableState
     public struct State: Equatable {
         public var userId: String

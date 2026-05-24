@@ -9,6 +9,7 @@ public struct LandingPageFeature {
         public var currentArea: String = "London"
         public var feed: CommunityFeedFeature.State
         @Presents public var search: SearchFeature.State?
+        public var path = StackState<Path.State>()
         
         public init(user: User) {
             self.user = user
@@ -24,6 +25,7 @@ public struct LandingPageFeature {
         case createPostButtonTapped
         case feed(CommunityFeedFeature.Action)
         case search(PresentationAction<SearchFeature.Action>)
+        case path(StackAction<Path.State, Path.Action>)
     }
     
     public init() {}
@@ -51,7 +53,7 @@ public struct LandingPageFeature {
                 return .none
                 
             case .joinedCommunitiesButtonTapped:
-                print("DEBUG: Joined Communities button tapped")
+                state.path.append(.joinedCommunities(.init(user: state.user)))
                 return .none
                 
             case .notificationsButtonTapped:
@@ -64,7 +66,25 @@ public struct LandingPageFeature {
                 
             case .feed:
                 return .none
+                
+            case .path(.element(id: _, action: .joinedCommunities(.exploreButtonTapped))):
+                state.path.removeAll()
+                return .send(.searchButtonTapped)
+                
+            case .path:
+                return .none
             }
         }
+        .forEach(\.path, action: \.path)
     }
 }
+
+extension LandingPageFeature {
+    @Reducer
+    public enum Path {
+        case joinedCommunities(JoinedCommunitiesFeature)
+    }
+}
+
+extension LandingPageFeature.Path.State: Equatable, Sendable {}
+extension LandingPageFeature.Path.Action: Equatable, Sendable {}

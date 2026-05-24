@@ -13,51 +13,6 @@ This file serves as the canonical source for all feature requirements, UI compon
 4.  **User Profiles & Teacher Privacy** (TBD)
 5.  **Communities & Joined Groups** (Status: In Design - Joined list with post summaries, unread counts, and swipe-to-unjoin.)
 6.  **Notifications & Alerts** (TBD)
-...
-### 5.10 Joined Communities View
-**Goal:** A dedicated management screen for all groups and areas the user has joined.
-**Mockup:** `UI/Mockups/5.10_JoinedCommunities.svg`
-
-**Navigation:**
-- **Trigger:** Tapping the 'JC' (person.2) icon on the Landing Page.
-- **Transition:** Standard `NavigationStack` push (Slide from right).
-- **Header:** Title "Joined Communities" with a back button.
-
-**Visual Layout (Community List):**
-- **Community Tile:**
-    - **Header:** Circle 'A' (Community/Studio Avatar) + Bold Name.
-    - **Activity:** Relative timestamp of the last post (e.g., "Active 5m ago").
-    - **Badges:** Unread notification count (SF Symbol `bell.badge.fill` + number).
-    - **Post Summaries (The "Preview"):**
-        - Displays up to **3 most recent posts** globally for that community.
-        - **Content:** Max 100 characters per post, truncated at 2 lines.
-        - **Separation:** A thin horizontal line between each post summary.
-- **Interactions:**
-    - **Drill-down:** Tapping the tile navigates to the community's specific feed.
-    - **Unjoin (Swipe Left):**
-        - Triggers a **Confirmation Dialog**: "Are you sure you want to leave [Community Name]?"
-        - Options: "Leave" (Destructive) and "Cancel".
-
-**Empty State (Discovery Mode):**
-- **Trigger:** When `joinedCommunities` is empty.
-- **UI:** A friendly message ("You haven't joined any communities yet") and a large **"Explore Communities"** button.
-- **Action:** Tapping the button closes the view and focuses the Search Bar on the Landing Page with the keyboard open.
-- **Recommendations:** Displays the "Recommended for you" list (cached from the Search feature) below the empty state message.
-
-**Technical Constraints:**
-- **Caching:** Recommended communities are cached in the `FirestoreClient` and only refreshed on app launch or if the user's `currentArea` changes.
-- **Post Summaries:** The client fetches the top 3 posts for the visible community tiles in parallel (See @ARCHITECTURE.md for fetching strategy).
-7.  **New Post Flow** (TBD)
-8.  **Teacher Finder & Studio Discovery** (Shadow Profile Seeding)
-9.  **Yoga Studio Profiles & Claiming Flow** (TBD)
-10. **Real-time Chat** (TBD)
-11. **Class Scheduling & Booking** (TBD)
-12. **Localization** (TBD)
-13. **Issue Reporting & Support** (TBD)
-14. **Accessibility** (Requirements Defined)
-15. **Maintenance Mode** (Triggered via Remote Config)
-
----
 
 ## 2. Product Design & Implementation Mandates
 
@@ -544,6 +499,7 @@ Remote Config is used for global application state, A/B testing, and emergency k
 
 ### 5.8 Maintenance Mode Screen
 **Goal:** Prevent user interaction during critical backend updates and provide status transparency.
+**Mockup:** `UI/Mockups/5.5_MaintenanceMode.svg`
 
 **Behavior:**
 1.  **The Interceptor:**
@@ -565,11 +521,13 @@ Remote Config is used for global application state, A/B testing, and emergency k
 ### 5.9 Search & Discovery Mode
 **Goal:** Provide a contextual discovery entry point and a robust entity search (Areas, Communities, Studios).
 
-**5.9.1 Discovery Mode (Empty State)**
+**5.9.1 Discovery Mode (Initial State)**
 - **Trigger:** Tapping the Search Bar on the Landing Page.
+- **Title:** "Discover Communities"
+- **Mockup:** `UI/Mockups/5.9_SearchDiscovery.svg`
 - **Content:** "Recommended for you" list.
 - **Logic:** Displays a list of public communities and studios near the user's `lastSearchArea` or IP-detected area.
-- **UI Component:** Reuses the `FeedDiscoveryView` layout.
+- **UI Component:** Reuses the discovery list layout with the "Discover Communities" header.
 
 **5.9.2 Search Query Logic (Mocked Mapping)**
 To ensure a rich experience during development, the search engine (Cloud Function) implements the following mapping logic:
@@ -590,8 +548,51 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 
 **5.9.4 Search States & Feedback**
 - **Loading State:** A centered `CircularLoaderView` is displayed while the search or discovery query is in flight.
-- **No Results State:** If a query returns zero results, the view should display the "Recommended for you" list (same as Discovery Mode) to keep the user engaged. (Planned improvement).
+- **No Results State:** If a query returns zero results, the view should display the "Recommended for you" list (Discovery Mode) with the header **"Communities Near You"** to keep the user engaged.
 - **Error State:** If the search client fails, a `ContentUnavailableView` with an exclamation mark icon and a localized error message is displayed.
 - **Layout Consistency:** All initial states (Discovery, Loading, Error, No Results) maintain a consistent **16pt gap** from the Search Bar background.
 
+### 5.10 Joined Communities View
+**Goal:** A dedicated management screen for all groups and areas the user has joined.
+**Mockup (Full):** `UI/Mockups/5.10_JoinedCommunities.svg`
+**Mockup (Empty):** `UI/Mockups/5.10_JoinedCommunities_Empty.svg`
 
+**Navigation:**
+- **Trigger:** Tapping the 'JC' (person.2) icon on the Landing Page.
+- **Transition:** Standard `NavigationStack` push (Slide from right).
+- **Header:** Title "Joined Communities" with a back button.
+
+**Visual Layout (Community List):**
+- **Community Tile:**
+    - **Header:** Circle 'A' (Community/Studio Avatar) + Bold Name.
+    - **Activity:** Relative timestamp of the last post (e.g., "Active 5m ago").
+    - **Badges:** Unread notification count (SF Symbol `bell.badge.fill` + number).
+    - **Post Summaries (The "Preview"):**
+        - Displays up to **3 most recent posts** globally for that community.
+        - **Content:** Max 100 characters per post, truncated at 2 lines.
+        - **Separation:** A thin horizontal line between each post summary.
+- **Interactions:**
+    - **Drill-down:** Tapping the tile navigates to the community's specific feed.
+    - **Unjoin (Swipe Left):**
+        - Triggers a **Confirmation Dialog**: "Are you sure you want to leave [Community Name]?"
+        - Options: "Leave" (Destructive) and "Cancel".
+
+**Empty State (Discovery Mode):**
+- **Trigger:** When `joinedCommunities` is empty.
+- **Title:** "Communities Near You"
+- **UI:** A friendly message ("You haven't joined any communities yet") and a large **"Explore Communities"** button.
+- **Action:** Tapping the button closes the view and focuses the Search Bar on the Landing Page with the keyboard open.
+- **Recommendations:** Displays the "Communities Near You" discovery list (cached from the Search feature) below the empty state message.
+
+**Technical Constraints:**
+- **Caching:** Recommended communities are cached in the `FirestoreClient` and only refreshed on app launch or if the user's `currentArea` changes.
+- **Post Summaries:** The client fetches the top 3 posts for the visible community tiles in parallel (See @ARCHITECTURE.md for fetching strategy).
+7.  **New Post Flow** (TBD)
+8.  **Teacher Finder & Studio Discovery** (Shadow Profile Seeding)
+9.  **Yoga Studio Profiles & Claiming Flow** (TBD)
+10. **Real-time Chat** (TBD)
+11. **Class Scheduling & Booking** (TBD)
+12. **Localization** (TBD)
+13. **Issue Reporting & Support** (TBD)
+14. **Accessibility** (Requirements Defined)
+15. **Maintenance Mode** (Triggered via Remote Config)

@@ -24,6 +24,7 @@ public struct SearchPlaceholderButton: View {
                     .stroke(Color.primaryText.opacity(0.1), lineWidth: 1)
             )
         }
+        .buttonStyle(.plain)
         .accessibilityIdentifier("landing.searchButton")
     }
 }

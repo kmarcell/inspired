@@ -125,13 +125,14 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Pull to Refresh:** Implement pull to refresh on the feed list.
 
 **Step 6: Joined Communities & Summaries (TDD)**
-- [ ] **Joined Communities UI:** Implement the management screen with standard `NavigationStack` push.
-- [ ] **Community Summary Tile:** Create the tile with avatar, last activity, unread badge, and 3-post summary (max 100 chars/2 lines).
-- [ ] **Post Summary Logic:** Implement parallel fetching for top 3 posts per community in `FirestoreClient`.
-- [ ] **Swipe-to-Unjoin:** Implement swipe action with confirmation dialog ("Are you sure you want to leave...").
-- [ ] **Empty State Discovery:** Implement "Explore Communities" logic that pops the view and focuses search.
+- [ ] **Current Progress:** UI implemented. Investigating navigation bug and preparing tests. See `TODO.md ## [2026-05-15 15:30]`.
+- [x] **Seed Data Requirements:** Define test users in `users.json` (User A: Full Joined Communities, User B: Empty Joined Communities).
+- [ ] **Joined Communities UI (Full):** Implement management screen, Summary Tiles, and Swipe-to-Unjoin.
+- [ ] **Joined Communities UI (Empty):** Implement "Communities Near You" state using reusable discovery components.
 - [ ] **Recommendation Caching:** Implement in-memory caching for area-based recommendations in `FirestoreClient`.
-- [ ] **Verification:** Snapshot tests for full/empty states and tile variations.
+- [ ] **Snapshot Tests:** Generate snapshots for both Empty and Full states using robust mock data (Light/Dark mode).
+- [ ] **UI & Accessibility Tests:** Write UI tests for both states and run `app.captureAccessibilityHierarchy(name:)` to generate the required reports.
+- [ ] **Verification:** Confirm swipe actions and navigation logic match `UserFlows.md`.
 
 **Step 7: Privacy-First User Model & Security Rule Enforcement (TDD)**
 - [x] **Data Model Refactor:** Remove `isTeacher` and standardize on `privacySettings`.

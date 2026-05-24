@@ -10,59 +10,69 @@ public struct LandingPageView: View {
     
     public var body: some View {
         @Bindable var store = store
-        List {
-            // Section 1: Consolidated Header
-            Section {
-                VStack(spacing: 0) {
-                    LandingHeaderView(store: store)
-                    
-                    Divider()
-                        .background(Color.primaryText.opacity(0.05))
-                    
-                    // Area Label & Post Entry
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Adaptive Area Label
-                        HStack(spacing: 4) {
-                            Text("landing.areaPrefix")
-                                .foregroundStyle(Color.secondaryText)
-                            Text(store.feed.currentArea ?? store.currentArea)
-                                .fontWeight(.bold)
-                                .foregroundStyle(Color.primaryText)
-                        }
-                        .font(.caption)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 12)
-                        .accessibilityElement(children: .combine)
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+            List {
+                // Section 1: Consolidated Header
+                Section {
+                    VStack(spacing: 0) {
+                        LandingHeaderView(store: store)
                         
-                        PostEntryBar {
-                            store.send(.createPostButtonTapped)
+                        Divider()
+                            .background(Color.primaryText.opacity(0.05))
+                        
+                        // Area Label & Post Entry
+                        VStack(alignment: .leading, spacing: 16) {
+                            // Adaptive Area Label
+                            HStack(spacing: 4) {
+                                Text("landing.areaPrefix")
+                                    .foregroundStyle(Color.secondaryText)
+                                Text(store.feed.currentArea ?? store.currentArea)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color.primaryText)
+                            }
+                            .font(.caption)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 12)
+                            .accessibilityElement(children: .combine)
+                            
+                            PostEntryBar {
+                                store.send(.createPostButtonTapped)
+                            }
+                            .padding(.horizontal, 16)
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.bottom, 16)
+                        .background(Color.primaryBackground)
                     }
-                    .padding(.bottom, 16)
-                    .background(Color.primaryBackground)
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowSeparator(.hidden)
+                
+                // Section 2: Feed Content
+                if store.feed.isLoading {
+                    FeedLoadingView()
+                } else if let error = store.feed.error {
+                    FeedErrorView(error: error)
+                } else if store.feed.posts.isEmpty && store.feed.isDiscoveryMode {
+                    FeedDiscoveryView(
+                        communities: store.feed.suggestedCommunities,
+                        title: "landing.discovery.nearYou.title"
+                    )
+                } else {
+                    CommunityFeedView(store: store.scope(state: \.feed, action: \.feed))
+                }
             }
-            
-            // Section 2: Feed Content
-            if store.feed.isLoading {
-                FeedLoadingView()
-            } else if let error = store.feed.error {
-                FeedErrorView(error: error)
-            } else if store.feed.posts.isEmpty && store.feed.isDiscoveryMode {
-                FeedDiscoveryView(store: store.scope(state: \.feed, action: \.feed))
-            } else {
-                CommunityFeedView(store: store.scope(state: \.feed, action: \.feed))
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.primaryBackground.ignoresSafeArea())
+            .navigationBarHidden(true)
+            .refreshable {
+                await store.send(.feed(.refresh)).finish()
             }
-        }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .background(Color.primaryBackground.ignoresSafeArea())
-        .navigationBarHidden(true)
-        .refreshable {
-            await store.send(.feed(.refresh)).finish()
+        } destination: { store in
+            switch store.case {
+            case let .joinedCommunities(store):
+                JoinedCommunitiesView(store: store)
+            }
         }
         .fullScreenCover(
             item: $store.scope(state: \.search, action: \.search)

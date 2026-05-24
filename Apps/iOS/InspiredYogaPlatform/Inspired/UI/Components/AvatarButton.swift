@@ -11,6 +11,7 @@ public struct AvatarButton: View {
         Button(action: action) {
             AvatarView(size: 40)
         }
+        .buttonStyle(.plain)
         .accessibilityIdentifier("landing.profileButton")
         .accessibilityLabel(Text("landing.navigation.profile"))
     }

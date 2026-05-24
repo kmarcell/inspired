@@ -20,13 +20,21 @@ public struct SearchView: View {
                 if store.isLoading {
                     loadingSection
                 } else if store.query.isEmpty {
-                    discoverySection
+                    FeedDiscoveryView(
+                        communities: store.suggestedCommunities,
+                        title: "landing.discovery.discover.title",
+                        onCommunityTapped: { store.send(.suggestionTapped($0)) }
+                    )
                 } else if let error = store.error {
                     errorSection(error)
                 } else if store.results.isEmpty {
                     noResultsSection
                     if !store.suggestedCommunities.isEmpty {
-                        discoverySection
+                        FeedDiscoveryView(
+                            communities: store.suggestedCommunities,
+                            title: "landing.discovery.nearYou.title",
+                            onCommunityTapped: { store.send(.suggestionTapped($0)) }
+                        )
                     }
                 } else {
                     resultsSection
@@ -58,27 +66,6 @@ public struct SearchView: View {
             .listRowSeparator(.hidden)
             .accessibilityIdentifier("search.loading")
         }
-    }
-
-    @ViewBuilder
-    private var discoverySection: some View {
-        Section {
-            ForEach(store.suggestedCommunities) { community in
-                CommunityTile(community: community)
-                    .listRowSeparator(.hidden)
-                    .standardListRowInsets()
-                    .listRowBackground(Color.primaryBackground)
-                    .onTapGesture {
-                        store.send(.suggestionTapped(community))
-                    }
-                    .accessibilityIdentifier("search.suggestion.\(community.id)")
-            }
-        } header: {
-            Text("search.discovery.title")
-                .headlineStyle()
-                .accessibilityIdentifier("search.discovery.header")
-        }
-        .textCase(nil)
     }
 
     @ViewBuilder

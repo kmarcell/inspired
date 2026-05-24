@@ -38,7 +38,13 @@
     "landing.postPlaceholder": "What's on your mind?",
     "landing.discovery.title": "Discover Communities",
     "landing.discovery.subtitle": "Explore what's happening nearby.",
+    "landing.discovery.nearYou.title": "Communities Near You",
+    "landing.discovery.discover.title": "Discover Communities",
     "landing.feed.error.title": "Couldn't load feed",
+
+    "joinedCommunities.title": "Joined Communities",
+    "joinedCommunities.empty.message": "You haven't joined any communities yet",
+    "joinedCommunities.empty.button": "Explore Communities",
 
     "search.placeholder": "Search area, groups or studios...",
     "search.cancel": "Cancel",

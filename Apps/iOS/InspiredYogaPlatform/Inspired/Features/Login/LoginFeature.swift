@@ -2,7 +2,7 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-public struct LoginFeature: Sendable {
+public struct LoginFeature {
     @ObservableState
     public struct State: Equatable {
         public var isLoading: Bool = false

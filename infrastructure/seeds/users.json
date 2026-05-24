@@ -17,6 +17,40 @@
     "updatedAt": "2026-01-01T10:00:00Z"
   },
   {
+    "id": "user_active",
+    "username": "active_yogini#2026",
+    "displayName": "Active Yogini",
+    "bio": "Love community yoga!",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew", "comm_ravenscourt_yoga", "area_hammersmith"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-05-15T10:00:00Z",
+    "updatedAt": "2026-05-15T10:00:00Z"
+  },
+  {
+    "id": "user_newbie",
+    "username": "yoga_newbie#9999",
+    "displayName": "Yoga Newbie",
+    "bio": "Just starting out.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": [],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-05-15T10:00:00Z",
+    "updatedAt": "2026-05-15T10:00:00Z"
+  },
+  {
     "id": "user_privacy_001",
     "username": "public_avatar#1111",
     "displayName": "Public Avatar User",

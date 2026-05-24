@@ -18,10 +18,16 @@ platform :ios do
     sh("cd ../../../.. && node infrastructure/scripts/seeder.js local")
   end
 
-  desc "Run unit and snapshot tests (Local Emulator). Optional: only_testing:'Tests/ClassName/TestMethod'"
+  desc "Run unit and snapshot tests (Local Emulator). Optional: only_testing:'Tests/ClassName/TestMethod' record_snapshots:true"
   lane :test do |options|
     # Increase timeout for slow showBuildSettings calls
     ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
+
+    # Set snapshot recording env var if requested
+    xcargs = "-skipMacroValidation"
+    if options[:record_snapshots]
+      xcargs += " RECORD_SNAPSHOTS=1"
+    end
 
     # 0. Load Local Secrets
     Dotenv.load "../../../../.env"
@@ -45,11 +51,11 @@ platform :ios do
       scheme: "Inspired (Local)",
       configuration: "Debug (Local)",
       derived_data_path: "./build",
-      xcargs: "-skipMacroValidation",
+      xcargs: xcargs,
       only_testing: options[:only_testing],
 
       # AI Optimization: Suppress raw stdout to save tokens
-      suppress_xcodebuild_output: true,
+      suppress_xcode_output: true,
       disable_concurrent_testing: true,
 
       # Generate machine-readable reports for failure diagnosis
@@ -87,7 +93,7 @@ platform :ios do
         xcargs: "-skipMacroValidation",
 
         # AI Optimization: Suppress raw stdout to save tokens
-        suppress_xcodebuild_output: true,
+        suppress_xcode_output: true,
         disable_concurrent_testing: true,
 
         # Generate machine-readable reports for failure diagnosis
