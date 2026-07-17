@@ -12,6 +12,7 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Xcode Target Configuration:** 3-Tier setup (Local, Staging, Production) managed via XcodeGen.
 - [x] **Terraform State Management:** GCS bucket `inspired-yoga-app-staging-tfstate` created for remote state.
 - [x] **Fastlane Scaffolding:** Updated to support 3-tier testing and deployment.
+- [x] **Repository Security Hardening:** Hardening Actions policies and branch rulesets via GitHub CLI. [2026-07-17]
 
 ### 🧪 Validation Framework (Test Engineer)
 - [x] **Firebase Emulator Initialization:** Java installed and ports configured in `firebase.json`.
