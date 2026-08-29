@@ -48,8 +48,8 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
 
-      - name: Deploy Rules, Indexes & Cloud Functions to Production
-        run: npx firebase-tools deploy --only firestore:rules,firestore:indexes,functions --project inspired-yoga-app
+      - name: Deploy Firestore Rules, Indexes, Storage Rules & Cloud Functions to Production
+        run: npx firebase-tools deploy --only firestore,storage,functions --project inspired-yoga-app
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
 
