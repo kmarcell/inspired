@@ -48,6 +48,10 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
 
+      - name: Install Functions Dependencies
+        run: npm ci || npm install
+        working-directory: ./infrastructure/backend/functions
+
       - name: Deploy Firestore Rules, Indexes & Cloud Functions to Production
         run: npx firebase-tools deploy --only firestore,functions --force --project inspired-yoga-app
         env:
