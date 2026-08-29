@@ -215,16 +215,16 @@ This populates the real Google Cloud database for shared testing and creates you
 ADMIN_EMAIL=your_email@example.com node infrastructure/scripts/seeder.js staging
 ```
 
-### 7.3 Deploying Firestore Rules & Web Hosting
+### 7.3 Deploying Backend Services (Rules, Indexes, Functions & Hosting)
 Deployments are automatically executed by GitHub Actions on push to `main`.
-To manually deploy updated Firestore Security Rules or PWA hosting from local CLI or Fastlane:
+To manually deploy updated Firestore Security Rules, Composite Indexes, Cloud Functions, or PWA Hosting:
 
 ```bash
-# Using Fastlane
+# Using Fastlane (deploys rules, indexes, functions, and hosting)
 fastlane ios deploy_pwa_staging
 
 # Or using Firebase CLI
-npx firebase deploy --only firestore:rules,hosting --project inspired-yoga-app-staging
+npx firebase deploy --only firestore:rules,firestore:indexes,functions,hosting --project inspired-yoga-app-staging
 ```
 
 ### 7.4 Wipe & Reset (Clean State)
