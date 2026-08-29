@@ -3,7 +3,7 @@ import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyBL8iJsmuIQVfNtoLQ6lcUaDMXpaZGDAlA',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'demo-api-key-staging-inspired-01',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'inspired-yoga-app-staging.firebaseapp.com',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'inspired-yoga-app-staging',
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'inspired-yoga-app-staging.firebasestorage.app',

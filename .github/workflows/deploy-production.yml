@@ -39,6 +39,8 @@ jobs:
       - name: Build Production Bundle
         run: pnpm run build:production
         working-directory: ./Apps/PWA
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_PROD || secrets.VITE_FIREBASE_API_KEY_STAGING }}
 
       - name: Deploy to Firebase Production
         uses: FirebaseExtended/action-hosting-deploy@v0

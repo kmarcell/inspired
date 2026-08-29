@@ -36,6 +36,8 @@ jobs:
       - name: Lint & Type Check
         run: pnpm run build:staging
         working-directory: ./Apps/PWA
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_STAGING }}
 
       - name: Deploy to Firebase Staging
         uses: FirebaseExtended/action-hosting-deploy@v0
