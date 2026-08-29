@@ -42,6 +42,17 @@ jobs:
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_PROD || secrets.VITE_FIREBASE_API_KEY_STAGING }}
 
+      - name: Authenticate Firebase Service Account
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > /tmp/firebase-key.json
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
+
+      - name: Deploy Firestore Rules, Indexes, Storage Rules & Functions to Production
+        run: npx firebase-tools deploy --only firestore,storage,functions --force --project inspired-yoga-app
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
+
       - name: Deploy to Firebase Production
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
