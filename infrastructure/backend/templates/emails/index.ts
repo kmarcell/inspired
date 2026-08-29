@@ -17,6 +17,8 @@ export interface EmailTemplatePayload {
   supportUrl?: string;
   verificationCode?: string;
   rejectionReason?: string;
+  stagingUrl?: string;
+  invitedEmail?: string;
 }
 
 /** Render simple mustache-like variables in HTML template */
@@ -45,6 +47,8 @@ export function renderEmailTemplate(templateHtml: string, data: EmailTemplatePay
     supportUrl: data.supportUrl || 'https://inspired.yoga/support',
     verificationCode: data.verificationCode || '000000',
     rejectionReason: data.rejectionReason || '',
+    stagingUrl: data.stagingUrl || 'https://inspired-yoga-app-staging.web.app',
+    invitedEmail: data.invitedEmail || '',
   };
 
   Object.entries(replacements).forEach(([key, val]) => {

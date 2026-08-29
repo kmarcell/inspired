@@ -3,12 +3,12 @@ import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'demo-api-key',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyBL8iJsmuIQVfNtoLQ6lcUaDMXpaZGDAlA',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'inspired-yoga-app-staging.firebaseapp.com',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'inspired-yoga-app-staging',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'inspired-yoga-app-staging.appspot.com',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '123456789',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:123456789:web:abcdef',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'inspired-yoga-app-staging.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '99296584767',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:99296584767:web:d1d94eb7c274704f70c48a',
 };
 
 export const app = initializeApp(firebaseConfig);

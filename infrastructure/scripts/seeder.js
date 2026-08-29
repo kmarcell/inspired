@@ -15,8 +15,11 @@ if (environment === 'local') {
   });
   console.log('🌱 Seeding LOCAL Emulator...');
 } else {
-  admin.initializeApp();
-  console.log(`🌱 Seeding ${environment.toUpperCase()} Cloud Project...`);
+  const targetProjectId = environment === 'production' ? 'inspired-yoga-app' : 'inspired-yoga-app-staging';
+  admin.initializeApp({
+    projectId: targetProjectId,
+  });
+  console.log(`🌱 Seeding ${environment.toUpperCase()} Cloud Project (${targetProjectId})...`);
 }
 
 const db = admin.firestore();
