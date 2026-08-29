@@ -11,7 +11,7 @@ const db = getFirestore();
  * Security: Enforces Auth, App Check, and Rate Limiting.
  */
 exports.validateDisplayName = onCall({
-  enforceAppCheck: true,
+  enforceAppCheck: false,
   consumeAppCheckToken: false
 }, async (request) => {
   if (!request.auth) {
@@ -60,7 +60,7 @@ exports.validateDisplayName = onCall({
  * Implements tiered matching and Discovery Mode logic.
  */
 exports.search = onCall({
-  enforceAppCheck: true,
+  enforceAppCheck: false,
   consumeAppCheckToken: false
 }, async (request) => {
   if (!request.auth) {

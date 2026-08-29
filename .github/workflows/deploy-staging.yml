@@ -39,7 +39,18 @@ jobs:
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_STAGING }}
 
-      - name: Deploy to Firebase Staging
+      - name: Authenticate Firebase Service Account
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > /tmp/firebase-key.json
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+
+      - name: Deploy Rules, Indexes & Cloud Functions to Staging
+        run: npx firebase-tools deploy --only firestore:rules,firestore:indexes,functions --project inspired-yoga-app-staging
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
+
+      - name: Deploy PWA Hosting to Firebase Staging
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
