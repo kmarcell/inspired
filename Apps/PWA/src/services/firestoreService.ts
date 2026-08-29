@@ -64,6 +64,7 @@ export const firestoreService = {
         avatarPrivacy: 'groups-only',
         showJoinedGroups: 'members-only',
       },
+      isAdmin: data.isAdmin === true,
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
     };
