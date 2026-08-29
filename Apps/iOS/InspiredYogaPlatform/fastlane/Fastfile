@@ -79,8 +79,14 @@ platform :ios do
     firebase_app_distribution(
       app: "1:99296584767:ios:some_app_id",
       groups: "staging-testers"
-            )
-          end
+    )
+  end
+
+  desc "Deploy PWA & Firestore security rules to Firebase Staging"
+  lane :deploy_pwa_staging do
+    UI.message("🚀 Deploying Firestore Security Rules & PWA to Staging...")
+    sh("cd ../../../.. && npx firebase deploy --only firestore:rules,hosting --project inspired-yoga-app-staging")
+  end
     
     desc "Analyze Accessibility (Generate Hierarchy & Screenshots)"
     lane :analyze_accessibility do

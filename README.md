@@ -209,16 +209,27 @@ npm run seed:local
 ```
 
 ### 7.2 Seeding the Staging Environment (Cloud)
-This populates the real Google Cloud database for shared testing.
-1.  Switch to staging: `firebase use staging`
-2.  Run the cloud seeder:
+This populates the real Google Cloud database for shared testing and creates your admin invite.
+1. Run the cloud seeder with your admin email:
 ```bash
-npm run seed:staging
+ADMIN_EMAIL=your_email@example.com node infrastructure/scripts/seeder.js staging
 ```
 
-### 7.3 Wipe & Reset (Clean State)
+### 7.3 Deploying Firestore Rules & Web Hosting
+Deployments are automatically executed by GitHub Actions on push to `main`.
+To manually deploy updated Firestore Security Rules or PWA hosting from local CLI or Fastlane:
+
+```bash
+# Using Fastlane
+fastlane ios deploy_pwa_staging
+
+# Or using Firebase CLI
+npx firebase deploy --only firestore:rules,hosting --project inspired-yoga-app-staging
+```
+
+### 7.4 Wipe & Reset (Clean State)
 To delete all data and start over:
-*   **Local:** Simply stop the emulator and restart it (if not using `--import`).
+*   **Local:** Simply stop the emulator and restart it.
 *   **Staging:** `firebase firestore:delete --all-collections`
 
 ## 8. Support & Issue Reporting Setup
