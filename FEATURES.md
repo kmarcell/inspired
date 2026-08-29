@@ -708,9 +708,10 @@ To ensure a rich experience during development, the search engine (Cloud Functio
    - When a user attempts to sign up or log in on Staging, the system verifies their email address against the `/stagingInvites` Firestore collection.
    - Access is granted ONLY if the email address exists in `/stagingInvites` with status `'active'` (or belongs to an Admin account).
    - Uninvited users receive a glassmorphic **"🔒 Staging Access Restricted - Invite Only"** notice.
-3. **Admin Invite Management (`AdminClaimsView.tsx`):**
-   - Admin panel features a **"✉️ Staging Invites"** tab.
+3. **Admin Invite Management & Studio Status Filtering (`AdminClaimsView.tsx`):**
+   - Admin panel features a dedicated **"✉️ Invited Members"** tab with strict view isolation and automatic email deduplication to prevent duplicate invitations.
    - Admins can issue new staging email invitations, view active invites, and revoke/delete access with 1 click.
+   - Studio management features interactive status filter pills (**`All`**, **`Pending / Unverified`**, **`Verified`**) to quickly review unclaimed shadow profiles vs. verified studio locations.
 4. **Firestore Security Rules:**
    - `/stagingInvites` read access allowed for authentication verification.
    - Write/delete access strictly restricted to Admins.

@@ -97,33 +97,68 @@ describe('AdminClaimsView Component', () => {
     });
   });
 
-  it('allows issuing staging invitation in Staging Invites tab', async () => {
-    (firestoreService.fetchStagingInvites as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+  it('allows issuing staging invitation in Invited Members tab', async () => {
+    (firestoreService.fetchStagingInvites as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'inv_1', email: 'preview_tester@inspired.test', invitedBy: 'user_admin_001', createdAt: '2026-08-29T10:00:00Z' },
+    ]);
     (firestoreService.createStagingInvite as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
     render(<AdminClaimsView onBack={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('admin-tab-staging-invites')).toBeInTheDocument();
+      expect(screen.getByText(/Invited Members/i)).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByTestId('admin-tab-staging-invites'));
 
     await waitFor(() => {
       expect(screen.getByTestId('input-invite-email')).toBeInTheDocument();
+      expect(screen.getByText('preview_tester@inspired.test')).toBeInTheDocument();
     });
 
     fireEvent.change(screen.getByTestId('input-invite-email'), {
-      target: { value: 'preview_tester@inspired.test' },
+      target: { value: 'new_tester@inspired.test' },
     });
 
     fireEvent.click(screen.getByTestId('submit-invite-button'));
 
     await waitFor(() => {
       expect(firestoreService.createStagingInvite).toHaveBeenCalledWith(
-        'preview_tester@inspired.test',
+        'new_tester@inspired.test',
         'user_admin_001'
       );
     });
+  });
+
+  it('filters studios by status (All, Pending, Verified) on All Studio Locations tab', async () => {
+    const mockStudios = [
+      { id: 'st_1', name: 'Verified Zen Studio', address: '123 Main St', isClaimed: true, location_prefix: 'askew' },
+      { id: 'st_2', name: 'Unverified Flow Studio', address: '456 High St', isClaimed: false, location_prefix: 'askew' },
+    ];
+    (firestoreService.fetchAllStudios as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockStudios);
+
+    render(<AdminClaimsView onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('admin-tab-all-studios')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('admin-tab-all-studios'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Verified Zen Studio')).toBeInTheDocument();
+      expect(screen.getByText('Unverified Flow Studio')).toBeInTheDocument();
+    });
+
+    // Click Pending filter
+    fireEvent.click(screen.getByTestId('filter-studio-pending'));
+    expect(screen.queryByText('Verified Zen Studio')).not.toBeInTheDocument();
+    expect(screen.getByText('Unverified Flow Studio')).toBeInTheDocument();
+
+    // Click Verified filter
+    fireEvent.click(screen.getByTestId('filter-studio-verified'));
+    expect(screen.getByText('Verified Zen Studio')).toBeInTheDocument();
+    expect(screen.queryByText('Unverified Flow Studio')).not.toBeInTheDocument();
   });
 });
