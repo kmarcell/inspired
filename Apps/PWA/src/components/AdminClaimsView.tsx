@@ -29,6 +29,7 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
 
   const [activeAdminTab, setActiveAdminTab] = useState<'claims' | 'all_studios' | 'staging_invites'>('claims');
+  const [studioFilter, setStudioFilter] = useState<'all' | 'pending' | 'verified'>('all');
   const [allStudios, setAllStudios] = useState<any[]>([]);
   const [stagingInvites, setStagingInvites] = useState<{ id: string; email: string; invitedBy: string; createdAt: string }[]>([]);
   const [newInviteEmail, setNewInviteEmail] = useState('');
@@ -193,7 +194,7 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
               : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
           }`}
         >
-          ✉️ Staging Invites ({stagingInvites.length})
+          ✉️ Invited Members ({stagingInvites.length})
         </button>
       </div>
 
@@ -268,81 +269,119 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
             ))}
           </div>
         )
-      ) : (
-        /* All Studio Locations Tab */
+      ) : activeAdminTab === 'all_studios' ? (
+        /* All Studio Locations Tab with Filter */
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {allStudios.map((st) => (
-              <div
-                key={st.id}
-                data-testid={`admin-studio-card-${st.id}`}
-                className="p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg space-y-3"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                      <span>{st.name}</span>
-                      <span className="text-indigo-600 dark:text-indigo-400 font-mono text-xs">({st.location_prefix})</span>
-                    </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{st.address}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Owner ID: {st.ownerId || 'Unclaimed Shadow Profile'}</p>
-                  </div>
-
-                  {st.isClosed ? (
-                    <span className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold">
-                      🔴 Closed
-                    </span>
-                  ) : st.isClaimed ? (
-                    <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold">
-                      Verified ✓
-                    </span>
-                  ) : (
-                    <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold">
-                      ⏳ Unverified
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await firestoreService.setStudioClaimedStatus(st.id, !st.isClaimed);
-                      setActionSuccessMsg(`✓ Studio "${st.name}" verification toggled to ${!st.isClaimed ? 'Verified' : 'Unverified'}.`);
-                      loadClaims();
-                      setTimeout(() => setActionSuccessMsg(null), 3000);
-                    }}
-                    data-testid={`toggle-verify-studio-${st.id}`}
-                    className={`flex-1 py-2 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 ${
-                      st.isClaimed
-                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    }`}
-                  >
-                    {st.isClaimed ? '🔒 Set Unverified' : '✓ Approve & Verify'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (window.confirm(`Admin Hard Delete studio "${st.name}"?`)) {
-                        await firestoreService.hardDeleteStudio(st.id);
-                        setActionSuccessMsg(`🗑️ Studio "${st.name}" permanently deleted.`);
-                        loadClaims();
-                        setTimeout(() => setActionSuccessMsg(null), 3000);
-                      }
-                    }}
-                    data-testid={`admin-delete-studio-${st.id}`}
-                    className="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-95"
-                  >
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+          {/* Studio Filter Controls */}
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">Filter Studio Status:</span>
+            <div className="flex items-center space-x-1.5">
+              {(['all', 'pending', 'verified'] as const).map((filterOpt) => (
+                <button
+                  key={filterOpt}
+                  type="button"
+                  onClick={() => setStudioFilter(filterOpt)}
+                  data-testid={`filter-studio-${filterOpt}`}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold capitalize transition-all ${
+                    studioFilter === filterOpt
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {filterOpt === 'all' ? `All (${allStudios.length})` : filterOpt === 'pending' ? `Pending / Unverified (${allStudios.filter((s) => !s.isClaimed).length})` : `Verified (${allStudios.filter((s) => s.isClaimed).length})`}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {allStudios.filter((st) => {
+            if (studioFilter === 'pending') return !st.isClaimed;
+            if (studioFilter === 'verified') return st.isClaimed;
+            return true;
+          }).length === 0 ? (
+            <div className="p-8 text-center text-xs text-slate-400">
+              No studios match the selected "{studioFilter}" filter.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allStudios
+                .filter((st) => {
+                  if (studioFilter === 'pending') return !st.isClaimed;
+                  if (studioFilter === 'verified') return st.isClaimed;
+                  return true;
+                })
+                .map((st) => (
+                  <div
+                    key={st.id}
+                    data-testid={`admin-studio-card-${st.id}`}
+                    className="p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg space-y-3"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                          <span>{st.name}</span>
+                          <span className="text-indigo-600 dark:text-indigo-400 font-mono text-xs">({st.location_prefix})</span>
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{st.address}</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Owner ID: {st.ownerId || 'Unclaimed Shadow Profile'}</p>
+                      </div>
+
+                      {st.isClosed ? (
+                        <span className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold">
+                          🔴 Closed
+                        </span>
+                      ) : st.isClaimed ? (
+                        <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+                          Verified ✓
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold">
+                          ⏳ Unverified
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await firestoreService.setStudioClaimedStatus(st.id, !st.isClaimed);
+                          setActionSuccessMsg(`✓ Studio "${st.name}" verification toggled to ${!st.isClaimed ? 'Verified' : 'Unverified'}.`);
+                          loadClaims();
+                          setTimeout(() => setActionSuccessMsg(null), 3000);
+                        }}
+                        data-testid={`toggle-verify-studio-${st.id}`}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 ${
+                          st.isClaimed
+                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                            : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                        }`}
+                      >
+                        {st.isClaimed ? '🔒 Set Unverified' : '✓ Approve & Verify'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (window.confirm(`Admin Hard Delete studio "${st.name}"?`)) {
+                            await firestoreService.hardDeleteStudio(st.id);
+                            setActionSuccessMsg(`🗑️ Studio "${st.name}" permanently deleted.`);
+                            loadClaims();
+                            setTimeout(() => setActionSuccessMsg(null), 3000);
+                          }
+                        }}
+                        data-testid={`admin-delete-studio-${st.id}`}
+                        className="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-95"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
 
       {/* Staging Invites Management Tab */}
       {activeAdminTab === 'staging_invites' && (

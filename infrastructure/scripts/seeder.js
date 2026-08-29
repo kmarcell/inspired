@@ -179,12 +179,17 @@ async function run() {
     const adminEmail = process.env.ADMIN_EMAIL || process.argv.find(arg => arg.startsWith('--admin-email='))?.split('=')[1];
     if (adminEmail) {
       const cleanAdminEmail = adminEmail.trim().toLowerCase();
-      await db.collection('stagingInvites').add({
-        email: cleanAdminEmail,
-        invitedBy: 'system_seeder',
-        createdAt: new Date().toISOString(),
-      });
-      console.log(`✉️ Created Staging Invite for: ${cleanAdminEmail}`);
+      const existingInviteSnap = await db.collection('stagingInvites').where('email', '==', cleanAdminEmail).get();
+      if (existingInviteSnap.empty) {
+        await db.collection('stagingInvites').add({
+          email: cleanAdminEmail,
+          invitedBy: 'system_seeder',
+          createdAt: new Date().toISOString(),
+        });
+        console.log(`✉️ Created Staging Invite for: ${cleanAdminEmail}`);
+      } else {
+        console.log(`✉️ Staging Invite already exists for: ${cleanAdminEmail}`);
+      }
 
       // Grant Admin permissions if Auth user is already created
       try {

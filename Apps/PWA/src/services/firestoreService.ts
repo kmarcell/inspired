@@ -917,8 +917,17 @@ export const firestoreService = {
 
   /** Create a new staging invitation (Admin Only) */
   async createStagingInvite(email: string, invitedBy: string): Promise<void> {
+    const cleanEmail = email.trim().toLowerCase();
+    const q = query(
+      collection(db, 'stagingInvites'),
+      where('email', '==', cleanEmail)
+    );
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      return; // Already invited
+    }
     await addDoc(collection(db, 'stagingInvites'), {
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       invitedBy,
       createdAt: Timestamp.now().toDate().toISOString(),
     });
@@ -927,15 +936,20 @@ export const firestoreService = {
   /** Fetch all staging invitations (Admin Only) */
   async fetchStagingInvites(): Promise<{ id: string; email: string; invitedBy: string; createdAt: string }[]> {
     const snap = await getDocs(collection(db, 'stagingInvites'));
-    return snap.docs.map((d) => {
+    const invitesMap = new Map<string, { id: string; email: string; invitedBy: string; createdAt: string }>();
+    snap.docs.forEach((d) => {
       const data = d.data();
-      return {
-        id: d.id,
-        email: data.email,
-        invitedBy: data.invitedBy,
-        createdAt: data.createdAt,
-      };
+      const cleanEmail = data.email?.trim().toLowerCase();
+      if (cleanEmail && !invitesMap.has(cleanEmail)) {
+        invitesMap.set(cleanEmail, {
+          id: d.id,
+          email: cleanEmail,
+          invitedBy: data.invitedBy,
+          createdAt: data.createdAt,
+        });
+      }
     });
+    return Array.from(invitesMap.values());
   },
 
   /** Delete/Revoke a staging invitation (Admin Only) */
