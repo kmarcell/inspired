@@ -903,4 +903,42 @@ export const firestoreService = {
       isClaimed,
     });
   },
+
+  /** Check if an email address is invited in staging */
+  async checkStagingInvite(email: string): Promise<boolean> {
+    const q = query(
+      collection(db, 'stagingInvites'),
+      where('email', '==', email.trim().toLowerCase())
+    );
+    const snap = await getDocs(q);
+    return !snap.empty;
+  },
+
+  /** Create a new staging invitation (Admin Only) */
+  async createStagingInvite(email: string, invitedBy: string): Promise<void> {
+    await addDoc(collection(db, 'stagingInvites'), {
+      email: email.trim().toLowerCase(),
+      invitedBy,
+      createdAt: Timestamp.now().toDate().toISOString(),
+    });
+  },
+
+  /** Fetch all staging invitations (Admin Only) */
+  async fetchStagingInvites(): Promise<{ id: string; email: string; invitedBy: string; createdAt: string }[]> {
+    const snap = await getDocs(collection(db, 'stagingInvites'));
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return {
+        id: d.id,
+        email: data.email,
+        invitedBy: data.invitedBy,
+        createdAt: data.createdAt,
+      };
+    });
+  },
+
+  /** Delete/Revoke a staging invitation (Admin Only) */
+  async deleteStagingInvite(inviteId: string): Promise<void> {
+    await deleteDoc(doc(db, 'stagingInvites', inviteId));
+  },
 };

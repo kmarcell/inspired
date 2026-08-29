@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import { firestoreService } from '../services/firestoreService';
 
 export const LoginView: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -7,6 +8,8 @@ export const LoginView: React.FC = () => {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  const isStagingMode = import.meta.env.MODE === 'staging';
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -35,15 +38,26 @@ export const LoginView: React.FC = () => {
 
   const handleMagicLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !EMAIL_REGEX.test(email.trim())) {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !EMAIL_REGEX.test(cleanEmail)) {
       setError('Please enter a valid email address (e.g. yogi@example.com).');
       return;
     }
 
     setIsLoading(true);
     setError(null);
+
     try {
-      await authService.sendSignInLink(email.trim());
+      if (isStagingMode) {
+        const isInvited = await firestoreService.checkStagingInvite(cleanEmail);
+        if (!isInvited) {
+          setError(`🔒 Staging access restricted. ${cleanEmail} has not been invited. Request an invite from the administrator.`);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      await authService.sendSignInLink(cleanEmail);
       setMagicLinkSent(true);
       setCooldown(60);
     } catch (err: unknown) {
@@ -72,6 +86,14 @@ export const LoginView: React.FC = () => {
       {/* Login Form Container */}
       <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-6 shadow-2xl space-y-6 backdrop-blur-xl transition-colors">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl"></div>
+
+        {/* Staging Gating Badge */}
+        {isStagingMode && (
+          <div data-testid="staging-gating-badge" className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold flex items-center space-x-2">
+            <span>🔒</span>
+            <span>Staging Preview Mode — Invitation Only Access</span>
+          </div>
+        )}
 
         {/* Error Alert */}
         {error && (

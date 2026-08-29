@@ -28,18 +28,32 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
   const [showRejectModal, setShowRejectModal] = useState<boolean>(false);
   const [actionSuccessMsg, setActionSuccessMsg] = useState<string | null>(null);
 
-  const [activeAdminTab, setActiveAdminTab] = useState<'claims' | 'all_studios'>('claims');
+  const [activeAdminTab, setActiveAdminTab] = useState<'claims' | 'all_studios' | 'staging_invites'>('claims');
   const [allStudios, setAllStudios] = useState<any[]>([]);
+  const [stagingInvites, setStagingInvites] = useState<{ id: string; email: string; invitedBy: string; createdAt: string }[]>([]);
+  const [newInviteEmail, setNewInviteEmail] = useState('');
+  const [isSendingInvite, setIsSendingInvite] = useState(false);
+
+  const loadStagingInvites = async () => {
+    try {
+      const invites = await firestoreService.fetchStagingInvites();
+      setStagingInvites(invites || []);
+    } catch (err) {
+      console.error('[AdminClaimsView] Failed to load staging invites:', err);
+    }
+  };
 
   const loadClaims = async () => {
     setIsLoading(true);
     try {
-      const [pendingClaims, fetchedStudios] = await Promise.all([
+      const [pendingClaims, fetchedStudios, invites] = await Promise.all([
         firestoreService.fetchPendingClaims(),
         firestoreService.fetchAllStudios(),
+        firestoreService.fetchStagingInvites(),
       ]);
       setClaims(pendingClaims);
       setAllStudios(fetchedStudios || []);
+      setStagingInvites(invites || []);
       if (pendingClaims.length > 0 && !selectedClaim) {
         setSelectedClaim(pendingClaims[0]);
       }
@@ -164,6 +178,22 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
           }`}
         >
           🏢 All Studio Locations ({allStudios.length})
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setActiveAdminTab('staging_invites');
+            loadStagingInvites();
+          }}
+          data-testid="admin-tab-staging-invites"
+          className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all ${
+            activeAdminTab === 'staging_invites'
+              ? 'bg-indigo-600 text-white shadow-md'
+              : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          ✉️ Staging Invites ({stagingInvites.length})
         </button>
       </div>
 
@@ -310,6 +340,104 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Staging Invites Management Tab */}
+      {activeAdminTab === 'staging_invites' && (
+        <div className="space-y-6">
+          {/* Issue Invite Card */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-4 backdrop-blur-md">
+            <div>
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                <span>✉️</span>
+                <span>Issue Staging Preview Invitation</span>
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Grant access to tester email addresses to preview and test the staging deployment environment.
+              </p>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!newInviteEmail.trim() || !user) return;
+                setIsSendingInvite(true);
+                try {
+                  await firestoreService.createStagingInvite(newInviteEmail.trim(), user.id);
+                  setActionSuccessMsg(`✓ Staging invitation created for ${newInviteEmail.trim()}`);
+                  setNewInviteEmail('');
+                  await loadStagingInvites();
+                  setTimeout(() => setActionSuccessMsg(null), 3000);
+                } catch (err) {
+                  console.error('[AdminClaimsView] Create invite error:', err);
+                } finally {
+                  setIsSendingInvite(false);
+                }
+              }}
+              className="flex items-center space-x-3"
+            >
+              <input
+                type="email"
+                required
+                value={newInviteEmail}
+                onChange={(e) => setNewInviteEmail(e.target.value)}
+                placeholder="tester@example.com"
+                data-testid="input-invite-email"
+                className="flex-1 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+              />
+              <button
+                type="submit"
+                disabled={isSendingInvite || !newInviteEmail.trim()}
+                data-testid="submit-invite-button"
+                className="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
+              >
+                {isSendingInvite ? 'Sending...' : 'Create Invite'}
+              </button>
+            </form>
+          </div>
+
+          {/* Staging Invites List */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-4 backdrop-blur-md">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Active Staging Preview Invites ({stagingInvites.length})
+            </h2>
+
+            {stagingInvites.length === 0 ? (
+              <p className="text-xs text-slate-400 italic">No staging invites issued yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {stagingInvites.map((inv) => (
+                  <div
+                    key={inv.id}
+                    data-testid={`staging-invite-item-${inv.id}`}
+                    className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 dark:text-slate-100">{inv.email}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Invited: {inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : 'Active'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await firestoreService.deleteStagingInvite(inv.id);
+                        setActionSuccessMsg(`✓ Revoked staging invite for ${inv.email}`);
+                        await loadStagingInvites();
+                        setTimeout(() => setActionSuccessMsg(null), 3000);
+                      }}
+                      data-testid={`revoke-invite-btn-${inv.id}`}
+                      className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-95"
+                    >
+                      Revoke Invite
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

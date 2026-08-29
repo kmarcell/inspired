@@ -171,6 +171,31 @@ async function run() {
     await seedCollection('studios', 'studios.json');
     await seedCollection('communities', 'communities.json');
     await seedCollection('posts', 'posts.json');
+
+    // Check for dynamic ADMIN_EMAIL environment variable or --admin-email flag
+    const adminEmail = process.env.ADMIN_EMAIL || process.argv.find(arg => arg.startsWith('--admin-email='))?.split('=')[1];
+    if (adminEmail) {
+      const cleanAdminEmail = adminEmail.trim().toLowerCase();
+      await db.collection('stagingInvites').add({
+        email: cleanAdminEmail,
+        invitedBy: 'system_seeder',
+        createdAt: new Date().toISOString(),
+      });
+      console.log(`✉️ Created Staging Invite for: ${cleanAdminEmail}`);
+
+      // Grant Admin permissions if Auth user is already created
+      try {
+        const authUser = await admin.auth().getUserByEmail(cleanAdminEmail);
+        if (authUser) {
+          await admin.auth().setCustomUserClaims(authUser.uid, { isAdmin: true });
+          await db.collection('users').doc(authUser.uid).set({ isAdmin: true }, { merge: true });
+          console.log(`🛡️ Granted Admin permissions to: ${cleanAdminEmail} (${authUser.uid})`);
+        }
+      } catch (e) {
+        // User not registered yet in Auth; invite created in /stagingInvites
+      }
+    }
+
     console.log('🚀 Seeding complete!');
     process.exit(0);
   } catch (error) {

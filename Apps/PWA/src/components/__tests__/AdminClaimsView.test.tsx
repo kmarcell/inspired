@@ -96,4 +96,34 @@ describe('AdminClaimsView Component', () => {
       );
     });
   });
+
+  it('allows issuing staging invitation in Staging Invites tab', async () => {
+    (firestoreService.fetchStagingInvites as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (firestoreService.createStagingInvite as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+    render(<AdminClaimsView onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('admin-tab-staging-invites')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('admin-tab-staging-invites'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('input-invite-email')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId('input-invite-email'), {
+      target: { value: 'preview_tester@inspired.test' },
+    });
+
+    fireEvent.click(screen.getByTestId('submit-invite-button'));
+
+    await waitFor(() => {
+      expect(firestoreService.createStagingInvite).toHaveBeenCalledWith(
+        'preview_tester@inspired.test',
+        'user_admin_001'
+      );
+    });
+  });
 });

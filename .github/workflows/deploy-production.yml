@@ -28,9 +28,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'pnpm'
-          cache-dependency-path: Apps/PWA/pnpm-lock.yaml
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: Install PWA Dependencies
         run: pnpm install --frozen-lockfile

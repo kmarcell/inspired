@@ -694,6 +694,26 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 10. **Real-time Chat** (TBD)
 11. **Class Scheduling & Booking** (TBD)
 12. **Localization** (TBD)
+
+### 5.13 Staging Access Security & Admin Invite-Only Gating
+**Goal:** Protect the staging deployment environment from unauthorized public registrations, controlling hosting costs and securing pre-release features via an Admin-controlled invite system.
+**Mockups:** `UI/Mockups/5.13_StagingInviteGating.svg`
+
+**Key Requirements:**
+1. **Environment Detection:**
+   - Detects staging environment mode (`import.meta.env.MODE === 'staging'`).
+   - In Development mode, normal open registration and quick login remain fully active.
+2. **Invite-Only Registration & Authentication Gating:**
+   - In Staging mode, open registration is disabled.
+   - When a user attempts to sign up or log in on Staging, the system verifies their email address against the `/stagingInvites` Firestore collection.
+   - Access is granted ONLY if the email address exists in `/stagingInvites` with status `'active'` (or belongs to an Admin account).
+   - Uninvited users receive a glassmorphic **"🔒 Staging Access Restricted - Invite Only"** notice.
+3. **Admin Invite Management (`AdminClaimsView.tsx`):**
+   - Admin panel features a **"✉️ Staging Invites"** tab.
+   - Admins can issue new staging email invitations, view active invites, and revoke/delete access with 1 click.
+4. **Firestore Security Rules:**
+   - `/stagingInvites` read access allowed for authentication verification.
+   - Write/delete access strictly restricted to Admins.
 13. **Issue Reporting & Support** (TBD)
 14. **Accessibility** (Requirements Defined)
 15. **Maintenance Mode** (Triggered via Remote Config)
