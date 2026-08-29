@@ -46,7 +46,7 @@ export const firestoreService = {
   async fetchUserProfile(userId: string): Promise<UserProfile> {
     const userDocRef = doc(db, 'users', userId);
     const snapshot = await getDoc(userDocRef);
-    if (!snapshot.exists()) {
+    if (!snapshot.exists() || !snapshot.data()?.username) {
       throw new ProfileNotFoundError(userId);
     }
     const data = snapshot.data();
