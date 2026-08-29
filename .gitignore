@@ -56,3 +56,15 @@ PERSONAL_MANDATES.md
 
 # Temporary Task Tracking
 TODO.md
+
+# Web & PWA Build Outputs
+dist/
+**/dist/
+dev-dist/
+**/dev-dist/
+*.tsbuildinfo
+**/tsconfig.tsbuildinfo
+
+# Screenshots & Debug Captures
+Screenshot_*.png
+*.png.tmp

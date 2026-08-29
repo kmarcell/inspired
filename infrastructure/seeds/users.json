@@ -100,5 +100,23 @@
     },
     "createdAt": "2026-03-01T12:00:00Z",
     "updatedAt": "2026-03-01T12:00:00Z"
+  },
+  {
+    "id": "user_admin_001",
+    "username": "admin_inspired#0001",
+    "displayName": "Inspired Verification Admin",
+    "bio": "Official Inspired Platform Administrator for verification & studio claims.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew", "area_hammersmith", "area_chelsea"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "isAdmin": true,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
   }
 ]

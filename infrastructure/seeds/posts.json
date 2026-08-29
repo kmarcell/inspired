@@ -1,5 +1,45 @@
 [
   {
+    "id": "post_hammersmith_001",
+    "author": {
+      "id": "user_active",
+      "username": "active_yogini#2026",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "Sunset flow by the river in Hammersmith tonight! 🌅 Who's joining?",
+    "source": {
+      "type": "community",
+      "id": "area_hammersmith",
+      "name": "Hammersmith"
+    },
+    "stats": {
+      "likeCount": 18,
+      "commentCount": 3
+    },
+    "createdAt": "2026-03-08T17:00:00Z"
+  },
+  {
+    "id": "post_hammersmith_002",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "Teaching a pop-up Vinyasa session at Hammersmith Bridge studio this Saturday at 10 AM! 🧘‍♀️",
+    "source": {
+      "type": "community",
+      "id": "area_hammersmith",
+      "name": "Hammersmith"
+    },
+    "stats": {
+      "likeCount": 29,
+      "commentCount": 7
+    },
+    "createdAt": "2026-03-08T19:00:00Z"
+  },
+  {
     "id": "post_askew_001",
     "author": {
       "id": "user_teacher_001",

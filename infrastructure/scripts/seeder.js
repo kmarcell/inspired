@@ -89,7 +89,20 @@ async function seedCollection(collectionName, fileName) {
     data.forEach(validateUserSchema);
   }
 
-  data = convertDates(data);
+  if (collectionName === 'posts') {
+    const now = Date.now();
+    data.forEach((post, index) => {
+      // Dynamically space posts over the past 7 days relative to right now
+      const ageInHours = index * 3; // 3 hours apart
+      const postTimestamp = new Date(now - ageInHours * 3600 * 1000);
+      post.createdAt = admin.firestore.Timestamp.fromDate(postTimestamp);
+      if (post.source && !post.source.id && post.source.name) {
+        post.source.id = `area_${post.source.name.toLowerCase()}`;
+      }
+    });
+  } else {
+    data = convertDates(data);
+  }
   
   console.log(`📡 Seeding ${data.length} documents into '${collectionName}'...`);
 
@@ -134,6 +147,10 @@ async function seedAuth(users) {
         password: password,
         displayName: user.displayName
       });
+      if (user.isAdmin) {
+        await admin.auth().setCustomUserClaims(user.id, { isAdmin: true });
+        console.log(`🛡️ Set custom claim isAdmin: true for ${user.id}`);
+      }
       console.log(`✅ Created Auth user: ${user.id} (${email})`);
     } catch (error) {
       if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {

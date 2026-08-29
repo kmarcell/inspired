@@ -2,6 +2,11 @@
 
 This document outlines the strategic plan for the "Inspired Yoga Platform," identifying current gaps and establishing the sequence of execution.
 
+> [!IMPORTANT]
+> **MILESTONE ACHIEVED:** User Profile Screen & Settings Management (Phase 5 100% Completed)  
+> **Plan References:** [`FEATURES.md`](file:///home/marcellkresz/developer/inspired/FEATURES.md#58-responsive-navigation--user-profile-screen) & [`docs/pwa_feature_parity_matrix.md`](file:///home/marcellkresz/developer/inspired/docs/pwa_feature_parity_matrix.md)  
+> **Status:** All Profile Features Completed & Validated [2026-08-28]
+
 ---
 
 ## 1. Pre-requisite Gap Analysis (Kick-off Readiness)
@@ -155,14 +160,42 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [ ] **Share Post (Deferred):** Define the technical goal and UI for sharing (e.g., Deep linking vs. Image generation).
 - [ ] **Mockup Generation:** Ensure all above features have corresponding sketches in `UI/Mockups/`.
 
-### Phase 4: Staging & Deployment
-1.  **Infrastructure: Firebase App Check Configuration:**
-    - Apple Portal: Generate App Attest/DeviceCheck .p8 keys.
-    - Firebase Console: Register iOS app binaries with App Check keys for Staging and Production.
-2.  **Terraform Foundations:** Write the initial `.tf` files for Auth and Firestore to enable cloud deployment.
-3.  **IaC Deployment:** Push infrastructure to `inspired-yoga-app-staging`.
-4.  **Fastlane Cloud Scaffolding:** Implement `deploy_staging` and `deploy_prod` lanes.
-5.  **Beta Testing:** Distribute build to "Staging Testers" via Firebase App Distribution.
+### Phase 4: PWA Feature Parity & Deployment (100% Complete)
+*Detailed parity blueprint: [`docs/pwa_feature_parity_matrix.md`](file:///home/marcellkresz/developer/inspired/docs/pwa_feature_parity_matrix.md)*
+1. [x] **Step 1: Domain Types (`Apps/PWA/src/types/index.ts`):** Define TypeScript models matching Swift `User`, `Post`, `Community`, `Studio`.
+2. [x] **Step 2: Services Layer (`Apps/PWA/src/services/`):** Implement `authService.ts` and `firestoreService.ts` with 3-tier feed query & 30-item `in` batching.
+3. [x] **Step 3: Auth State Machine (`Apps/PWA/src/context/AuthContext.tsx`):** Replicate `AppFeature.swift` state transitions (`launching` -> `login` / `onboarding` / `authenticated`).
+4. [x] **Step 4: Login Component (`Apps/PWA/src/components/LoginView.tsx`):** Magic link login with 60s cooldown timer and Google OAuth.
+5. [x] **Step 5: Onboarding Component (`Apps/PWA/src/components/OnboardingView.tsx`):** Display name validation ($\ge 2$ chars) and handle generator (`name#XXXX`).
+6. [x] **Step 6: Community Feed Component (`Apps/PWA/src/components/CommunityFeedView.tsx`):** Post cards, 30d -> 180d -> Discovery Mode fallback & pull-to-refresh.
+7. [x] **Step 7: Joined Communities Component (`Apps/PWA/src/components/JoinedCommunitiesView.tsx`):** Management tiles, unread count, and swipe-to-unjoin list.
+
+### Phase 5: User Profile Screen & Settings Management (100% Complete)
+- [x] **Profile Screen Navigation:** Wire top-left Avatar / Handle tap to open `ProfileView`.
+- [x] **Profile Management:** Edit bio, view Avatar, handle `name#XXXX`, and relocate mobile Logout button.
+- [x] **Privacy Toggles:** Implement `isProfilePublic`, `avatarPrivacy`, and `showJoinedGroups` settings matrix.
+
+### Phase 6: Search & Community Explorer (100% Complete)
+- [x] **Search Engine (`firestoreService.searchEntities`):** Smart matching for postcode prefixes (`W12`, `W6`, `SW3`), area names, and partial keywords.
+- [x] **Search Component (`SearchView.tsx`):** Discovery Mode, Search Query Results Mode with entity badges (👥 **Community** vs 🏢 **Studio** vs 📍 **Area**), and No Results fallback.
+- [x] **Header Navigation Integration (`App.tsx`):** Interactive search bar in header following `5.2_LandingPageShell.svg` mockup.
+- [x] **Automated Testing (`SearchView.test.tsx`):** 100% passing Vitest test suite for discovery mode, query filtering, and join button toggle.
+
+### Phase 7: Company & Multi-Studio Creation & Management (100% Complete)
+- [x] **Firestore Data Layer (`/companies` & `/studios`):** Multi-company ownership per user profile (`ownerId`) and multi-location studio branches with parent `companyId`.
+- [x] **Studio Creation Form (`CreateStudioView.tsx`):** Step 1 Company Brand choice + Step 2 Studio location details with postcode prefix validation (`W12`, `W6`, `SW3`).
+- [x] **Management Suite (`MyStudiosView.tsx`):** Multi-brand overview card, branch studio list, and edit/view actions.
+- [x] **Navigation Entry Points (`App.tsx` & `ProfileView.tsx`):** Desktop Sidebar "🏢 My Studios" & Mobile Profile "🏢 My Studios & Company".
+- [x] **Automated Testing (`CreateStudioView.test.tsx`, `MyStudiosView.test.tsx`):** 100% passing Vitest test coverage (40/40 tests passing across 11 test suites).
+
+### Phase 8: Admin Claim Verification, Shadow Profile Claiming & Notification Suite (100% Complete)
+- [x] **Outreach Email Template (`claim_invitation.html`):** Invitation email with direct claim link (`https://inspired.yoga/claim-studio?studioId=...&token=...`).
+- [x] **Verification Submission (`ClaimStudioView.tsx`):** Claimant identity check & document upload submission (utility bill, insurance cert, business license) saved to `/studioClaims/{claimId}`.
+- [x] **Search Integration (`SearchView.tsx`):** Unclaimed shadow studio tiles (`isClaimed: false`) render an interactive **"Claim Studio 🏢"** button.
+- [x] **Cloud Function Approvals:** Automated verification email sent to studio owner upon approval (`isClaimed: true`).
+- [x] **Rejection Flow with Optional Reason:** Admin rejection action incorporating optional message string in applicant email (`claim_rejection.html`).
+- [x] **Automated Testing (`ClaimStudioView.test.tsx`):** 100% passing Vitest test coverage (43/43 tests passing across 12 test suites).
+- [ ] **Production Legal & Email Template Links:** Update placeholder URLs (`privacyUrl`, `termsUrl`, `websiteUrl`) in `infrastructure/backend/templates/emails/index.ts` with final domain links prior to release.
 
 ---
 

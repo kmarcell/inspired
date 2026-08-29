@@ -21,11 +21,11 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow get: if request.auth != null && resource.data.privacySettings.isProfilePublic == true;
-      allow write: if isOwner(userId) && 
-        (request.resource.data.privacySettings.isProfilePublic == false || 
-         request.resource.data.privacySettings.avatarPrivacy == "public");
+      allow create: if isOwner(userId);
       allow update: if isOwner(userId) && 
-        (request.resource.data.joinedCommunities.size() >= resource.data.joinedCommunities.size());
+        (!('privacySettings' in request.resource.data) || 
+         request.resource.data.privacySettings.isProfilePublic == false || 
+         request.resource.data.privacySettings.avatarPrivacy == "public");
     }
     
     // 2. Yoga Studios
@@ -66,6 +66,20 @@ service cloud.firestore {
     match /posts/{postId}/likes/{userId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 7. Company Brands
+    match /companies/{companyId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+
+    // 8. Studio Verification Claims
+    match /studioClaims/{claimId} {
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.isAdmin == true);
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && request.auth.token.isAdmin == true;
     }
   }
 }

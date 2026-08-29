@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update on your Studio Claim - Inspired</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background-color: #1e293b; border-radius: 24px; padding: 40px; border: 1px solid #334155; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
+    .logo { width: 48px; height: 48px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 16px; text-align: center; line-height: 48px; font-weight: 800; font-size: 24px; color: #ffffff; margin-bottom: 24px; }
+    h1 { font-size: 24px; font-weight: 800; color: #ffffff; margin-top: 0; margin-bottom: 12px; }
+    p { font-size: 14px; line-height: 1.6; color: #94a3b8; margin-bottom: 20px; }
+    .reason-box { background-color: rgba(239, 68, 68, 0.1); border-radius: 16px; padding: 20px; border: 1px solid rgba(239, 68, 68, 0.3); margin-bottom: 28px; }
+    .reason-title { font-size: 13px; font-weight: 700; color: #fca5a5; text-transform: uppercase; tracking: 0.05em; margin-bottom: 6px; }
+    .reason-text { font-size: 14px; color: #fecdd3; line-height: 1.5; font-style: italic; }
+    .button { display: inline-block; background-color: #334155; color: #ffffff; font-weight: 700; font-size: 14px; padding: 12px 24px; text-decoration: none; border-radius: 16px; border: 1px solid #475569; }
+    .footer { border-top: 1px solid #334155; margin-top: 36px; padding-top: 24px; font-size: 12px; color: #64748b; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">I</div>
+    <h1>Update on your Studio Claim</h1>
+    <p>Hi {{applicantName}},</p>
+    <p>Thank you for submitting an ownership claim request for <strong>{{studioName}}</strong>.</p>
+    <p>After reviewing your request and verification documentation, our team was unable to approve this claim at this time.</p>
+
+    {{#if rejectionReason}}
+    <div class="reason-box">
+      <div class="reason-title">Reason Provided by Admin Reviewer</div>
+      <div class="reason-text">"{{rejectionReason}}"</div>
+    </div>
+    {{/if}}
+
+    <p>If you believe this was an error or if you have additional supporting documents (e.g. utility bill, insurance certificate, or business license), you can re-submit a claim request with updated documents.</p>
+
+    <a href="{{supportUrl}}" class="button">Contact Support / Re-submit Claim</a>
+
+    <div class="footer">
+      <p style="margin-bottom: 8px;">Inspired Yoga Platform Security &amp; Verification Team</p>
+      <p style="margin: 0; font-size: 11px;">
+        <a href="{{websiteUrl}}" style="color: #64748b; text-decoration: underline;">Inspired Home</a> &nbsp;•&nbsp;
+        <a href="{{privacyUrl}}" style="color: #64748b; text-decoration: underline;">Privacy Policy</a> &nbsp;•&nbsp;
+        <a href="{{termsUrl}}" style="color: #64748b; text-decoration: underline;">Terms &amp; Legal</a> &nbsp;•&nbsp;
+        <a href="{{supportUrl}}" style="color: #64748b; text-decoration: underline;">Support</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

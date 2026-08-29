@@ -1,0 +1,216 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { firestoreService } from '../services/firestoreService';
+import { Community } from '../types';
+
+interface JoinedCommunitiesViewProps {
+  onBack?: () => void;
+}
+
+export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ onBack }) => {
+  const { user, refreshUserProfile } = useAuth();
+
+  const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
+  const [suggestedCommunities, setSuggestedCommunities] = useState<Community[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadCommunitiesData = async () => {
+      if (!user) return;
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const communityIds = user.joinedCommunities || [];
+        if (communityIds.length > 0) {
+          const fetchedJoined = await firestoreService.fetchCommunitiesByIds(communityIds);
+          setJoinedCommunities(fetchedJoined || []);
+        } else {
+          setJoinedCommunities([]);
+        }
+
+        // Fetch suggested communities for recommendations
+        const area = user.lastSearchArea || 'Askew';
+        const suggestions = (await firestoreService.fetchSuggestedCommunities(area)) || [];
+        // Exclude already joined ones
+        const filteredSuggestions = suggestions.filter((c) => !communityIds.includes(c.id));
+        setSuggestedCommunities(filteredSuggestions);
+      } catch (err: unknown) {
+        console.error('[JoinedCommunitiesView] Failed to load communities:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load joined communities.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCommunitiesData();
+  }, [user]);
+
+  const handleToggleJoin = async (communityId: string, isJoining: boolean) => {
+    if (!user) return;
+
+    const currentJoined = user.joinedCommunities || [];
+    let updatedJoined: string[];
+
+    if (isJoining) {
+      updatedJoined = Array.from(new Set([...currentJoined, communityId]));
+    } else {
+      updatedJoined = currentJoined.filter((id) => id !== communityId);
+    }
+
+    try {
+      await firestoreService.updateUserCommunities(user.id, updatedJoined);
+      await refreshUserProfile();
+      // Re-trigger load
+      const fetchedJoined = await firestoreService.fetchCommunitiesByIds(updatedJoined);
+      setJoinedCommunities(fetchedJoined || []);
+    } catch (err) {
+      console.error('[JoinedCommunitiesView] Failed to toggle join state:', err);
+    }
+  };
+
+  return (
+    <div className="flex-1 max-w-xl w-full mx-auto px-4 py-4 space-y-4">
+      {/* Back Button Above Header */}
+      {onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          data-testid="communities-back-button"
+          className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
+          title="Back to Feed"
+        >
+          <span>←</span>
+          <span>Back to Feed</span>
+        </button>
+      )}
+
+      {/* Header Summary Tile */}
+      <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-2 backdrop-blur-md transition-colors">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+          <span>👥</span>
+          <span>My Communities</span>
+        </h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          You are currently a member of <span className="font-semibold text-indigo-600 dark:text-indigo-400">{joinedCommunities.length}</span> {joinedCommunities.length === 1 ? 'community group' : 'community groups'}. Posts from these groups appear directly in your main feed.
+        </p>
+      </div>
+
+      {/* Error Alert */}
+      {error && (
+        <div data-testid="communities-error" className="p-4 rounded-3xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-medium">
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Loading Skeleton */}
+      {isLoading && (
+        <div data-testid="communities-loading-skeleton" className="space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="p-5 rounded-3xl bg-white/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/50 animate-pulse flex items-center justify-between">
+              <div className="space-y-2 flex-1">
+                <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3"></div>
+                <div className="h-3 bg-slate-200 dark:bg-slate-800/60 rounded w-2/3"></div>
+              </div>
+              <div className="w-16 h-8 bg-slate-200 dark:bg-slate-800/60 rounded-xl"></div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Joined Communities List */}
+      {!isLoading && joinedCommunities.length > 0 && (
+        <div data-testid="joined-communities-list" className="space-y-4">
+          {joinedCommunities.map((community) => (
+            <div
+              key={community.id}
+              data-testid={`joined-community-${community.id}`}
+              className="p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl flex items-center justify-between space-x-4 backdrop-blur-md transition-all hover:border-indigo-500/40"
+            >
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{community.name}</h3>
+                  {community.location_prefix && (
+                    <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700/50">
+                      {community.location_prefix}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{community.description}</p>
+                <div className="pt-1 flex items-center space-x-2 text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
+                  <span>🔥 {community.engagementScore || 0} engagement score</span>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 shrink-0">
+                <span
+                  data-testid={`joined-badge-${community.id}`}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold shrink-0 flex items-center space-x-1"
+                >
+                  <span>✓</span>
+                  <span>Joined</span>
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => handleToggleJoin(community.id, false)}
+                  data-testid={`leave-button-${community.id}`}
+                  className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-95 shrink-0 flex items-center space-x-1"
+                  title={`Leave ${community.name}`}
+                >
+                  <span>🚪</span>
+                  <span>Leave</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && joinedCommunities.length === 0 && (
+        <div data-testid="empty-communities-container" className="p-8 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-center space-y-3 shadow-xl backdrop-blur-md">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-xl font-bold">
+            🧘‍♀️
+          </div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">No Joined Communities Yet</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            You haven't joined any yoga communities yet. Explore local communities in your area below to get started!
+          </p>
+        </div>
+      )}
+
+      {/* Suggested Communities Section */}
+      {!isLoading && suggestedCommunities.length > 0 && (
+        <div className="space-y-3 pt-4">
+          <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
+            Discover Recommended Communities
+          </h3>
+          {suggestedCommunities.map((community) => (
+            <div
+              key={community.id}
+              data-testid={`suggested-community-${community.id}`}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between space-x-3 hover:border-indigo-500/40 transition-all"
+            >
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{community.name}</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{community.description}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleToggleJoin(community.id, true)}
+                data-testid={`join-button-${community.id}`}
+                className="px-3.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-semibold transition-all shrink-0"
+              >
+                Join
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default JoinedCommunitiesView;

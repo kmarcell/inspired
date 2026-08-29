@@ -8,7 +8,7 @@ const fs = require('fs');
 async function runTests() {
   const rules = fs.readFileSync('infrastructure/backend/firestore.rules', 'utf8');
   const testEnv = await initializeTestEnvironment({
-    projectId: 'inspired-yoga-app-staging',
+    projectId: `rules-test-${Date.now()}`,
     firestore: {
       rules: rules,
       host: 'localhost',
@@ -43,18 +43,18 @@ async function runTests() {
     // Public Community
     await db.collection('communities').doc('area_askew').set({
       privacySettings: { isPublic: true }
-    });
+    }, { merge: true });
     await db.collection('communities').doc('comm_ravenscourt_yoga').set({
       privacySettings: { isPublic: true }
-    });
+    }, { merge: true });
     await db.collection('communities').doc('area_chelsea').set({
       privacySettings: { isPublic: true }
-    });
+    }, { merge: true });
     
     // Private Community
     await db.collection('communities').doc('comm_private_yoga').set({
       privacySettings: { isPublic: false }
-    });
+    }, { merge: true });
 
     // 3. Posts
     // Post in Area (Public)

@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html.light, body.light {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+  }
+  
+  html.dark, body.dark {
+    background-color: #020617 !important;
+    color: #f8fafc !important;
+  }
+
+  html, body, #root {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+}

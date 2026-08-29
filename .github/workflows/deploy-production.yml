@@ -1,0 +1,49 @@
+name: Deploy PWA Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_deploy:
+        description: 'Type "DEPLOY" to confirm production deployment'
+        required: true
+        default: 'NO'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-production:
+    name: Build & Deploy Production
+    runs-on: ubuntu-latest
+    if: github.repository == 'kmarcell/inspired' && github.event.inputs.confirm_deploy == 'DEPLOY'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: Apps/PWA/pnpm-lock.yaml
+
+      - name: Install PWA Dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ./Apps/PWA
+
+      - name: Build Production Bundle
+        run: pnpm run build:production
+        working-directory: ./Apps/PWA
+
+      - name: Deploy to Firebase Production
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}'
+          projectId: inspired-yoga-app
+          channelId: live
