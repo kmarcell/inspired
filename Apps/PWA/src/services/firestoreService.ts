@@ -87,7 +87,7 @@ export const firestoreService = {
     }
 
     try {
-      const functions = getFunctions(app);
+      const functions = getFunctions(app, 'europe-west2');
       const validateFn = httpsCallable<{ displayName: string }, { isValid: boolean; reason?: string }>(
         functions, 
         'validateDisplayName'

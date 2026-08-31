@@ -1,7 +1,10 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { setGlobalOptions } = require("firebase-functions/v2");
 const logger = require("firebase-functions/logger");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+
+setGlobalOptions({ region: "europe-west2" });
 
 initializeApp();
 const db = getFirestore();
