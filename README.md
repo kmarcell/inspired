@@ -218,15 +218,15 @@ When provisioning a fresh Google Cloud project from scratch, assign the followin
 *   **`roles/cloudfunctions.admin`** (Cloud Functions Admin) — Deploy 2nd Gen Cloud Functions.
 *   **`roles/firebaserules.admin`** (Firebase Rules Admin) — Deploy Firestore security rules.
 *   **`roles/iam.serviceAccountUser`** (Service Account User) — Act as compute service accounts during function deployment.
-*   **`roles/artifactregistry.admin`** (Artifact Registry Administrator) — Store and manage Cloud Function container images.
-*   **`roles/secretmanager.secretAccessor`** (Secret Manager Secret Accessor) — Access bound secrets at runtime.
-*   **`roles/secretmanager.viewer`** (Secret Manager Viewer) — Validate secret metadata (`versions.get`) during build deployment.
+*   **`roles/secretmanager.secretAccessor`** (Secret Manager Secret Accessor) — Access secret payload values at runtime.
+*   **`roles/secretmanager.viewer`** (Secret Manager Viewer) — Validate secret version metadata (`versions.get`) during build deployment.
 *   **`roles/iam.serviceAccountTokenCreator`** (Service Account Token Creator) — Create OAuth2 tokens for deployment tasks.
 
 #### 2. Internal GCP System Service Agents (Cloud Functions 2nd Gen & Eventarc Triggers)
 *   **Pub/Sub Service Agent** (`service-<PROJECT_NUMBER>@gcp-sa-pubsub.iam.gserviceaccount.com`):
     *   **`roles/iam.serviceAccountTokenCreator`** — Mint tokens for Firestore database event delivery.
 *   **Default Compute Service Account** (`<PROJECT_NUMBER>-compute@developer.gserviceaccount.com`):
+    *   **`roles/secretmanager.secretAccessor`** — Decrypt and read bound secrets (`SMTP_HOST`, `SMTP_PASS`, etc.) at Cloud Function runtime.
     *   **`roles/run.invoker`** — Invoke Cloud Run function containers upon event triggers.
     *   **`roles/eventarc.eventReceiver`** — Receive Eventarc event triggers.
 

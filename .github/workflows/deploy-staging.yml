@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
 
 permissions:
   contents: read
@@ -12,7 +16,7 @@ jobs:
   deploy-staging:
     name: Build & Deploy Staging
     runs-on: ubuntu-latest
-    if: github.repository == 'kmarcell/inspired'
+    if: github.repository == 'kmarcell/inspired' && !contains(github.event.head_commit.message, '[NO_DEPLOY]') && !contains(github.event.head_commit.message, '[skip ci]')
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
