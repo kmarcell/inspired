@@ -208,25 +208,36 @@ This populates the local database running on your Mac.
 npm run seed:local
 ```
 
-### 7.1.1 First-Time GCP Eventarc & Cloud Functions 2nd Gen IAM Setup
-When initializing a fresh Google Cloud project, Cloud Functions (2nd Gen) event triggers (e.g. `onDocumentCreated` for `/stagingInvites`) require granting 3 Eventarc/PubSub permissions once to Google service accounts:
+### 7.1.1 Complete GCP IAM Service Account Setup (Zero-to-Hero Provisioning)
+When initializing a fresh Google Cloud project from scratch, run the following automated script to provision the CI/CD deployment service account (`firebase-adminsdk-fbsvc`) and internal GCP service agents with standard least-privilege permissions:
 
 ```bash
-# 1. Set current project ID (e.g., inspired-yoga-app-staging)
-gcloud config set project YOUR_PROJECT_ID
+# 1. Set current project ID and fetch Project Number
+PROJECT_ID="inspired-yoga-app-staging"
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+SA_EMAIL="firebase-adminsdk-fbsvc@${PROJECT_ID}.iam.gserviceaccount.com"
 
-# 2. Grant PubSub Token Creator, Cloud Run Invoker, and Eventarc Receiver
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member=serviceAccount:service-PROJECT_NUMBER@gcp-sa-pubsub.iam.gserviceaccount.com \
-  --role=roles/iam.serviceAccountTokenCreator
+# 2. Grant Deployment Service Account Roles (CI/CD Pipeline)
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/datastore.indexAdmin"
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/cloudfunctions.admin"
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/firebaserules.admin"
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/iam.serviceAccountUser"
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/artifactregistry.admin"
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/secretmanager.secretAccessor"
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/iam.serviceAccountTokenCreator"
 
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member=serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com \
-  --role=roles/run.invoker
+# 3. Grant Internal GCP Service Agent Roles (Cloud Functions 2nd Gen & Eventarc Triggers)
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountTokenCreator"
 
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member=serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com \
-  --role=roles/eventarc.eventReceiver
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/run.invoker"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/eventarc.eventReceiver"
 ```
 
 ### 7.2 Seeding the Staging Environment (Cloud)

@@ -170,12 +170,12 @@ exports.onSendStagingInvitation = onDocumentCreated({
   const smtpHost = process.env.SMTP_HOST;
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  const smtpPort = process.env.SMTP_PORT || 587;
-  const senderEmail = process.env.SENDER_EMAIL || "Inspired Yoga <no-reply@inspired-yoga-app-staging.web.app>";
+  const smtpPort = process.env.SMTP_PORT;
+  const senderEmail = process.env.SENDER_EMAIL;
 
   logger.info(`✉️ Staging Invitation Document Created for: ${invitedEmail}`);
 
-  if (smtpHost && smtpUser && smtpPass) {
+  if (smtpHost && smtpUser && smtpPass && smtpPort && senderEmail) {
     const transporter = nodemailer.createTransport({
       host: smtpHost,
       port: Number(smtpPort),
