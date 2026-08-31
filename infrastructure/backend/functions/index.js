@@ -176,12 +176,16 @@ exports.onSendStagingInvitation = onDocumentCreated({
   logger.info(`✉️ Staging Invitation Document Created for: ${invitedEmail}`);
 
   if (smtpHost && smtpUser && smtpPass && smtpPort && senderEmail) {
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: Number(smtpPort),
-      secure: Number(smtpPort) === 465,
-      auth: { user: smtpUser, pass: smtpPass },
-    });
+    const transportOpts = smtpHost.includes("gmail")
+      ? { service: "gmail", auth: { user: smtpUser, pass: smtpPass } }
+      : {
+          host: smtpHost,
+          port: Number(smtpPort),
+          secure: Number(smtpPort) === 465,
+          auth: { user: smtpUser, pass: smtpPass },
+        };
+
+    const transporter = nodemailer.createTransport(transportOpts);
 
     try {
       await transporter.sendMail({
