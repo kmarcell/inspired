@@ -135,3 +135,63 @@ exports.search = onCall({
 
   return { results: uniqueResults };
 });
+
+const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const fs = require("fs");
+const path = require("path");
+const nodemailer = require("nodemailer");
+
+/**
+ * Sends a glassmorphic staging invitation email whenever a document is created in /stagingInvites.
+ */
+exports.onSendStagingInvitation = onDocumentCreated("stagingInvites/{inviteId}", async (event) => {
+  const snapshot = event.data;
+  if (!snapshot) return;
+
+  const inviteData = snapshot.data();
+  const invitedEmail = inviteData.email;
+  if (!invitedEmail) return;
+
+  const stagingUrl = "https://inspired-yoga-app-staging.web.app";
+  const templatePath = path.join(__dirname, "../templates/emails/staging_invitation.html");
+
+  let htmlContent = "";
+  try {
+    htmlContent = fs.readFileSync(templatePath, "utf8")
+      .replace(/{{stagingUrl}}/g, stagingUrl)
+      .replace(/{{invitedEmail}}/g, invitedEmail);
+  } catch (err) {
+    htmlContent = `<p>You have been invited to Inspired Staging Preview! Access here: <a href="${stagingUrl}">${stagingUrl}</a></p>`;
+  }
+
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpPort = process.env.SMTP_PORT || 587;
+  const senderEmail = process.env.SENDER_EMAIL || "Inspired Yoga <no-reply@inspired-yoga-app-staging.web.app>";
+
+  logger.info(`✉️ Staging Invitation Document Created for: ${invitedEmail}`);
+
+  if (smtpHost && smtpUser && smtpPass) {
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: Number(smtpPort),
+      secure: Number(smtpPort) === 465,
+      auth: { user: smtpUser, pass: smtpPass },
+    });
+
+    try {
+      await transporter.sendMail({
+        from: senderEmail,
+        to: invitedEmail,
+        subject: "You've Been Invited to Inspired Staging Preview! 🧘‍♀️",
+        html: htmlContent,
+      });
+      logger.info(`✅ Staging Invitation email sent successfully to ${invitedEmail}`);
+    } catch (sendErr) {
+      logger.error(`❌ Failed to send email via SMTP: ${sendErr.message}`);
+    }
+  } else {
+    logger.info(`ℹ️ SMTP credentials not configured (SMTP_HOST/USER/PASS). Staging Invite logged to Cloud Console: Email=${invitedEmail}, URL=${stagingUrl}`);
+  }
+});
