@@ -208,6 +208,27 @@ This populates the local database running on your Mac.
 npm run seed:local
 ```
 
+### 7.1.1 First-Time GCP Eventarc & Cloud Functions 2nd Gen IAM Setup
+When initializing a fresh Google Cloud project, Cloud Functions (2nd Gen) event triggers (e.g. `onDocumentCreated` for `/stagingInvites`) require granting 3 Eventarc/PubSub permissions once to Google service accounts:
+
+```bash
+# 1. Set current project ID (e.g., inspired-yoga-app-staging)
+gcloud config set project YOUR_PROJECT_ID
+
+# 2. Grant PubSub Token Creator, Cloud Run Invoker, and Eventarc Receiver
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member=serviceAccount:service-PROJECT_NUMBER@gcp-sa-pubsub.iam.gserviceaccount.com \
+  --role=roles/iam.serviceAccountTokenCreator
+
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member=serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/run.invoker
+
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+  --member=serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/eventarc.eventReceiver
+```
+
 ### 7.2 Seeding the Staging Environment (Cloud)
 This populates the real Google Cloud database for shared testing and creates your admin invite.
 1. Run the cloud seeder with your admin email:
