@@ -144,7 +144,10 @@ const nodemailer = require("nodemailer");
 /**
  * Sends a glassmorphic staging invitation email whenever a document is created in /stagingInvites.
  */
-exports.onSendStagingInvitation = onDocumentCreated("stagingInvites/{inviteId}", async (event) => {
+exports.onSendStagingInvitation = onDocumentCreated({
+  document: "stagingInvites/{inviteId}",
+  secrets: ["SMTP_HOST", "SMTP_USER", "SMTP_PASS", "SMTP_PORT", "SENDER_EMAIL"]
+}, async (event) => {
   const snapshot = event.data;
   if (!snapshot) return;
 
