@@ -208,37 +208,27 @@ This populates the local database running on your Mac.
 npm run seed:local
 ```
 
-### 7.1.1 Complete GCP IAM Service Account Setup (Zero-to-Hero Provisioning)
-When initializing a fresh Google Cloud project from scratch, run the following automated script to provision the CI/CD deployment service account (`firebase-adminsdk-fbsvc`) and internal GCP service agents with standard least-privilege permissions:
+### 7.1.1 Required GCP IAM Roles (Deployment Service Account & System Agents)
+When provisioning a fresh Google Cloud project from scratch, assign the following least-privilege IAM roles in GCP Console or via `gcloud`:
 
-```bash
-# 1. Set current project ID and fetch Project Number
-PROJECT_ID="inspired-yoga-app-staging"
-PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
-SA_EMAIL="firebase-adminsdk-fbsvc@${PROJECT_ID}.iam.gserviceaccount.com"
+#### 1. GitHub Actions CI/CD Deployment Service Account
+**Service Account:** `firebase-adminsdk-fbsvc@<PROJECT_ID>.iam.gserviceaccount.com`
 
-# 2. Grant Deployment Service Account Roles (CI/CD Pipeline)
-gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/datastore.indexAdmin"
-gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/cloudfunctions.admin"
-gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/firebaserules.admin"
-gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/iam.serviceAccountUser"
-gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/artifactregistry.admin"
-gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/secretmanager.secretAccessor"
-gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:${SA_EMAIL}" --role="roles/iam.serviceAccountTokenCreator"
+*   **`roles/datastore.indexAdmin`** (Cloud Datastore Index Admin) — Deploy composite database indexes.
+*   **`roles/cloudfunctions.admin`** (Cloud Functions Admin) — Deploy 2nd Gen Cloud Functions.
+*   **`roles/firebaserules.admin`** (Firebase Rules Admin) — Deploy Firestore security rules.
+*   **`roles/iam.serviceAccountUser`** (Service Account User) — Act as compute service accounts during function deployment.
+*   **`roles/artifactregistry.admin`** (Artifact Registry Administrator) — Store and manage Cloud Function container images.
+*   **`roles/secretmanager.secretAccessor`** (Secret Manager Secret Accessor) — Access bound secrets at runtime.
+*   **`roles/secretmanager.viewer`** (Secret Manager Viewer) — Validate secret metadata (`versions.get`) during build deployment.
+*   **`roles/iam.serviceAccountTokenCreator`** (Service Account Token Creator) — Create OAuth2 tokens for deployment tasks.
 
-# 3. Grant Internal GCP Service Agent Roles (Cloud Functions 2nd Gen & Eventarc Triggers)
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com" \
-  --role="roles/iam.serviceAccountTokenCreator"
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
-  --role="roles/run.invoker"
-
-gcloud projects add-iam-policy-binding $PROJECT_ID \
-  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
-  --role="roles/eventarc.eventReceiver"
-```
+#### 2. Internal GCP System Service Agents (Cloud Functions 2nd Gen & Eventarc Triggers)
+*   **Pub/Sub Service Agent** (`service-<PROJECT_NUMBER>@gcp-sa-pubsub.iam.gserviceaccount.com`):
+    *   **`roles/iam.serviceAccountTokenCreator`** — Mint tokens for Firestore database event delivery.
+*   **Default Compute Service Account** (`<PROJECT_NUMBER>-compute@developer.gserviceaccount.com`):
+    *   **`roles/run.invoker`** — Invoke Cloud Run function containers upon event triggers.
+    *   **`roles/eventarc.eventReceiver`** — Receive Eventarc event triggers.
 
 ### 7.2 Seeding the Staging Environment (Cloud)
 This populates the real Google Cloud database for shared testing and creates your admin invite.
