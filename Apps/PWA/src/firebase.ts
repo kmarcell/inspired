@@ -15,8 +15,8 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Connect to local Firebase Emulators if requested
-if (import.meta.env.VITE_USE_EMULATORS === 'true') {
+// Connect to local Firebase Emulators if running locally or requested
+if (import.meta.env.VITE_USE_EMULATORS === 'true' || window.location.hostname === 'localhost') {
   console.log('⚡ Connecting PWA to local Firebase Emulators (Auth: 9099, Firestore: 8081)...');
   connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
   connectFirestoreEmulator(db, 'localhost', 8081);

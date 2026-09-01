@@ -4,6 +4,7 @@ import { firestoreService } from '../services/firestoreService';
 
 export const LoginView: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [devPassword, setDevPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
@@ -29,6 +30,21 @@ export const LoginView: React.FC = () => {
     } catch (err: unknown) {
       console.error('[LoginView] Google sign-in error:', err);
       setError(err instanceof Error ? err.message : 'Google sign-in failed.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDevEmailPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !devPassword) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      await authService.loginWithEmailPassword(email.trim(), devPassword);
+    } catch (err: unknown) {
+      console.error('[LoginView] Dev sign-in error:', err);
+      setError(err instanceof Error ? err.message : 'Invalid email or password.');
     } finally {
       setIsLoading(false);
     }
@@ -190,6 +206,53 @@ export const LoginView: React.FC = () => {
               : 'Send Magic Sign-In Link'}
           </button>
         </form>
+
+        {/* Local Emulator Email/Password Login */}
+        {import.meta.env.DEV && (
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">
+              🛠️ Local Dev Password Sign-In
+            </p>
+            <form onSubmit={handleDevEmailPasswordSubmit} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Seeded Account Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="user_sarah@inspired.test"
+                  disabled={isLoading}
+                  data-testid="dev-email-input"
+                  className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-xs placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                  Password (.env TEST_USER_PASSWORD)
+                </label>
+                <input
+                  type="password"
+                  value={devPassword}
+                  onChange={(e) => setDevPassword(e.target.value)}
+                  placeholder="Enter test password"
+                  disabled={isLoading}
+                  data-testid="dev-password-input"
+                  className="w-full h-10 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-xs placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!email || !devPassword || isLoading}
+                data-testid="dev-submit-button"
+                className="w-full h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-indigo-300 border border-slate-700/80 transition disabled:opacity-50"
+              >
+                {isLoading ? 'Signing in...' : 'Sign In with Password'}
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
