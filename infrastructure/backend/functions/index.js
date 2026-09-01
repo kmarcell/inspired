@@ -194,8 +194,18 @@ exports.onSendStagingInvitation = onDocumentCreated({
         subject: "You've Been Invited to Inspired Staging Preview! 🧘‍♀️",
         html: htmlContent,
       });
+      await snapshot.ref.update({
+        status: "sent",
+        sentAt: new Date().toISOString(),
+        errorReason: null,
+      });
       logger.info(`✅ Staging Invitation email sent successfully to ${invitedEmail}`);
     } catch (sendErr) {
+      await snapshot.ref.update({
+        status: "failed",
+        errorReason: sendErr.message || "Failed to send email via SMTP",
+        failedAt: new Date().toISOString(),
+      });
       logger.error(`❌ Failed to send email via SMTP: ${sendErr.message}`);
     }
   } else {

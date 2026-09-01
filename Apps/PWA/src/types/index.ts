@@ -29,6 +29,7 @@ export interface UserProfile {
   profilePictureUrl?: string;
   thumbnailUrl?: string;
   isAdmin?: boolean;
+  isProfilePublic?: boolean;
   privacySettings: PrivacySettings;
   createdAt: string;
   updatedAt: string;
@@ -93,6 +94,78 @@ export interface ModerationSettings {
 
 export type StudioStatus = 'active' | 'temp_closed' | 'closed';
 
+export type RoomClimateType = 
+  | 'hot_studio'      // 🔥 Hot Studio (e.g. 35°C / 28°C)
+  | 'air_conditioned' // ❄️ Air Conditioned
+  | 'heated_room'     // 🌡️ Heated Room
+  | 'natural_ambient' // 🍃 Natural Ambient
+  | 'outdoor';        // ☀️ Outdoor
+
+export interface StudioTeacher {
+  id: string;
+  displayName: string;
+  photoUrl?: string;
+  specialty?: string;
+  isPublic?: boolean;
+}
+
+export interface StudioMember {
+  id: string;
+  displayName: string;
+  avatarUrl?: string;
+  isProfilePublic: boolean;
+  joinedAt: string;
+}
+
+export interface StudioClass {
+  id: string;
+  studioId: string;
+  className: string;
+  classTypeDescription: string;
+  teacherId: string;
+  teacherName: string;
+  dayOfWeek: number; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  dateString: string; // ISO date string e.g. "2026-08-31"
+  startTime: string; // e.g. "10:00 AM"
+  endTime: string;   // e.g. "11:00 AM"
+  capacity: number;  // e.g. 24
+  bookedCount: number;
+  waitlist: string[]; // array of userIds in waitlist order
+  roomClimate: RoomClimateType;
+  temperatureCelsius?: number; // Custom numeric temperature in °C set by studio admin (e.g. 28, 35, 40)
+  equipmentNeeded?: string;    // e.g. "Yoga Mat & Towel"
+  skillLevel?: string;         // e.g. "All Levels Welcome"
+  styleName?: string;          // e.g. "Dynamic Vinyasa"
+}
+
+export interface CreateStudioClassInput {
+  studioId: string;
+  className: string;
+  classTypeDescription: string;
+  teacherId: string;
+  teacherName: string;
+  dateString: string; // ISO date string e.g. "2026-08-31"
+  startTime: string; // e.g. "10:00 AM"
+  endTime: string;   // e.g. "11:00 AM"
+  capacity: number;  // e.g. 24
+  roomClimate: RoomClimateType;
+  temperatureCelsius?: number; // Admin-configurable temperature input (°C) when roomClimate === 'hot_studio'
+  equipmentNeeded?: string;
+  skillLevel?: string;
+  styleName?: string;
+}
+
+export interface ClassBooking {
+  id: string;
+  classId: string;
+  studioId: string;
+  userId: string;
+  userDisplayName: string;
+  bookedAt: string; // ISO Timestamp
+  status: 'confirmed' | 'waitlisted';
+  waitlistPosition?: number;
+}
+
 export interface YogaStudio {
   id: string;
   name: string;
@@ -106,11 +179,21 @@ export interface YogaStudio {
   closedAt?: string;
   ownerId?: string;
   companyId?: string;
+  parentBrandCommunityId?: string;
+  parentBrandName?: string;
   reviewCount: number;
+  membersCount?: number;
   location_prefix: string;
   engagementScore: number;
   moderationSettings: ModerationSettings;
   location: GeoPoint;
+  coverImageUrl?: string;
+  logoUrl?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  websiteUrl?: string;
+  assignedTeacherIds?: string[];
+  assignedTeachers?: StudioTeacher[];
 }
 
 // --- Company Brand ---
@@ -137,3 +220,18 @@ export interface SearchResult {
   communityData?: Community;
   studioData?: YogaStudio;
 }
+
+// --- Staging Invite Status & Record ---
+export type StagingInviteStatus = 'pending' | 'sent' | 'failed';
+
+export interface StagingInvite {
+  id: string;
+  email: string;
+  status: StagingInviteStatus;
+  errorReason?: string;
+  invitedBy?: string;
+  createdAt: string;
+  sentAt?: string;
+  failedAt?: string;
+}
+

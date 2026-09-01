@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { firestoreService } from '../services/firestoreService';
+import { StagingInvite } from '../types';
 
 interface ClaimRequestItem {
   id: string;
@@ -31,7 +32,7 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
   const [activeAdminTab, setActiveAdminTab] = useState<'claims' | 'all_studios' | 'staging_invites'>('claims');
   const [studioFilter, setStudioFilter] = useState<'all' | 'pending' | 'verified'>('all');
   const [allStudios, setAllStudios] = useState<any[]>([]);
-  const [stagingInvites, setStagingInvites] = useState<{ id: string; email: string; invitedBy: string; createdAt: string }[]>([]);
+  const [stagingInvites, setStagingInvites] = useState<StagingInvite[]>([]);
   const [newInviteEmail, setNewInviteEmail] = useState('');
   const [isSendingInvite, setIsSendingInvite] = useState(false);
 
@@ -458,21 +459,72 @@ export const AdminClaimsView: React.FC<AdminClaimsViewProps> = ({ onBack }) => {
                       <p className="text-[11px] text-slate-500 dark:text-slate-400">
                         Invited: {inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : 'Active'}
                       </p>
+                      {inv.errorReason && inv.status === 'failed' && (
+                        <p className="text-[10px] font-mono text-rose-500 mt-0.5" data-testid={`invite-error-reason-${inv.id}`}>
+                          {inv.errorReason}
+                        </p>
+                      )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await firestoreService.deleteStagingInvite(inv.id);
-                        setActionSuccessMsg(`✓ Revoked staging invite for ${inv.email}`);
-                        await loadStagingInvites();
-                        setTimeout(() => setActionSuccessMsg(null), 3000);
-                      }}
-                      data-testid={`revoke-invite-btn-${inv.id}`}
-                      className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-95"
-                    >
-                      Revoke Invite
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      {inv.status === 'pending' ? (
+                        <span
+                          data-testid={`invite-status-pending-${inv.id}`}
+                          className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1"
+                        >
+                          <span>⏳</span>
+                          <span>Sending...</span>
+                        </span>
+                      ) : inv.status === 'failed' ? (
+                        <div className="flex items-center gap-2">
+                          <span
+                            data-testid={`invite-status-failed-${inv.id}`}
+                            title={inv.errorReason || 'SMTP Send Error'}
+                            className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-300 border border-rose-500/30 flex items-center gap-1"
+                          >
+                            <span>❌</span>
+                            <span>Failed</span>
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await firestoreService.retryStagingInvite(inv.id);
+                              setActionSuccessMsg(`✓ Retrying staging invitation for ${inv.email}`);
+                              await loadStagingInvites();
+                              setTimeout(() => setActionSuccessMsg(null), 3000);
+                            }}
+                            data-testid={`retry-invite-btn-${inv.id}`}
+                            className="px-2.5 py-1 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30 text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1"
+                          >
+                            <span>↻</span>
+                            <span>Retry</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <span
+                          data-testid={`invite-status-sent-${inv.id}`}
+                          className="px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1"
+                        >
+                          <span>✓</span>
+                          <span>Sent</span>
+                        </span>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await firestoreService.deleteStagingInvite(inv.id);
+                          setActionSuccessMsg(`✓ Revoked staging invite for ${inv.email}`);
+                          await loadStagingInvites();
+                          setTimeout(() => setActionSuccessMsg(null), 3000);
+                        }}
+                        data-testid={`revoke-invite-btn-${inv.id}`}
+                        className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-95"
+                      >
+                        Revoke Invite
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

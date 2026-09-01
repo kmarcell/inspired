@@ -99,7 +99,7 @@ describe('AdminClaimsView Component', () => {
 
   it('allows issuing staging invitation in Invited Members tab', async () => {
     (firestoreService.fetchStagingInvites as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { id: 'inv_1', email: 'preview_tester@inspired.test', invitedBy: 'user_admin_001', createdAt: '2026-08-29T10:00:00Z' },
+      { id: 'inv_1', email: 'preview_tester@inspired.test', status: 'sent', invitedBy: 'user_admin_001', createdAt: '2026-08-29T10:00:00Z' },
     ]);
     (firestoreService.createStagingInvite as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
@@ -115,6 +115,7 @@ describe('AdminClaimsView Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('input-invite-email')).toBeInTheDocument();
       expect(screen.getByText('preview_tester@inspired.test')).toBeInTheDocument();
+      expect(screen.getByTestId('invite-status-sent-inv_1')).toBeInTheDocument();
     });
 
     fireEvent.change(screen.getByTestId('input-invite-email'), {
@@ -128,6 +129,39 @@ describe('AdminClaimsView Component', () => {
         'new_tester@inspired.test',
         'user_admin_001'
       );
+    });
+  });
+
+  it('renders pending, sent, and failed invite status badges and handles invite retry', async () => {
+    const mockInvites = [
+      { id: 'inv_pending', email: 'pending_user@inspired.test', status: 'pending', invitedBy: 'user_admin_001', createdAt: '2026-09-01T10:00:00Z' },
+      { id: 'inv_failed', email: 'failed_user@inspired.test', status: 'failed', errorReason: 'Invalid SMTP Login: 535 BadCredentials', invitedBy: 'user_admin_001', createdAt: '2026-09-01T10:05:00Z' },
+      { id: 'inv_sent', email: 'sent_user@inspired.test', status: 'sent', invitedBy: 'user_admin_001', createdAt: '2026-09-01T10:10:00Z' },
+    ];
+
+    (firestoreService.fetchStagingInvites as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockInvites);
+    (firestoreService.retryStagingInvite as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+    render(<AdminClaimsView onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('admin-tab-staging-invites')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('admin-tab-staging-invites'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('invite-status-pending-inv_pending')).toBeInTheDocument();
+      expect(screen.getByTestId('invite-status-failed-inv_failed')).toBeInTheDocument();
+      expect(screen.getByTestId('invite-status-sent-inv_sent')).toBeInTheDocument();
+      expect(screen.getByTestId('invite-error-reason-inv_failed')).toHaveTextContent('Invalid SMTP Login: 535 BadCredentials');
+    });
+
+    // Click Retry button on failed invitation
+    fireEvent.click(screen.getByTestId('retry-invite-btn-inv_failed'));
+
+    await waitFor(() => {
+      expect(firestoreService.retryStagingInvite).toHaveBeenCalledWith('inv_failed');
     });
   });
 
