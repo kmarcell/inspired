@@ -49,27 +49,17 @@ describe('JoinedCommunitiesView Component', () => {
     vi.clearAllMocks();
   });
 
-  it('renders joined communities when user has joined communities', async () => {
+  it('triggers leave action and updates user communities on leave click inside menu', async () => {
     vi.spyOn(firestoreService, 'fetchCommunitiesByIds').mockResolvedValue([mockJoinedCommunity] as any);
 
     render(<JoinedCommunitiesView />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('joined-community-comm_ravenscourt_yoga')).toBeInTheDocument();
-      expect(screen.getByText('Ravenscourt Park Yoga')).toBeInTheDocument();
-      expect(screen.getByTestId('joined-badge-comm_ravenscourt_yoga')).toBeInTheDocument();
-      expect(screen.getByTestId('leave-button-comm_ravenscourt_yoga')).toBeInTheDocument();
+      expect(screen.getByTestId('menu-btn-comm_ravenscourt_yoga')).toBeInTheDocument();
     });
-  });
 
-  it('triggers leave action and updates user communities on leave click', async () => {
-    vi.spyOn(firestoreService, 'fetchCommunitiesByIds').mockResolvedValue([mockJoinedCommunity] as any);
-
-    render(<JoinedCommunitiesView />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('leave-button-comm_ravenscourt_yoga')).toBeInTheDocument();
-    });
+    const menuButton = screen.getByTestId('menu-btn-comm_ravenscourt_yoga');
+    fireEvent.click(menuButton);
 
     const leaveButton = screen.getByTestId('leave-button-comm_ravenscourt_yoga');
     fireEvent.click(leaveButton);

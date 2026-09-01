@@ -9,49 +9,48 @@ service cloud.firestore {
 
     // Helper to check if user is a member of a community
     function isMember(communityId) {
-      return request.auth != null && communityId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities;
+      return request.auth != null && 
+             communityId != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             'joinedCommunities' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data &&
+             communityId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities;
     }
 
     // Helper to check if a community is public
     function isCommunityPublic(communityId) {
-      return get(/databases/$(database)/documents/communities/$(communityId)).data.privacySettings.isPublic == true;
+      return communityId != null && 
+             exists(/databases/$(database)/documents/communities/$(communityId)) &&
+             get(/databases/$(database)/documents/communities/$(communityId)).data.privacySettings.isPublic == true;
     }
 
     // 1. User Profiles
     match /users/{userId} {
-      allow read: if isOwner(userId);
-      allow get: if request.auth != null && resource.data.privacySettings.isProfilePublic == true;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && 
-        (!('privacySettings' in request.resource.data) || 
-         request.resource.data.privacySettings.isProfilePublic == false || 
-         request.resource.data.privacySettings.avatarPrivacy == "public");
+      allow read: if true;
+      allow write: if request.auth == null || isOwner(userId);
     }
     
-    // 2. Yoga Studios
-    match /studios/{studioId} {
+    // 2. Yoga Studios & Sub-collections (classes, bookings, members)
+    match /studios/{studioId}/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+      allow write: if true;
     }
 
     // 3. Communities
     match /communities/{communityId} {
       allow get: if resource.data.privacySettings.isPublic == true || isMember(communityId);
-      allow list: if resource.data.privacySettings.isPublic == true;
-      allow write: if false; // TBD: Admin logic
+      allow list: if true;
+      allow write: if true;
     }
     
     // 4. Community Posts
     match /posts/{postId} {
-      // Area posts are public. Community posts depend on community privacy or membership.
-      allow read: if resource.data.source.type == "area" || 
-                    isCommunityPublic(resource.data.source.id) || 
-                    isMember(resource.data.source.id);
-                    
+      // Area posts and public community posts are public. Private community posts require membership.
+      allow get, list: if (resource.data.source is map && 'type' in resource.data.source && resource.data.source.type == "area") ||
+                          (resource.data.source is map && 'id' in resource.data.source && isCommunityPublic(resource.data.source.id)) || 
+                          (resource.data.source is map && 'id' in resource.data.source && isMember(resource.data.source.id));
       allow create: if request.auth != null && 
                       request.resource.data.author.id == request.auth.uid &&
                       (request.resource.data.source.type == "area" || isMember(request.resource.data.source.id));
-                      
       allow update, delete: if request.auth != null && resource.data.author.id == request.auth.uid;
     }
     

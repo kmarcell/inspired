@@ -60,6 +60,18 @@ function convertDates(obj) {
   return obj;
 }
 
+async function deleteSubcollections(docRef, subcollectionNames) {
+  for (const subName of subcollectionNames) {
+    const subRef = docRef.collection(subName);
+    const snap = await subRef.get();
+    if (!snap.empty) {
+      const batch = db.batch();
+      snap.docs.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+    }
+  }
+}
+
 async function clearCollection(collectionName) {
   const collectionRef = db.collection(collectionName);
   const snapshot = await collectionRef.get();
@@ -68,13 +80,14 @@ async function clearCollection(collectionName) {
     return;
   }
 
-  console.log(`🗑️  Clearing ${snapshot.size} documents from '${collectionName}'...`);
-  const batch = db.batch();
-  snapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-
-  await batch.commit();
+  console.log(`🗑️  Clearing ${snapshot.size} documents & subcollections from '${collectionName}'...`);
+  
+  for (const docSnap of snapshot.docs) {
+    if (collectionName === 'studios') {
+      await deleteSubcollections(docSnap.ref, ['members', 'classes', 'joinRequests', 'bookings']);
+    }
+    await docSnap.ref.delete();
+  }
 }
 
 async function seedCollection(collectionName, fileName) {
@@ -174,6 +187,97 @@ async function run() {
     await seedCollection('studios', 'studios.json');
     await seedCollection('communities', 'communities.json');
     await seedCollection('posts', 'posts.json');
+
+    // Seed studio class schedule & member subcollections
+    console.log('🧘 Seeding studio classes & members subcollections...');
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const classesSeed = [
+      {
+        id: 'class_askew_1',
+        studioId: 'studio_askew_001',
+        className: 'Vinyasa Flow',
+        styleName: 'Dynamic Vinyasa',
+        classTypeDescription: 'A fluid, breath-synchronized sequence designed to build core strength and endurance while calming the mind.',
+        teacherId: 'user_maryia',
+        teacherName: 'Maryia Sharma',
+        dayOfWeek: 1,
+        dateString: todayStr,
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        capacity: 24,
+        bookedCount: 10,
+        waitlist: [],
+        roomClimate: 'natural_ambient',
+        skillLevel: 'All Levels Welcome',
+        equipmentNeeded: 'Yoga Mat & Towel',
+      },
+      {
+        id: 'class_askew_2',
+        studioId: 'studio_askew_001',
+        className: 'Hot Ashtanga Primary',
+        styleName: 'Ashtanga Primary Series',
+        classTypeDescription: 'Structured, traditional Ashtanga primary series in a warm studio environment for deep flexibility and detox.',
+        teacherId: 'user_elena',
+        teacherName: 'Elena Rostova',
+        dayOfWeek: 1,
+        dateString: todayStr,
+        startTime: '05:30 PM',
+        endTime: '06:30 PM',
+        capacity: 20,
+        bookedCount: 20,
+        waitlist: ['user_waitlist_1', 'user_waitlist_2'],
+        roomClimate: 'hot_studio',
+        temperatureCelsius: 35,
+        skillLevel: 'Intermediate / Advanced',
+        equipmentNeeded: 'Yoga Mat, Sweat Towel & Water',
+      },
+      {
+        id: 'class_askew_3',
+        studioId: 'studio_askew_001',
+        className: 'Yin & Sound Bath',
+        styleName: 'Restorative Yin',
+        classTypeDescription: 'Gentle, long-held floor postures accompanied by Tibetan singing bowls for deep relaxation.',
+        teacherId: 'user_maryia',
+        teacherName: 'Maryia Sharma',
+        dayOfWeek: 1,
+        dateString: todayStr,
+        startTime: '07:00 PM',
+        endTime: '08:00 PM',
+        capacity: 15,
+        bookedCount: 8,
+        waitlist: [],
+        roomClimate: 'air_conditioned',
+        skillLevel: 'All Levels Welcome',
+        equipmentNeeded: 'Yoga Mat & Warm Socks',
+      },
+    ];
+
+    for (const cls of classesSeed) {
+      await db.collection('studios').doc('studio_askew_001').collection('classes').doc(cls.id).set(cls);
+    }
+
+    const askewMembersSeed = [
+      { id: 'user_maryia', displayName: 'Maryia Sharma', isProfilePublic: true, joinedAt: '2026-01-15T10:00:00Z' },
+      { id: 'user_elena', displayName: 'Elena Rostova', isProfilePublic: true, joinedAt: '2026-02-01T14:30:00Z' },
+      { id: 'user_private_1', displayName: 'Anonymous Yogi #42', isProfilePublic: false, joinedAt: '2026-02-10T09:15:00Z' },
+      { id: 'user_private_2', displayName: 'Zen Practitioner', isProfilePublic: false, joinedAt: '2026-02-20T16:45:00Z' },
+      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-03-01T11:20:00Z' },
+    ];
+
+    for (const m of askewMembersSeed) {
+      await db.collection('studios').doc('studio_askew_001').collection('members').doc(m.id).set(m);
+    }
+
+    const chiswickMembersSeed = [
+      { id: 'user_elena', displayName: 'Elena Rostova', isProfilePublic: true, privacyLevel: 'public', joinedAt: '2026-01-10T08:00:00Z' },
+      { id: 'user_groups_only', displayName: 'Groups-Only Practitioner', isProfilePublic: false, privacyLevel: 'groups-only', joinedAt: '2026-01-20T11:30:00Z' },
+      { id: 'user_members_only', displayName: 'Members-Only Yogi', isProfilePublic: false, privacyLevel: 'members-only', joinedAt: '2026-02-05T15:10:00Z' },
+    ];
+
+    for (const m of chiswickMembersSeed) {
+      await db.collection('studios').doc('studio_chiswick_002').collection('members').doc(m.id).set(m);
+    }
 
     // Check for dynamic ADMIN_EMAIL environment variable or --admin-email flag
     const adminEmail = process.env.ADMIN_EMAIL || process.argv.find(arg => arg.startsWith('--admin-email='))?.split('=')[1];

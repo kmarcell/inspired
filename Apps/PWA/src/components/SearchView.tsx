@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { firestoreService } from '../services/firestoreService';
-import { SearchResult, Community } from '../types';
+import { SearchResult, Community, YogaStudio } from '../types';
 
 interface SearchViewProps {
   initialQuery?: string;
   onClose?: () => void;
   onClaimStudio?: (studioId: string) => void;
+  onSelectStudio?: (studio: YogaStudio) => void;
+  onSelectCommunity?: (communityId: string) => void;
 }
 
-export const SearchView: React.FC<SearchViewProps> = ({ initialQuery = '', onClose, onClaimStudio }) => {
+export const SearchView: React.FC<SearchViewProps> = ({ 
+  initialQuery = '', 
+  onClose, 
+  onClaimStudio, 
+  onSelectStudio,
+  onSelectCommunity,
+}) => {
   const { user, refreshUserProfile } = useAuth();
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -168,7 +176,10 @@ export const SearchView: React.FC<SearchViewProps> = ({ initialQuery = '', onClo
                     data-testid={`search-result-item-${result.id}`}
                     className="p-4 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-md flex items-center justify-between space-x-4 backdrop-blur-md transition-colors"
                   >
-                    <div className="flex items-center space-x-3.5 flex-1 min-w-0">
+                    <div 
+                      onClick={() => result.category !== 'studio' && onSelectCommunity?.(result.id)}
+                      className={`flex items-center space-x-3.5 flex-1 min-w-0 ${result.category !== 'studio' ? 'cursor-pointer group' : ''}`}
+                    >
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg text-white shrink-0 shadow-md ${
                         result.category === 'studio' 
                           ? 'bg-gradient-to-tr from-purple-600 to-pink-600'
@@ -179,7 +190,7 @@ export const SearchView: React.FC<SearchViewProps> = ({ initialQuery = '', onClo
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-400 truncate transition-colors">
                             {result.title}
                           </h3>
                           <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-mono font-semibold border border-indigo-500/20 shrink-0">
@@ -233,9 +244,11 @@ export const SearchView: React.FC<SearchViewProps> = ({ initialQuery = '', onClo
 
                             <button
                               type="button"
-                              className="px-3.5 py-1.5 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-semibold transition-all"
+                              onClick={() => result.studioData && onSelectStudio?.(result.studioData)}
+                              data-testid={`view-studio-btn-${result.id}`}
+                              className="px-3.5 py-1.5 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-semibold transition-all active:scale-95"
                             >
-                              View Studio
+                              View Studio ➔
                             </button>
                           </>
                         )}
@@ -288,14 +301,17 @@ export const SearchView: React.FC<SearchViewProps> = ({ initialQuery = '', onClo
                     data-testid={`discovery-item-${comm.id}`}
                     className="p-4 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-md flex items-center justify-between space-x-4 backdrop-blur-md transition-colors"
                   >
-                    <div className="flex items-center space-x-3.5 flex-1 min-w-0">
+                    <div 
+                      onClick={() => onSelectCommunity?.(comm.id)}
+                      className="flex items-center space-x-3.5 flex-1 min-w-0 cursor-pointer group"
+                    >
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center font-bold text-lg text-white shrink-0 shadow-md">
                         {comm.name.charAt(0).toUpperCase()}
                       </div>
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center space-x-2">
-                          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-400 truncate transition-colors">
                             {comm.name}
                           </h3>
                           <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-mono font-semibold border border-indigo-500/20 shrink-0">

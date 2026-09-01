@@ -1,19 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { firestoreService } from '../services/firestoreService';
-import { Community } from '../types';
+import { Community, YogaStudio } from '../types';
 
 interface JoinedCommunitiesViewProps {
   onBack?: () => void;
+  onSelectStudio?: (studio: YogaStudio) => void;
 }
 
-export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ onBack }) => {
+export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ onBack, onSelectStudio }) => {
   const { user, refreshUserProfile } = useAuth();
 
   const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
   const [suggestedCommunities, setSuggestedCommunities] = useState<Community[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadingStudioId, setLoadingStudioId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [activeMenuCommunityId, setActiveMenuCommunityId] = useState<string | null>(null);
+
+  // Close ellipsis menu when clicking anywhere outside
+  useEffect(() => {
+    if (!activeMenuCommunityId) return;
+
+    const handleClickOutside = () => {
+      setActiveMenuCommunityId(null);
+    };
+
+    window.addEventListener('click', handleClickOutside);
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, [activeMenuCommunityId]);
 
   useEffect(() => {
     const loadCommunitiesData = async () => {
@@ -47,41 +65,53 @@ export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ on
     loadCommunitiesData();
   }, [user]);
 
-  const handleToggleJoin = async (communityId: string, isJoining: boolean) => {
+  const handleToggleJoin = async (communityId: string, join: boolean) => {
     if (!user) return;
 
-    const currentJoined = user.joinedCommunities || [];
-    let updatedJoined: string[];
-
-    if (isJoining) {
-      updatedJoined = Array.from(new Set([...currentJoined, communityId]));
-    } else {
-      updatedJoined = currentJoined.filter((id) => id !== communityId);
-    }
+    const current = user.joinedCommunities || [];
+    const nextCommunities = join
+      ? Array.from(new Set([...current, communityId]))
+      : current.filter((id) => id !== communityId);
 
     try {
-      await firestoreService.updateUserCommunities(user.id, updatedJoined);
+      await firestoreService.updateUserCommunities(user.id, nextCommunities);
       await refreshUserProfile();
-      // Re-trigger load
-      const fetchedJoined = await firestoreService.fetchCommunitiesByIds(updatedJoined);
-      setJoinedCommunities(fetchedJoined || []);
+      setJoinedCommunities((prev) => prev.filter((c) => c.id !== communityId));
+    } catch (err: unknown) {
+      console.error('[JoinedCommunitiesView] Failed to toggle join status:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update community membership.');
+    }
+  };
+
+  const handleOpenStudio = async (studioId: string) => {
+    if (!onSelectStudio) return;
+    setLoadingStudioId(studioId);
+    try {
+      const studio = await firestoreService.fetchStudioById(studioId);
+      if (studio) {
+        onSelectStudio(studio);
+      } else {
+        setError(`Studio ${studioId} not found.`);
+      }
     } catch (err) {
-      console.error('[JoinedCommunitiesView] Failed to toggle join state:', err);
+      console.error('[JoinedCommunitiesView] Failed to fetch studio:', err);
+      setError('Failed to open studio profile.');
+    } finally {
+      setLoadingStudioId(null);
     }
   };
 
   return (
-    <div className="flex-1 max-w-xl w-full mx-auto px-4 py-4 space-y-4">
-      {/* Back Button Above Header */}
+    <div data-testid="joined-communities-container" className="space-y-6 pb-12 max-w-2xl mx-auto">
+      {/* Navigation Header */}
       {onBack && (
         <button
           type="button"
           onClick={onBack}
-          data-testid="communities-back-button"
-          className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
-          title="Back to Feed"
+          data-testid="back-button"
+          className="group flex items-center space-x-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
         >
-          <span>←</span>
+          <span className="text-base group-hover:-translate-x-1 transition-transform">←</span>
           <span>Back to Feed</span>
         </button>
       )}
@@ -122,49 +152,114 @@ export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ on
       {/* Joined Communities List */}
       {!isLoading && joinedCommunities.length > 0 && (
         <div data-testid="joined-communities-list" className="space-y-4">
-          {joinedCommunities.map((community) => (
-            <div
-              key={community.id}
-              data-testid={`joined-community-${community.id}`}
-              className="p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl flex items-center justify-between space-x-4 backdrop-blur-md transition-all hover:border-indigo-500/40"
-            >
-              <div className="space-y-1 flex-1">
-                <div className="flex items-center space-x-2">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{community.name}</h3>
-                  {community.location_prefix && (
-                    <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700/50">
-                      {community.location_prefix}
-                    </span>
-                  )}
+          {joinedCommunities.map((community) => {
+            const studioId = community.linkedStudioId || (community.id.startsWith('comm_studio_') ? community.id.replace('comm_studio_', '') : null);
+            const isMenuOpen = activeMenuCommunityId === community.id;
+
+            return (
+              <div
+                key={community.id}
+                data-testid={`joined-community-${community.id}`}
+                onClick={() => studioId && handleOpenStudio(studioId)}
+                className="p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-3 backdrop-blur-md transition-all hover:border-indigo-500/50 hover:shadow-2xl cursor-pointer relative group"
+              >
+                {/* Top Header Line: Title + Area Tag + Top Right Joined Badge */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center space-x-2 min-w-0">
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100 truncate">
+                      {community.name}
+                    </h3>
+                    {community.location_prefix && (
+                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700/50 shrink-0 font-semibold">
+                        {community.location_prefix}
+                      </span>
+                    )}
+                  </div>
+
+                  <span
+                    data-testid={`joined-badge-${community.id}`}
+                    className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-bold shrink-0 flex items-center space-x-1"
+                  >
+                    <span>✓</span>
+                    <span>Joined</span>
+                  </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{community.description}</p>
-                <div className="pt-1 flex items-center space-x-2 text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">
-                  <span>🔥 {community.engagementScore || 0} engagement score</span>
+
+                {/* Middle Row: Hero Icon + Description + Engagement Score */}
+                <div className="flex items-start space-x-3.5 pt-1">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-xl font-bold shrink-0">
+                    {community.id.startsWith('comm_studio_') ? '🏢' : community.id.startsWith('comm_brand_') ? '🧘‍♀️' : '🌴'}
+                  </div>
+
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      {community.description}
+                    </p>
+                    <div className="pt-0.5 flex items-center space-x-2 text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold">
+                      <span>🔥 {community.engagementScore || 0} engagement score</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Row: Primary CTA & 3-Dots Ellipsis Menu */}
+                <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60">
+                  <div className="flex items-center space-x-2">
+                    {studioId && onSelectStudio && (
+                      <button
+                        type="button"
+                        disabled={loadingStudioId === studioId}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenStudio(studioId);
+                        }}
+                        data-testid={`view-studio-btn-${community.id}`}
+                        className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-950/40 active:scale-95 flex items-center space-x-1.5"
+                      >
+                        <span>{loadingStudioId === studioId ? 'Opening...' : 'View Studio Profile 🏢 ➔'}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 3-Dots Ellipsis Overflow Menu Button */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveMenuCommunityId(isMenuOpen ? null : community.id);
+                      }}
+                      data-testid={`menu-btn-${community.id}`}
+                      className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 flex items-center justify-center text-sm font-bold transition"
+                      title="More Actions"
+                    >
+                      •••
+                    </button>
+
+                    {/* Ellipsis Dropdown Popover */}
+                    {isMenuOpen && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute right-0 bottom-10 w-44 p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-20 space-y-1 animate-fadeIn"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveMenuCommunityId(null);
+                            handleToggleJoin(community.id, false);
+                          }}
+                          data-testid={`leave-button-${community.id}`}
+                          className="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center space-x-2 transition"
+                        >
+                          <span>🚪</span>
+                          <span>Leave Community</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <div className="flex items-center space-x-2 shrink-0">
-                <span
-                  data-testid={`joined-badge-${community.id}`}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold shrink-0 flex items-center space-x-1"
-                >
-                  <span>✓</span>
-                  <span>Joined</span>
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() => handleToggleJoin(community.id, false)}
-                  data-testid={`leave-button-${community.id}`}
-                  className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-95 shrink-0 flex items-center space-x-1"
-                  title={`Leave ${community.name}`}
-                >
-                  <span>🚪</span>
-                  <span>Leave</span>
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -12,6 +12,42 @@
     }
   },
   {
+    "id": "comm_studio_studio_askew_001",
+    "name": "Askew Road Zen Den Community",
+    "description": "Official community feed for Askew Road Zen Den studio branch.",
+    "location_prefix": "W12",
+    "linkedStudioId": "studio_askew_001",
+    "engagementScore": 920,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_studio_studio_chiswick_002",
+    "name": "Chiswick Hot Yoga Community",
+    "description": "Official community feed for Chiswick Hot Yoga Studio branch.",
+    "location_prefix": "W4",
+    "linkedStudioId": "studio_chiswick_002",
+    "engagementScore": 720,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_brand_affordable_london",
+    "name": "Affordable London Yoga Community",
+    "description": "Parent brand community aggregating all studio branch updates across London.",
+    "location_prefix": "W12",
+    "linkedStudioId": null,
+    "engagementScore": 1250,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
     "id": "area_chelsea",
     "name": "Chelsea",
     "description": "Community feed for Chelsea.",

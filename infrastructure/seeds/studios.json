@@ -2,41 +2,63 @@
   {
     "id": "studio_askew_001",
     "name": "Askew Road Zen Den",
-    "address": "123 Askew Rd, London W12 9AU",
-    "about": "A cozy, community-focused space for all levels.",
+    "address": "142 Askew Road, London W12 9SHA",
+    "about": "Heated flows, dynamic Vinyasa, and restorative zen sound baths daily.",
     "rating": 4.9,
     "isClaimed": true,
-    "ownerId": "user_teacher_001",
+    "status": "active",
+    "ownerId": "user_maryia",
+    "parentBrandName": "Affordable London Yoga",
+    "parentBrandCommunityId": "comm_brand_affordable_london",
     "reviewCount": 42,
+    "membersCount": 148,
     "location_prefix": "W12",
-    "engagementScore": 85,
+    "engagementScore": 850,
+    "contactEmail": "hello@askewzen.com",
+    "contactPhone": "+44 20 7946 0912",
+    "websiteUrl": "https://askewzen.com",
     "moderationSettings": {
       "autoApproveMemberComments": true,
-      "guestCommentsEnabled": false
+      "guestCommentsEnabled": true
     },
     "location": {
       "lat": 51.5033,
       "lng": -0.2445
-    }
+    },
+    "assignedTeachers": [
+      { "id": "user_maryia", "displayName": "Maryia Sharma", "specialty": "Vinyasa & Yin", "isPublic": true },
+      { "id": "user_elena", "displayName": "Elena Rostova", "specialty": "Hot Ashtanga Lead", "isPublic": true },
+      { "id": "user_sarah", "displayName": "Sarah Jenkins", "specialty": "Restorative & Breathwork", "isPublic": true }
+    ]
   },
   {
-    "id": "studio_hammersmith_shadow_001",
-    "name": "Riverside Yoga Hub",
-    "address": "45 King St, London W6 9HW",
-    "about": "Boutique studio with views of the Thames.",
-    "rating": 4.5,
-    "isClaimed": false,
-    "ownerId": null,
-    "reviewCount": 12,
-    "location_prefix": "W6",
-    "engagementScore": 30,
+    "id": "studio_chiswick_002",
+    "name": "Chiswick Hot Yoga Studio",
+    "address": "88 Chiswick High Road, London W4 1SY",
+    "about": "Infrared heated yoga sanctuary specializing in hot Vinyasa and Bikram style series.",
+    "rating": 4.8,
+    "isClaimed": true,
+    "status": "active",
+    "ownerId": "user_elena",
+    "parentBrandName": "Affordable London Yoga",
+    "parentBrandCommunityId": "comm_brand_affordable_london",
+    "reviewCount": 28,
+    "membersCount": 3,
+    "location_prefix": "W4",
+    "engagementScore": 720,
+    "contactEmail": "info@chiswickhotyoga.co.uk",
+    "contactPhone": "+44 20 8994 1234",
+    "websiteUrl": "https://chiswickhotyoga.co.uk",
     "moderationSettings": {
-      "autoApproveMemberComments": false,
-      "guestCommentsEnabled": false
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": true
     },
     "location": {
-      "lat": 51.4912,
-      "lng": -0.2234
-    }
+      "lat": 51.4930,
+      "lng": -0.2600
+    },
+    "assignedTeachers": [
+      { "id": "user_elena", "displayName": "Elena Rostova", "specialty": "Hot Yoga Specialist", "isPublic": true }
+    ]
   }
 ]

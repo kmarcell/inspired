@@ -4,7 +4,12 @@ import { firestoreService } from '../services/firestoreService';
 import { Post, Community } from '../types';
 import { FeedPostTile } from './FeedPostTile';
 
-export const CommunityFeedView: React.FC = () => {
+interface CommunityFeedViewProps {
+  filterArea?: string;
+  hideHeader?: boolean;
+}
+
+export const CommunityFeedView: React.FC<CommunityFeedViewProps> = ({ filterArea, hideHeader }) => {
   const { user } = useAuth();
   
   const [area, setArea] = useState<string>('Askew');
@@ -26,27 +31,32 @@ export const CommunityFeedView: React.FC = () => {
     setError(null);
 
     try {
-      // 1. Detect area
-      const detectedArea = await firestoreService.detectNearestArea();
-      setArea(detectedArea);
-
-      // 2. Tier 1: Try last 30 days
-      const joinedCommunities = user?.joinedCommunities || [];
-      let fetchedPosts = (await firestoreService.fetchFeed(detectedArea, joinedCommunities, 30)) || [];
-
-      if (fetchedPosts.length === 0) {
-        // 3. Tier 2: Try last 180 days fallback
-        fetchedPosts = (await firestoreService.fetchFeed(detectedArea, joinedCommunities, 180)) || [];
-      }
-
-      if (fetchedPosts.length === 0) {
-        // 4. Tier 3: Discovery Mode fallback
-        setIsDiscoveryMode(true);
-        const suggestions = await firestoreService.fetchSuggestedCommunities(detectedArea);
-        setSuggestedCommunities(suggestions);
-      } else {
-        setPosts(fetchedPosts);
+      if (filterArea) {
+        // Studio Branch or Specific Community Feed filtering
+        const communityPosts = await firestoreService.fetchCommunityFeed(filterArea);
+        setPosts(communityPosts);
         setIsDiscoveryMode(false);
+        setArea(filterArea.replace('comm_studio_', '').replace('comm_brand_', ''));
+      } else {
+        // Standard Area & Joined Communities 3-Tier Feed
+        const detectedArea = await firestoreService.detectNearestArea();
+        setArea(detectedArea);
+
+        const joinedCommunities = user?.joinedCommunities || [];
+        let fetchedPosts = (await firestoreService.fetchFeed(detectedArea, joinedCommunities, 30)) || [];
+
+        if (fetchedPosts.length === 0) {
+          fetchedPosts = (await firestoreService.fetchFeed(detectedArea, joinedCommunities, 180)) || [];
+        }
+
+        if (fetchedPosts.length === 0) {
+          setIsDiscoveryMode(true);
+          const suggestions = await firestoreService.fetchSuggestedCommunities(detectedArea);
+          setSuggestedCommunities(suggestions);
+        } else {
+          setPosts(fetchedPosts);
+          setIsDiscoveryMode(false);
+        }
       }
     } catch (err: unknown) {
       console.error('[CommunityFeedView] Failed to load feed:', err);
@@ -54,7 +64,7 @@ export const CommunityFeedView: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, filterArea]);
 
   useEffect(() => {
     loadFeed();
@@ -124,41 +134,43 @@ export const CommunityFeedView: React.FC = () => {
       )}
 
       {/* Header Banner: Area Awareness & Polished Refresh Button */}
-      <div className="flex items-center justify-between p-4 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl backdrop-blur-md transition-colors">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-lg font-bold">
-            📍
+      {!hideHeader && (
+        <div className="flex items-center justify-between p-4 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl backdrop-blur-md transition-colors">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-lg font-bold">
+              📍
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Currently viewing</p>
+              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-1.5">
+                <span>{area}</span>
+                <span className="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-normal">(W12)</span>
+              </h2>
+            </div>
           </div>
-          <div>
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Currently viewing</p>
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-1.5">
-              <span>{area}</span>
-              <span className="text-xs text-indigo-600 dark:text-indigo-400 font-mono font-normal">(W12)</span>
-            </h2>
-          </div>
-        </div>
 
-        {/* Polished SVG Refresh Button */}
-        <button
-          type="button"
-          onClick={loadFeed}
-          disabled={isLoading}
-          data-testid="refresh-feed-button"
-          className="group flex items-center space-x-2 px-3.5 py-2 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 active:scale-95 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 text-xs font-semibold transition-all shadow-sm shadow-indigo-500/10 disabled:opacity-50"
-          title="Refresh Feed"
-        >
-          <svg
-            className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : 'transition-transform duration-300 group-hover:rotate-180'}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
+          {/* Polished SVG Refresh Button */}
+          <button
+            type="button"
+            onClick={loadFeed}
+            disabled={isLoading}
+            data-testid="refresh-feed-button"
+            className="group flex items-center space-x-2 px-3.5 py-2 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 active:scale-95 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 text-xs font-semibold transition-all shadow-sm shadow-indigo-500/10 disabled:opacity-50"
+            title="Refresh Feed"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span className="font-medium">Refresh</span>
-        </button>
-      </div>
+            <svg
+              className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : 'transition-transform duration-300 group-hover:rotate-180'}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="font-medium">Refresh</span>
+          </button>
+        </div>
+      )}
 
       {/* Error Alert */}
       {error && (

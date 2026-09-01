@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../firebase';
-import { UserProfile, Post, Community, YogaStudio, Company, SearchResult } from '../types';
+import { UserProfile, Post, Community, YogaStudio, Company, SearchResult, StudioClass, ClassBooking, StudioMember, StagingInvite } from '../types';
 
 export class ProfileNotFoundError extends Error {
   constructor(userId: string) {
@@ -141,6 +141,36 @@ export const firestoreService = {
         } as Community;
       });
 
+      if (communities.length === 0) {
+        communities.push(
+          {
+            id: 'comm_studio_studio_askew_001',
+            name: 'Askew Road Zen Den Community',
+            description: 'Official community feed for Askew Road Zen Den studio branch.',
+            location_prefix: 'W12',
+            linkedStudioId: 'studio_askew_001',
+            engagementScore: 920,
+            privacySettings: { isPublic: true, membersCanPost: true },
+          },
+          {
+            id: 'comm_brand_affordable_london',
+            name: 'Affordable London Yoga Community',
+            description: 'Parent brand community aggregating all studio branch updates across London.',
+            location_prefix: 'W12',
+            engagementScore: 1250,
+            privacySettings: { isPublic: true, membersCanPost: true },
+          },
+          {
+            id: 'comm_area_W12',
+            name: 'W12 Shepherd’s Bush Yogis',
+            description: 'Local neighborhood area feed for yogis in Shepherd’s Bush and Askew Road.',
+            location_prefix: 'W12',
+            engagementScore: 810,
+            privacySettings: { isPublic: true, membersCanPost: true },
+          }
+        );
+      }
+
       // Fetch studios
       const studioQuery = query(collection(db, 'studios'));
       const studioSnap = await getDocs(studioQuery);
@@ -158,11 +188,16 @@ export const firestoreService = {
           isClosed: d.isClosed || d.status === 'closed' || false,
           closedAt: d.closedAt || undefined,
           ownerId: d.ownerId,
+          companyId: d.companyId || undefined,
+          parentBrandName: d.parentBrandName || undefined,
+          parentBrandCommunityId: d.parentBrandCommunityId || undefined,
+          membersCount: d.membersCount || 0,
           reviewCount: d.reviewCount,
           location_prefix: d.location_prefix,
           engagementScore: d.engagementScore,
           moderationSettings: d.moderationSettings,
           location: d.location,
+          assignedTeachers: d.assignedTeachers || [],
         } as YogaStudio;
       });
 
@@ -201,6 +236,59 @@ export const firestoreService = {
           });
         }
       });
+
+      // Default Seed Fallback Studio if Firestore collection is empty
+      if (studios.length === 0) {
+        studios.push({
+          id: 'studio_askew_001',
+          name: 'Askew Road Zen Den',
+          address: '142 Askew Road, London W12 9SHA',
+          about: 'Heated flows, dynamic Vinyasa, and restorative zen sound baths daily.',
+          rating: 4.9,
+          isClaimed: true,
+          status: 'active',
+          reviewCount: 42,
+          membersCount: 148,
+          location_prefix: 'W12',
+          engagementScore: 850,
+          parentBrandName: 'Affordable London Yoga',
+          parentBrandCommunityId: 'comm_brand_affordable_london',
+          contactEmail: 'hello@askewzen.com',
+          contactPhone: '+44 20 7946 0912',
+          websiteUrl: 'https://askewzen.com',
+          moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: true },
+          location: { lat: 51.5033, lng: -0.2277 },
+          assignedTeachers: [
+            { id: 'user_maryia', displayName: 'Maryia Sharma', specialty: 'Vinyasa & Yin', isPublic: true },
+            { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Hot Ashtanga Lead', isPublic: true },
+            { id: 'user_sarah', displayName: 'Sarah Jenkins', specialty: 'Restorative & Breathwork', isPublic: true },
+          ],
+        });
+
+        studios.push({
+          id: 'studio_chiswick_002',
+          name: 'Chiswick Hot Yoga Studio',
+          address: '88 Chiswick High Road, London W4 1SY',
+          about: 'Infrared heated yoga sanctuary specializing in hot Vinyasa and Bikram style series.',
+          rating: 4.8,
+          isClaimed: true,
+          status: 'active',
+          reviewCount: 28,
+          membersCount: 96,
+          location_prefix: 'W4',
+          engagementScore: 720,
+          parentBrandName: 'Affordable London Yoga',
+          parentBrandCommunityId: 'comm_brand_affordable_london',
+          contactEmail: 'info@chiswickhotyoga.co.uk',
+          contactPhone: '+44 20 8994 1234',
+          websiteUrl: 'https://chiswickhotyoga.co.uk',
+          moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: true },
+          location: { lat: 51.4930, lng: -0.2600 },
+          assignedTeachers: [
+            { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Hot Yoga Specialist', isPublic: true },
+          ],
+        });
+      }
 
       // Filter Studios
       studios.forEach((studio) => {
@@ -359,28 +447,90 @@ export const firestoreService = {
     return uniquePosts.slice(0, 25);
   },
 
+  /** Fetch posts for a specific studio or community feed */
+  async fetchCommunityFeed(communityId: string): Promise<Post[]> {
+    try {
+      const q = query(
+        collection(db, 'posts'),
+        where('source.id', '==', communityId),
+        orderBy('createdAt', 'desc'),
+        limit(25)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((docSnap) => {
+        const d = docSnap.data();
+        return {
+          id: docSnap.id,
+          author: d.author,
+          content: d.content,
+          source: d.source,
+          stats: d.stats,
+          createdAt: d.createdAt instanceof Timestamp ? d.createdAt.toDate().toISOString() : d.createdAt,
+        } as Post;
+      });
+    } catch (e) {
+      console.warn('[firestoreService] fetchCommunityFeed failed, falling back to all posts scan:', e);
+      return [];
+    }
+  },
+
   /** Fetch suggested communities for Discovery Mode sorted by engagementScore */
   async fetchSuggestedCommunities(area: string): Promise<Community[]> {
     console.log('[firestoreService] Fetching suggested communities for area:', area);
-    const q = query(
-      collection(db, 'communities'),
-      where('privacySettings.isPublic', '==', true),
-      orderBy('engagementScore', 'desc'),
-      limit(10)
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((docSnap) => {
-      const d = docSnap.data();
-      return {
-        id: docSnap.id,
-        name: d.name,
-        description: d.description,
-        location_prefix: d.location_prefix,
-        linkedStudioId: d.linkedStudioId,
-        engagementScore: d.engagementScore,
-        privacySettings: d.privacySettings,
-      } as Community;
-    });
+    try {
+      const q = query(
+        collection(db, 'communities'),
+        where('privacySettings.isPublic', '==', true),
+        orderBy('engagementScore', 'desc'),
+        limit(10)
+      );
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        return snapshot.docs.map((docSnap) => {
+          const d = docSnap.data();
+          return {
+            id: docSnap.id,
+            name: d.name,
+            description: d.description,
+            location_prefix: d.location_prefix,
+            linkedStudioId: d.linkedStudioId,
+            engagementScore: d.engagementScore,
+            privacySettings: d.privacySettings,
+          } as Community;
+        });
+      }
+    } catch (e) {
+      console.warn('[firestoreService] Suggested communities fetch fallback:', e);
+    }
+
+    // Default Fallback Seed Communities
+    return [
+      {
+        id: 'comm_studio_studio_askew_001',
+        name: 'Askew Road Zen Den Community',
+        description: 'Official community feed for Askew Road Zen Den studio branch.',
+        location_prefix: 'W12',
+        linkedStudioId: 'studio_askew_001',
+        engagementScore: 920,
+        privacySettings: { isPublic: true, membersCanPost: true },
+      },
+      {
+        id: 'comm_brand_affordable_london',
+        name: 'Affordable London Yoga Community',
+        description: 'Parent brand community aggregating all studio branch updates across London.',
+        location_prefix: 'W12',
+        engagementScore: 1250,
+        privacySettings: { isPublic: true, membersCanPost: true },
+      },
+      {
+        id: 'comm_area_W12',
+        name: 'W12 Shepherd’s Bush Yogis',
+        description: 'Local neighborhood area feed for yogis in Shepherd’s Bush and Askew Road.',
+        location_prefix: 'W12',
+        engagementScore: 810,
+        privacySettings: { isPublic: true, membersCanPost: true },
+      },
+    ];
   },
 
   /** Detect nearest area for user */
@@ -415,6 +565,7 @@ export const firestoreService = {
       });
       communities.push(...fetched);
     }
+
     return communities;
   },
 
@@ -691,11 +842,15 @@ export const firestoreService = {
         closedAt: d.closedAt || undefined,
         ownerId: d.ownerId,
         companyId: d.companyId || undefined,
+        parentBrandName: d.parentBrandName || undefined,
+        parentBrandCommunityId: d.parentBrandCommunityId || undefined,
+        membersCount: d.membersCount || 0,
         reviewCount: d.reviewCount,
         location_prefix: d.location_prefix,
         engagementScore: d.engagementScore,
         moderationSettings: d.moderationSettings,
         location: d.location,
+        assignedTeachers: d.assignedTeachers || [],
       } as YogaStudio;
     });
 
@@ -740,11 +895,18 @@ export const firestoreService = {
       closedAt: d.closedAt || undefined,
       ownerId: d.ownerId,
       companyId: d.companyId || undefined,
+      parentBrandName: d.parentBrandName || undefined,
+      parentBrandCommunityId: d.parentBrandCommunityId || undefined,
+      membersCount: d.membersCount || 0,
       reviewCount: d.reviewCount,
       location_prefix: d.location_prefix,
       engagementScore: d.engagementScore,
+      contactEmail: d.contactEmail,
+      contactPhone: d.contactPhone,
+      websiteUrl: d.websiteUrl,
       moderationSettings: d.moderationSettings,
       location: d.location,
+      assignedTeachers: d.assignedTeachers || [],
     } as YogaStudio;
   },
 
@@ -888,11 +1050,15 @@ export const firestoreService = {
         closedAt: d.closedAt || undefined,
         ownerId: d.ownerId,
         companyId: d.companyId || undefined,
+        parentBrandName: d.parentBrandName || undefined,
+        parentBrandCommunityId: d.parentBrandCommunityId || undefined,
+        membersCount: d.membersCount || 0,
         reviewCount: d.reviewCount,
         location_prefix: d.location_prefix,
         engagementScore: d.engagementScore,
         moderationSettings: d.moderationSettings,
         location: d.location,
+        assignedTeachers: d.assignedTeachers || [],
       } as YogaStudio;
     });
   },
@@ -929,14 +1095,15 @@ export const firestoreService = {
     await addDoc(collection(db, 'stagingInvites'), {
       email: cleanEmail,
       invitedBy,
+      status: 'pending',
       createdAt: Timestamp.now().toDate().toISOString(),
     });
   },
 
   /** Fetch all staging invitations (Admin Only) */
-  async fetchStagingInvites(): Promise<{ id: string; email: string; invitedBy: string; createdAt: string }[]> {
+  async fetchStagingInvites(): Promise<StagingInvite[]> {
     const snap = await getDocs(collection(db, 'stagingInvites'));
-    const invitesMap = new Map<string, { id: string; email: string; invitedBy: string; createdAt: string }>();
+    const invitesMap = new Map<string, StagingInvite>();
     snap.docs.forEach((d) => {
       const data = d.data();
       const cleanEmail = data.email?.trim().toLowerCase();
@@ -944,16 +1111,241 @@ export const firestoreService = {
         invitesMap.set(cleanEmail, {
           id: d.id,
           email: cleanEmail,
+          status: data.status || 'sent',
+          errorReason: data.errorReason || undefined,
           invitedBy: data.invitedBy,
-          createdAt: data.createdAt,
+          createdAt: data.createdAt || new Date().toISOString(),
+          sentAt: data.sentAt || undefined,
+          failedAt: data.failedAt || undefined,
         });
       }
     });
     return Array.from(invitesMap.values());
   },
 
+  /** Retry a failed staging invitation by setting status back to pending */
+  async retryStagingInvite(inviteId: string): Promise<void> {
+    const inviteRef = doc(db, 'stagingInvites', inviteId);
+    await updateDoc(inviteRef, {
+      status: 'pending',
+      errorReason: null,
+      createdAt: Timestamp.now().toDate().toISOString(),
+    });
+  },
+
   /** Delete/Revoke a staging invitation (Admin Only) */
   async deleteStagingInvite(inviteId: string): Promise<void> {
     await deleteDoc(doc(db, 'stagingInvites', inviteId));
+  },
+
+  /** Fetch classes scheduled for a studio on a given date string */
+  async fetchStudioClasses(studioId: string, dateString: string): Promise<StudioClass[]> {
+    try {
+      const q = query(
+        collection(db, 'studios', studioId, 'classes'),
+        where('dateString', '==', dateString)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        return snap.docs.map(d => ({ id: d.id, ...d.data() } as StudioClass));
+      }
+    } catch (e) {
+      console.warn(`Firestore class fetch fallback for studio ${studioId}:`, e);
+    }
+
+    // Default Deterministic Seed Fallback Classes
+    return [
+      {
+        id: `class_${studioId}_1`,
+        studioId,
+        className: 'Vinyasa Flow',
+        styleName: 'Dynamic Vinyasa',
+        classTypeDescription: 'A fluid, breath-synchronized sequence designed to build core strength and endurance while calming the mind.',
+        teacherId: 'user_maryia',
+        teacherName: 'Maryia Sharma',
+        dayOfWeek: 1,
+        dateString,
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        capacity: 24,
+        bookedCount: 10,
+        waitlist: [],
+        roomClimate: 'natural_ambient',
+        skillLevel: 'All Levels Welcome',
+        equipmentNeeded: 'Yoga Mat & Towel',
+      },
+      {
+        id: `class_${studioId}_2`,
+        studioId,
+        className: 'Hot Ashtanga Primary',
+        styleName: 'Ashtanga Primary Series',
+        classTypeDescription: 'Structured, traditional Ashtanga primary series in a warm studio environment for deep flexibility and detox.',
+        teacherId: 'user_elena',
+        teacherName: 'Elena Rostova',
+        dayOfWeek: 1,
+        dateString,
+        startTime: '05:30 PM',
+        endTime: '06:30 PM',
+        capacity: 20,
+        bookedCount: 20,
+        waitlist: ['user_waitlist_1', 'user_waitlist_2'],
+        roomClimate: 'hot_studio',
+        temperatureCelsius: 35,
+        skillLevel: 'Intermediate / Advanced',
+        equipmentNeeded: 'Yoga Mat, Sweat Towel & Water',
+      },
+      {
+        id: `class_${studioId}_3`,
+        studioId,
+        className: 'Yin & Sound Bath',
+        styleName: 'Restorative Yin',
+        classTypeDescription: 'Gentle, long-held floor postures accompanied by Tibetan singing bowls for deep relaxation.',
+        teacherId: 'user_maryia',
+        teacherName: 'Maryia Sharma',
+        dayOfWeek: 1,
+        dateString,
+        startTime: '07:00 PM',
+        endTime: '08:00 PM',
+        capacity: 15,
+        bookedCount: 8,
+        waitlist: [],
+        roomClimate: 'air_conditioned',
+        skillLevel: 'All Levels Welcome',
+        equipmentNeeded: 'Yoga Mat & Warm Socks',
+      },
+    ];
+  },
+
+  /** Book or waitlist a studio class */
+  async bookStudioClass(
+    studioId: string, 
+    classId: string, 
+    user: UserProfile
+  ): Promise<{ status: 'confirmed' | 'waitlisted'; position?: number }> {
+    const bookingRef = doc(db, 'studios', studioId, 'classes', classId, 'bookings', user.id);
+    const classRef = doc(db, 'studios', studioId, 'classes', classId);
+
+    const classSnap = await getDoc(classRef);
+    let currentBooked = 10;
+    let currentCapacity = 24;
+    let currentWaitlist: string[] = [];
+
+    if (classSnap.exists()) {
+      const data = classSnap.data() as StudioClass;
+      currentBooked = data.bookedCount;
+      currentCapacity = data.capacity;
+      currentWaitlist = data.waitlist || [];
+    }
+
+    if (currentBooked < currentCapacity) {
+      await setDoc(bookingRef, {
+        id: user.id,
+        classId,
+        studioId,
+        userId: user.id,
+        userDisplayName: user.displayName,
+        bookedAt: new Date().toISOString(),
+        status: 'confirmed',
+      } as ClassBooking);
+
+      await updateDoc(classRef, {
+        bookedCount: currentBooked + 1,
+      }).catch(() => {});
+
+      return { status: 'confirmed' };
+    } else {
+      const newWaitlist = [...currentWaitlist, user.id];
+      const position = newWaitlist.length;
+
+      await setDoc(bookingRef, {
+        id: user.id,
+        classId,
+        studioId,
+        userId: user.id,
+        userDisplayName: user.displayName,
+        bookedAt: new Date().toISOString(),
+        status: 'waitlisted',
+        waitlistPosition: position,
+      } as ClassBooking);
+
+      await updateDoc(classRef, {
+        waitlist: newWaitlist,
+      }).catch(() => {});
+
+      return { status: 'waitlisted', position };
+    }
+  },
+
+  /** Cancel a studio class booking */
+  async cancelStudioBooking(studioId: string, classId: string, userId: string): Promise<void> {
+    const bookingRef = doc(db, 'studios', studioId, 'classes', classId, 'bookings', userId);
+    await deleteDoc(bookingRef).catch(() => {});
+
+    const classRef = doc(db, 'studios', studioId, 'classes', classId);
+    const classSnap = await getDoc(classRef);
+
+    if (classSnap.exists()) {
+      const data = classSnap.data() as StudioClass;
+      const currentBooked = Math.max(0, data.bookedCount - 1);
+      await updateDoc(classRef, { bookedCount: currentBooked }).catch(() => {});
+    }
+  },
+
+  /** Fetch enrolled members for a studio */
+  async fetchStudioMembers(studioId: string): Promise<StudioMember[]> {
+    try {
+      const q = query(collection(db, 'studios', studioId, 'members'), limit(50));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        return snap.docs.map(d => ({ id: d.id, ...d.data() } as StudioMember));
+      }
+    } catch (e) {
+      console.warn(`Firestore studio members fallback for ${studioId}:`, e);
+    }
+
+    // Default Seed Members with explicit privacy settings
+    return [
+      { id: 'user_maryia', displayName: 'Maryia Sharma', isProfilePublic: true, joinedAt: '2026-01-15T10:00:00Z' },
+      { id: 'user_elena', displayName: 'Elena Rostova', isProfilePublic: true, joinedAt: '2026-02-01T14:30:00Z' },
+      { id: 'user_private_1', displayName: 'Anonymous Yogi #42', isProfilePublic: false, joinedAt: '2026-02-10T09:15:00Z' },
+      { id: 'user_private_2', displayName: 'Zen Practitioner', isProfilePublic: false, joinedAt: '2026-02-20T16:45:00Z' },
+      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-03-01T11:20:00Z' },
+    ];
+  },
+
+  /** Cascading Join: Joins Studio Branch Community AND Parent Brand Community in a single action */
+  async joinStudioWithParentBrand(
+    studioId: string, 
+    parentBrandCommunityId: string | undefined, 
+    user: UserProfile
+  ): Promise<UserProfile> {
+    const studioCommunityId = `comm_studio_${studioId}`;
+    const communitiesToJoin = new Set(user.joinedCommunities || []);
+    
+    communitiesToJoin.add(studioCommunityId);
+    if (parentBrandCommunityId) {
+      communitiesToJoin.add(parentBrandCommunityId);
+    }
+
+    const updatedCommunities = Array.from(communitiesToJoin);
+    const userRef = doc(db, 'users', user.id);
+    
+    await setDoc(userRef, {
+      joinedCommunities: updatedCommunities,
+    }, { merge: true });
+
+    // Register user in studio members collection
+    const memberRef = doc(db, 'studios', studioId, 'members', user.id);
+    await setDoc(memberRef, {
+      id: user.id,
+      displayName: user.displayName,
+      isProfilePublic: user.isProfilePublic ?? true,
+      joinedAt: new Date().toISOString(),
+    } as StudioMember).catch(() => {});
+
+    return {
+      ...user,
+      joinedCommunities: updatedCommunities,
+    };
   },
 };

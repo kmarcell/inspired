@@ -5,7 +5,8 @@ import { chunkArray, ProfileValidationError, firestoreService } from '../firesto
 vi.mock('firebase/firestore', () => ({
   doc: vi.fn(),
   getDoc: vi.fn(),
-  setDoc: vi.fn(),
+  setDoc: vi.fn().mockResolvedValue(undefined),
+  updateDoc: vi.fn().mockResolvedValue(undefined),
   collection: vi.fn(),
   query: vi.fn(),
   where: vi.fn(),
@@ -79,6 +80,27 @@ describe('firestoreService & Utilities', () => {
     it('returns default initial area Askew', async () => {
       const area = await firestoreService.detectNearestArea();
       expect(area).toBe('Askew');
+    });
+  });
+
+  describe('joinStudioWithParentBrand()', () => {
+    it('automatically adds both Studio Branch Community AND Parent Brand Community in a single cascading join', async () => {
+      const mockUser = {
+        id: 'user_sarah',
+        displayName: 'Sarah Jenkins',
+        joinedCommunities: ['area_askew'],
+      } as any;
+
+      const updated = await firestoreService.joinStudioWithParentBrand(
+        'studio_chiswick_002',
+        'comm_brand_affordable_london',
+        mockUser
+      );
+
+      expect(updated.joinedCommunities).toContain('comm_studio_studio_chiswick_002');
+      expect(updated.joinedCommunities).toContain('comm_brand_affordable_london');
+      expect(updated.joinedCommunities).toContain('area_askew');
+      expect(updated.joinedCommunities?.length).toBe(3);
     });
   });
 });

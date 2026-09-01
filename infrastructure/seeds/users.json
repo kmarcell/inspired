@@ -1,5 +1,56 @@
 [
   {
+    "id": "user_sarah",
+    "username": "sarah_jenkins#99",
+    "displayName": "Sarah Jenkins",
+    "bio": "Yogi practitioner exploring studios across London.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew", "comm_area_W12"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_maryia",
+    "username": "maryia_sharma#108",
+    "displayName": "Maryia Sharma",
+    "bio": "Owner of Askew Road Zen Den & Founder of Affordable London Yoga.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew", "comm_studio_studio_askew_001", "comm_brand_affordable_london"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_elena",
+    "username": "elena_rostova#204",
+    "displayName": "Elena Rostova",
+    "bio": "Lead Hot Yoga Instructor specializing in 35°C Hot Ashtanga.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew", "comm_studio_studio_askew_001"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
     "id": "user_teacher_001",
     "username": "yoga_maya#1001",
     "displayName": "Maya Sharma",
@@ -17,100 +68,48 @@
     "updatedAt": "2026-01-01T10:00:00Z"
   },
   {
-    "id": "user_active",
-    "username": "active_yogini#2026",
-    "displayName": "Active Yogini",
-    "bio": "Love community yoga!",
+    "id": "user_groups_only",
+    "username": "groups_yogi#2026",
+    "displayName": "Groups-Only Practitioner",
+    "bio": "Sharing my yoga journey exclusively with fellow community members.",
     "lastSearchArea": "Askew",
-    "joinedCommunities": ["area_askew", "comm_ravenscourt_yoga", "area_hammersmith"],
+    "joinedCommunities": ["area_askew", "comm_studio_studio_chiswick_002"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
     "privacySettings": {
-      "isProfilePublic": true,
-      "avatarPrivacy": "public",
-      "showJoinedGroups": "public"
+      "isProfilePublic": false,
+      "avatarPrivacy": "groups-only",
+      "showJoinedGroups": "groups-only"
     },
-    "createdAt": "2026-05-15T10:00:00Z",
-    "updatedAt": "2026-05-15T10:00:00Z"
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_members_only",
+    "username": "private_yogi#2026",
+    "displayName": "Members-Only Yogi",
+    "bio": "Private yoga account.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew", "comm_studio_studio_chiswick_002"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": false,
+      "avatarPrivacy": "members-only",
+      "showJoinedGroups": "members-only"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
   },
   {
     "id": "user_newbie",
-    "username": "yoga_newbie#9999",
+    "username": "yoga_newbie#101",
     "displayName": "Yoga Newbie",
-    "bio": "Just starting out.",
-    "lastSearchArea": "Askew",
-    "joinedCommunities": [],
-    "profilePictureUrl": null,
-    "thumbnailUrl": null,
-    "privacySettings": {
-      "isProfilePublic": true,
-      "avatarPrivacy": "public",
-      "showJoinedGroups": "public"
-    },
-    "createdAt": "2026-05-15T10:00:00Z",
-    "updatedAt": "2026-05-15T10:00:00Z"
-  },
-  {
-    "id": "user_privacy_001",
-    "username": "public_avatar#1111",
-    "displayName": "Public Avatar User",
-    "bio": "I have a public avatar but Maya hasn't joined my groups.",
-    "lastSearchArea": "Chelsea",
-    "joinedCommunities": ["area_chelsea"],
-    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p1_std.jpg",
-    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p1_thumb.jpg",
-    "privacySettings": {
-      "isProfilePublic": true,
-      "avatarPrivacy": "public",
-      "showJoinedGroups": "public"
-    },
-    "createdAt": "2026-03-01T10:00:00Z",
-    "updatedAt": "2026-03-01T10:00:00Z"
-  },
-  {
-    "id": "user_privacy_002",
-    "username": "overlap_user#2222",
-    "displayName": "Overlap User",
-    "bio": "I am in Askew with Maya. My avatar is groups-only.",
+    "bio": "New to yoga, exploring local studios.",
     "lastSearchArea": "Askew",
     "joinedCommunities": ["area_askew"],
-    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_std.jpg",
-    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
-    "privacySettings": {
-      "isProfilePublic": false,
-      "avatarPrivacy": "groups-only",
-      "showJoinedGroups": "members-only"
-    },
-    "createdAt": "2026-03-01T11:00:00Z",
-    "updatedAt": "2026-03-01T11:00:00Z"
-  },
-  {
-    "id": "user_privacy_003",
-    "username": "no_overlap#3333",
-    "displayName": "No Overlap User",
-    "bio": "I am in Chelsea. Maya is not. My avatar is groups-only.",
-    "lastSearchArea": "Chelsea",
-    "joinedCommunities": ["area_chelsea"],
-    "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p3_std.jpg",
-    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p3_thumb.jpg",
-    "privacySettings": {
-      "isProfilePublic": false,
-      "avatarPrivacy": "groups-only",
-      "showJoinedGroups": "members-only"
-    },
-    "createdAt": "2026-03-01T12:00:00Z",
-    "updatedAt": "2026-03-01T12:00:00Z"
-  },
-  {
-    "id": "user_admin_001",
-    "username": "admin_inspired#0001",
-    "displayName": "Inspired Verification Admin",
-    "bio": "Official Inspired Platform Administrator for verification & studio claims.",
-    "lastSearchArea": "Askew",
-    "joinedCommunities": ["area_askew", "area_hammersmith", "area_chelsea"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
-    "isAdmin": true,
     "privacySettings": {
       "isProfilePublic": true,
       "avatarPrivacy": "public",
