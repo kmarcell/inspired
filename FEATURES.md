@@ -715,6 +715,149 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 4. **Firestore Security Rules:**
    - `/stagingInvites` read access allowed for authentication verification.
    - Write/delete access strictly restricted to Admins.
+
+### 5.14 Yoga Studio Profile Page & Class Booking Calendar
+**Goal:** Provide a comprehensive Studio Profile view featuring studio details, assigned teachers, a Studio Member List subpage with privacy enforcement, a Parent Brand Community hierarchy with single-action cascading joins, and a weekly Class Booking Calendar.
+**Mockup:** `UI/Mockups/5.13_StudioProfilePage.svg`
+
+**Key Requirements:**
+1. **Studio Profile Header & Overview:**
+   - Displays studio banner image, logo avatar, studio name, location address, postcode prefix (`location_prefix` e.g. `W12`), contact links (phone, email, website, social handles), and operating status badge (🟢 Open, ⏸️ Temp Closed, 🔴 Closed).
+2. **Active Members Counter & Privacy Guarded Subpage (`StudioMembersView.tsx`):**
+   - Displays total members count (e.g. `👥 148 Members ➔`).
+   - Tapping opens the Studio Members subpage listing enrolled members.
+   - **Privacy Guard:** Private profiles (`isProfilePublic: false`) are listed (displaying name & avatar) but their row is non-clickable / non-tappable (cannot navigate to private profile). Public profiles (`isProfilePublic: true`) are clickable and navigate to their public profile view.
+3. **Assigned Studio Teachers Section:**
+   - Displays teacher profile cards assigned to the studio (assigned by studio owner/admin). Tapping navigates to teacher profile.
+4. **Parent Brand & Studio Community Hierarchy:**
+   - Each Studio Branch has its own joinable Community with custom community bio.
+   - Creating a Company Brand automatically creates a parent Brand Community.
+   - **Cascading Join Rule:** Joining a Studio Branch Community automatically joins its Parent Brand Community as well in a single atomic update.
+   - **Parent Brand Badge Navigation (TBD):** Tapping the parent brand badge (e.g. `🏢 Affordable London Yoga`) on a studio profile page navigates directly to the Parent Brand Community Profile Page / Brand Feed.
+   - Parent Brand Community Page lists all of its studio locations and aggregated brand posts.
+5. **Weekly Class Schedule & Calendar Component (`StudioScheduleView.tsx`):**
+   - **Week Switcher Header:** Displays current week (e.g. `Aug 31 – Sep 6, 2026`) with `< Prev Week` and `Next Week >` navigation.
+   - **7-Day Selector Pills:** Displays Mon–Sun dates. Default selection: **Today**.
+   - **Class Rows for Selected Day:**
+     - Time range (e.g., `10:00 AM – 11:00 AM`), class name (e.g., `Vinyasa Flow`), teacher name (e.g., `w/ Maryia Sharma`).
+     - **Info Button `ⓘ`:** Left of Book button. Tapping opens `ClassTypeModal.tsx` displaying style, difficulty, room temperature, equipment, and description.
+     - **Book / Waitlist Column:**
+       - Open slots: **`Book`** button + **`14 of 24 open`** subtitle.
+       - Fully booked: **`Waitlist`** button + **`#2 on waitlist`** or **`Waitlist open (3 waiting)`** subtitle.
+       - Booked state: **`✓ Booked`** green badge + **`Tap to cancel`** subtitle.
+6. **Class Bookings & Verified Attendance Engagement Metric (TBD Refinement):**
+   - **Engagement Score Formula Update:** In addition to members count and weekly posts count, class bookings and verified yogi class attendance will be factored into the Studio & Studio Community `engagementScore` metric:  
+     `engagementScore = (Members * 1) + (Posts in last 7d * 5) + (Completed Bookings & Attendance in last 30d * 10)`
+   - Displays real-time studio activity metrics on the studio community summary card.
+
+---
+
+### 5.15 Studio Credits, Class Passes & My Bookings System (TBD)
+
+> [!NOTE]
+> **Status:** Tracked Idea / TBD Requirement Specification [Updated: 2026-09-01T15:35:00+01:00]  
+> **Goal:** Provide yogis with a unified "My Bookings" dashboard, studio-grouped reservation list, and studio-specific credit/pass balance headers.
+
+**Core Requirements & UX Navigation Architecture (TBD):**
+1. **Multi-Platform Navigation & Entry Points:**
+   - **Mobile Header:** Top app bar features a 📅 **Calendar Icon Button** (`data-testid="header-my-bookings-button"`) rendered immediately to the right of the Profile icon for 1-tap instant access to "My Bookings".
+   - **Desktop Header:** Navigation bar contains a dedicated **"My Bookings"** top-level menu item / navigation tab.
+   - **Profile Dashboard (`ProfileView.tsx`):** Profile screen features a prominent **"📅 My Bookings & Passes"** action card leading to the same unified view.
+
+2. **Studio-Grouped Layout & Component Reuse (`MyBookingsView.tsx`):**
+   - **Studio Section Grouping:** Upcoming reservations are grouped into sections by Studio (e.g. *Askew Road Zen Den*, *Chiswick Hot Yoga Studio*).
+   - **Studio Section Header (Pass & Credit Status):**
+     - Each studio section title bar displays the user's active studio pass type, credit balance, and expiration date (e.g. `Askew Road Zen Den — 🎫 5-Class Pass (3 credits left • Expires Oct 15)` or `Chiswick Hot Yoga — 🎟️ Unlimited Monthly Pass (Active)`).
+   - **Class Tile Component Reuse:**
+     - Reuses the exact standard `StudioScheduleView` class tile component for perfect UI consistency across the app.
+     - Displays class start/end time, class title, teacher profile link (`w/ Elena Rostova`), room climate badge (`🔥 35°C Hot Studio`), and action state button:
+       - `✓ Booked` (green, tap to cancel with TCA `cancelBooking(classId)` action) or `# Waitlisted` (amber, tap to leave waitlist).
+
+3. **Dedicated Studio Credits & Passes Section (`StudioCreditsView.tsx`):**
+   - **Navigation Entry Points:**
+     - **Mobile View:** Reachable **strictly from the Profile screen** (`ProfileView.tsx`) via a dedicated **"🎟️ My Credits & Class Passes"** action card (keeping the mobile header clean).
+     - **Desktop View:** Accessible directly via a dedicated **"Credits & Passes"** top-level menu item in the navigation header bar.
+   - **Per-Studio Pass & Credit Breakdown:**
+     - Lists all studios where the yogi holds active passes or remaining credits.
+     - Displays active pass type (e.g. `🎫 10-Class Pack`, `🎟️ Unlimited Monthly Membership`), remaining credits count (e.g. `4 of 10 remaining`), and expiration date (e.g. `Expires: Oct 15, 2026`).
+     - Includes usage history log (e.g. `1 credit redeemed for 35°C Hot Ashtanga on Sep 1`).
+   - **Credit Top-Up / Purchasing Flow (TBD):**
+     - **TBD Placeholder:** Purchasing additional class passes or topping up credit balances is currently marked as **TBD (Unimplemented)** until payment gateway integration (Stripe / Apple Pay / Google Pay) and pricing tiers are defined in Section 5.16.
+
+4. **Booking Deduction Integration (TBD):**
+   - Class booking workflow checks and deducts active studio credits/passes during class confirmation.
+
+5. **Credit & Pass Persistence Safety Guard (Financial Rule):**
+   - **Crucial Rule:** Unjoining or leaving a studio community must **NEVER** wipe, erase, or forfeit a yogi's active studio credits, multi-class passes, or active paid memberships.
+   - Credits remain safely stored on the user's ledger (`/users/{userId}/studioCredits/{studioId}`) and are fully restored/accessible if the yogi re-joins the studio.
+
+6. **TCA Architecture & State Management (iOS / SwiftUI & Web):**
+   - Managed via `MyBookingsFeature` and `StudioCreditsFeature` reducers in TCA (iOS/SwiftUI) and `firestoreService.fetchUserBookings` + `fetchUserStudioCredits` in the web application.
+
+---
+
+### 5.16 Studio Class Creation, Schedule Management & Brand/Branch Pricing Suite (TBD)
+
+> [!NOTE]
+> **Status:** Tracked Idea / TBD Requirement [2026-09-01T12:02:51+01:00]  
+> **Goal:** Allow studio admins and teachers to create classes, set recurring weekly schedules, and configure flexible brand-level vs studio-level pass pricing.
+
+**Core Requirements & Design Principles (TBD):**
+1. **Class Creation & Recurrent Schedule Management (`CreateClassView.tsx`):**
+   - Studio owners and authorized teachers can create single or recurring weekly class sessions.
+   - Form fields: Class Title, Style/Category, Assigned Teacher, Day of Week, Start/End Time, Capacity Limit, Equipment Requirements, and Room Climate Preset (including custom temperature in °C for Hot Studio classes).
+2. **Brand-Level vs Studio-Level Pricing & Pass Tier Configuration (`PricingTierConfigView.tsx`):**
+   - **Brand Level Default:** Parent Studio Brands (e.g. *Affordable London Yoga*) can define default credit prices and multi-class pass packages valid across all standard studio branches.
+   - **Studio Branch Override:** Individual Studio Branches (e.g. flagship locations, hot yoga sanctuaries, or premium central London branches) can override default pricing or specify branch-custom passes/rates.
+3. **Mockups & Detailed Feature Specifications (TBD):**
+   - SVG mockups and step-by-step UI plans to be designed prior to implementation.
+
+---
+
+### 5.17 Studio Membership Access Control & Approval Workflow (TBD)
+
+> [!NOTE]
+> **Status:** Tracked Idea / TBD Requirement [2026-09-01T12:06:48+01:00]  
+> **Goal:** Give studio owners control over whether their studio branch community is open for anyone to join or requires admin approval.
+
+**Core Requirements & Design Principles (TBD):**
+1. **Access Policy Configuration (`membershipAccessPolicy`):**
+   - **Open Membership (`open_membership`):** Anyone can instantly join the studio branch & parent brand community with 1-click.
+   - **Invite-Only / Request Approval (`invite_only_approval`):** Studio community access is restricted until approved by an admin.
+2. **Yogi Request-to-Join Workflow:**
+   - Yogis see **`Request to Join ➔`** instead of instant join.
+   - Submitting a request creates a pending join request record in `/studios/{studioId}/joinRequests/{requestId}` with status `pending`.
+3. **Studio Owner Request Approval Dashboard (`StudioMembershipRequestsView.tsx`):**
+   - Studio owners/admins receive notifications of pending join requests.
+   - Admins can **Approve** (grants community membership and triggers cascading brand join) or **Decline** requests.
+
+---
+
+### 5.18 Studio Owner Dual-Feed Publishing & Visibility Controls (TBD)
+
+> [!NOTE]
+> **Status:** Tracked Requirement & Seed Data Implemented [2026-09-01T12:26:14+01:00]  
+> **Goal:** Allow studio owners and teachers to publish posts specifically to their studio's private member-only profile feed, or broadcast them publicly to both the studio feed and the local neighborhood area feed.
+
+**Core Requirements & Privacy Model:**
+1. **Private Studio Member Feed (`isMember(studioCommunityId)`):**
+   - By default, a studio's community feed is **private to joined studio members**.
+   - Firestore Security Rules enforce `isMember(resource.data.source.id)` so un-joined yogis cannot read studio-only member posts.
+2. **Dual-Feed Destination Selection (`CreatePostModal.tsx`):**
+   - When creating a post as a studio owner/teacher, the author selects the target visibility:
+     - **Option 1 (Studio Feed Only - Private):** Visible exclusively to joined studio members (`source.type: 'community'`, `source.id: 'comm_studio_{studioId}'`).
+     - **Option 2 (Studio Feed + Local Area Broadcast - Public):** Visible to studio members on the studio profile feed AND broadcasted publicly to the local neighborhood area feed (e.g. Chiswick).
+3. **Selected Technical Architecture: Approach A (Post Duplication):**
+   - **Strategy Confirmed:** When a studio owner/teacher selects "Publish to Studio + Area Feed", the application creates **two independent post documents**:
+     1. Private Member Post: (`source.type: 'community'`, `source.id: 'comm_studio_{studioId}'`) — Private to joined members.
+     2. Public Area Broadcast Post: (`source.type: 'area'`, `source.name: 'Chiswick'`) with `source.id: 'comm_studio_{studioId}'` and studio source badge — Public to all yogis in area.
+   - **Rationale:** Keeps public comments/likes completely isolated from private member discussion threads, while ensuring 100% security rule compliance.
+4. **Studio Source Badge Attribution:**
+   - When a studio post appears in a public neighborhood area feed, the source badge prominently displays the Studio Name (e.g. `👥 Chiswick Hot Yoga Studio`).
+
+---
+
 13. **Issue Reporting & Support** (TBD)
 14. **Accessibility** (Requirements Defined)
 15. **Maintenance Mode** (Triggered via Remote Config)
+

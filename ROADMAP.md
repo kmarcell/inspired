@@ -3,9 +3,12 @@
 This document outlines the strategic plan for the "Inspired Yoga Platform," identifying current gaps and establishing the sequence of execution.
 
 > [!IMPORTANT]
-> **MILESTONE ACHIEVED:** User Profile Screen & Settings Management (Phase 5 100% Completed)  
-> **Plan References:** [`FEATURES.md`](file:///home/marcellkresz/developer/inspired/FEATURES.md#58-responsive-navigation--user-profile-screen) & [`docs/pwa_feature_parity_matrix.md`](file:///home/marcellkresz/developer/inspired/docs/pwa_feature_parity_matrix.md)  
-> **Status:** All Profile Features Completed & Validated [2026-08-28]
+> **MILESTONE ACHIEVED:** Yoga Studio Profile Page & Class Booking Calendar (Step 14 100% Completed)  
+> **NEXT UP (Planned Step 15 & 16 TBD):**  
+> • Step 15: Studio Credits, Class Passes & My Bookings Management (`MyBookingsView.tsx`, `StudioCreditsView.tsx`)  
+> • Step 16: Studio Class Creation, Schedule Management & Brand/Branch Pricing Suite (`CreateClassView.tsx`, `PricingTierConfigView.tsx`)  
+> **Plan References:** [`FEATURES.md`](file:///home/marcellkresz/developer/inspired/FEATURES.md#516-studio-class-creation-schedule-management--brandbranch-pricing-suite-tbd) & [`TODO.md`](file:///home/marcellkresz/developer/inspired/TODO.md)  
+> **Status:** Step 14 Validated (16/16 Test Files & 65/65 Tests Passing) | Steps 15 & 16 Tracked [2026-09-01]
 
 ---
 
