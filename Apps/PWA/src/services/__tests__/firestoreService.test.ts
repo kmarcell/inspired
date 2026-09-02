@@ -97,10 +97,11 @@ describe('firestoreService & Utilities', () => {
         mockUser
       );
 
+      expect(updated.joinedCommunities).toContain('studio_chiswick_002');
       expect(updated.joinedCommunities).toContain('comm_studio_studio_chiswick_002');
       expect(updated.joinedCommunities).toContain('comm_brand_affordable_london');
       expect(updated.joinedCommunities).toContain('area_askew');
-      expect(updated.joinedCommunities?.length).toBe(3);
+      expect(updated.joinedCommunities?.length).toBe(4);
     });
   });
 });

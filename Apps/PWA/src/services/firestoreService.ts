@@ -144,20 +144,21 @@ export const firestoreService = {
       if (communities.length === 0) {
         communities.push(
           {
-            id: 'comm_studio_studio_askew_001',
-            name: 'Askew Road Zen Den Community',
-            description: 'Official community feed for Askew Road Zen Den studio branch.',
-            location_prefix: 'W12',
-            linkedStudioId: 'studio_askew_001',
-            engagementScore: 920,
+            id: 'comm_brand_affordable_london',
+            name: 'Affordable London Yoga Network',
+            description: 'Parent brand community aggregating all studio branch updates across London.',
+            location_prefix: 'W12, W4',
+            communityType: 'brand',
+            engagementScore: 1250,
             privacySettings: { isPublic: true, membersCanPost: true },
           },
           {
-            id: 'comm_brand_affordable_london',
-            name: 'Affordable London Yoga Community',
-            description: 'Parent brand community aggregating all studio branch updates across London.',
+            id: 'comm_askew_area',
+            name: 'Askew Area Yoga Community',
+            description: 'Local neighborhood yoga community for Askew & Shepherd\'s Bush yogis.',
             location_prefix: 'W12',
-            engagementScore: 1250,
+            communityType: 'area',
+            engagementScore: 920,
             privacySettings: { isPublic: true, membersCanPost: true },
           },
           {
@@ -165,6 +166,7 @@ export const firestoreService = {
             name: 'W12 Shepherd’s Bush Yogis',
             description: 'Local neighborhood area feed for yogis in Shepherd’s Bush and Askew Road.',
             location_prefix: 'W12',
+            communityType: 'area',
             engagementScore: 810,
             privacySettings: { isPublic: true, membersCanPost: true },
           }
@@ -237,60 +239,9 @@ export const firestoreService = {
         }
       });
 
-      // Default Seed Fallback Studio if Firestore collection is empty
-      if (studios.length === 0) {
-        studios.push({
-          id: 'studio_askew_001',
-          name: 'Askew Road Zen Den',
-          address: '142 Askew Road, London W12 9SHA',
-          about: 'Heated flows, dynamic Vinyasa, and restorative zen sound baths daily.',
-          rating: 4.9,
-          isClaimed: true,
-          status: 'active',
-          reviewCount: 42,
-          membersCount: 148,
-          location_prefix: 'W12',
-          engagementScore: 850,
-          parentBrandName: 'Affordable London Yoga',
-          parentBrandCommunityId: 'comm_brand_affordable_london',
-          contactEmail: 'hello@askewzen.com',
-          contactPhone: '+44 20 7946 0912',
-          websiteUrl: 'https://askewzen.com',
-          moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: true },
-          location: { lat: 51.5033, lng: -0.2277 },
-          assignedTeachers: [
-            { id: 'user_maryia', displayName: 'Maryia Sharma', specialty: 'Vinyasa & Yin', isPublic: true },
-            { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Hot Ashtanga Lead', isPublic: true },
-            { id: 'user_sarah', displayName: 'Sarah Jenkins', specialty: 'Restorative & Breathwork', isPublic: true },
-          ],
-        });
 
-        studios.push({
-          id: 'studio_chiswick_002',
-          name: 'Chiswick Hot Yoga Studio',
-          address: '88 Chiswick High Road, London W4 1SY',
-          about: 'Infrared heated yoga sanctuary specializing in hot Vinyasa and Bikram style series.',
-          rating: 4.8,
-          isClaimed: true,
-          status: 'active',
-          reviewCount: 28,
-          membersCount: 96,
-          location_prefix: 'W4',
-          engagementScore: 720,
-          parentBrandName: 'Affordable London Yoga',
-          parentBrandCommunityId: 'comm_brand_affordable_london',
-          contactEmail: 'info@chiswickhotyoga.co.uk',
-          contactPhone: '+44 20 8994 1234',
-          websiteUrl: 'https://chiswickhotyoga.co.uk',
-          moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: true },
-          location: { lat: 51.4930, lng: -0.2600 },
-          assignedTeachers: [
-            { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Hot Yoga Specialist', isPublic: true },
-          ],
-        });
-      }
 
-      // Filter Studios
+      // Search & Match Studios
       studios.forEach((studio) => {
         // Pending studios awaiting admin verification (unapproved user-created studios) are hidden from Search & Explore
         if (studio.isClaimed === false && studio.ownerId) {
@@ -350,7 +301,7 @@ export const firestoreService = {
    * Fetch feed posts for a given area and joined communities.
    * Enforces 30-item chunking for community IDs in Firestore queries.
    */
-  async fetchFeed(area: string, communityIds: string[], daysBack: number = 30): Promise<Post[]> {
+  async fetchFeed(area: string, communityIds: string[], daysBack: number = 365): Promise<Post[]> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysBack);
     const cutoffTimestamp = Timestamp.fromDate(cutoffDate);
@@ -449,10 +400,77 @@ export const firestoreService = {
 
   /** Fetch posts for a specific studio or community feed */
   async fetchCommunityFeed(communityId: string): Promise<Post[]> {
+    const rawStudioId = communityId.replace('comm_studio_', '');
+    const altStudioId = communityId.startsWith('comm_studio_') ? communityId : `comm_studio_${communityId}`;
+
+    const targetIds = [communityId, rawStudioId, altStudioId];
+
+    if (communityId.includes('brand')) {
+      const branches = await this.fetchStudiosByLocation('');
+      const matchingBranches = branches.filter((st) => st.parentBrandCommunityId === communityId);
+      matchingBranches.forEach((st) => {
+        targetIds.push(st.id);
+        targetIds.push(`comm_studio_${st.id}`);
+      });
+    } else {
+      const comm = await this.fetchCommunityById(communityId);
+      if (comm) {
+        if (comm.id.includes('askew') || comm.location_prefix === 'W12') {
+          targetIds.push('comm_askew_area', 'area_askew', 'comm_area_W12', 'studio_askew_001', 'comm_studio_studio_askew_001');
+        } else if (comm.id.includes('ravenscourt') || comm.location_prefix === 'W6') {
+          targetIds.push('comm_ravenscourt_yoga', 'area_hammersmith', 'studio_ravenscourt_003', 'comm_studio_studio_ravenscourt_003');
+        } else if (comm.id.includes('chelsea') || comm.location_prefix === 'SW3') {
+          targetIds.push('area_chelsea', 'studio_chelsea_004', 'comm_studio_studio_chelsea_004');
+        }
+      }
+    }
+
+    const uniqueTargetIds = Array.from(new Set(targetIds)).filter(Boolean);
+
+    try {
+      const chunks = chunkArray(uniqueTargetIds, 30);
+      const allPosts: Post[] = [];
+
+      for (const chunk of chunks) {
+        const q = query(
+          collection(db, 'posts'),
+          where('source.id', 'in', chunk),
+          orderBy('createdAt', 'desc'),
+          limit(25)
+        );
+        const snapshot = await getDocs(q);
+        const fetched = snapshot.docs.map((docSnap) => {
+          const d = docSnap.data();
+          return {
+            id: docSnap.id,
+            author: d.author,
+            content: d.content,
+            source: d.source,
+            stats: d.stats,
+            createdAt: d.createdAt instanceof Timestamp ? d.createdAt.toDate().toISOString() : d.createdAt,
+          } as Post;
+        });
+        allPosts.push(...fetched);
+      }
+
+      // Deduplicate posts by ID and sort descending by date
+      const uniqueMap = new Map<string, Post>();
+      allPosts.forEach((p) => uniqueMap.set(p.id, p));
+      const posts = Array.from(uniqueMap.values());
+      posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return posts.slice(0, 25);
+    } catch (e) {
+      console.warn('[firestoreService] fetchCommunityFeed error:', e);
+      return [];
+    }
+  },
+
+  /** Fetch posts created by a specific user (author.id == userId) */
+  async fetchUserPosts(userId: string): Promise<Post[]> {
     try {
       const q = query(
         collection(db, 'posts'),
-        where('source.id', '==', communityId),
+        where('author.id', '==', userId),
         orderBy('createdAt', 'desc'),
         limit(25)
       );
@@ -469,8 +487,31 @@ export const firestoreService = {
         } as Post;
       });
     } catch (e) {
-      console.warn('[firestoreService] fetchCommunityFeed failed, falling back to all posts scan:', e);
-      return [];
+      console.warn('[firestoreService] fetchUserPosts query without index fallback:', e);
+      try {
+        const qFallback = query(
+          collection(db, 'posts'),
+          where('author.id', '==', userId),
+          limit(25)
+        );
+        const snapshot = await getDocs(qFallback);
+        const posts = snapshot.docs.map((docSnap) => {
+          const d = docSnap.data();
+          return {
+            id: docSnap.id,
+            author: d.author,
+            content: d.content,
+            source: d.source,
+            stats: d.stats,
+            createdAt: d.createdAt instanceof Timestamp ? d.createdAt.toDate().toISOString() : d.createdAt,
+          } as Post;
+        });
+        posts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        return posts;
+      } catch (err) {
+        console.error('[firestoreService] fetchUserPosts error:', err);
+        return [];
+      }
     }
   },
 
@@ -499,38 +540,36 @@ export const firestoreService = {
           } as Community;
         });
       }
+      return [];
     } catch (e) {
-      console.warn('[firestoreService] Suggested communities fetch fallback:', e);
+      console.warn('[firestoreService] Suggested communities fetch error:', e);
+      return [];
     }
+  },
 
-    // Default Fallback Seed Communities
-    return [
-      {
-        id: 'comm_studio_studio_askew_001',
-        name: 'Askew Road Zen Den Community',
-        description: 'Official community feed for Askew Road Zen Den studio branch.',
-        location_prefix: 'W12',
-        linkedStudioId: 'studio_askew_001',
-        engagementScore: 920,
-        privacySettings: { isPublic: true, membersCanPost: true },
-      },
-      {
-        id: 'comm_brand_affordable_london',
-        name: 'Affordable London Yoga Community',
-        description: 'Parent brand community aggregating all studio branch updates across London.',
-        location_prefix: 'W12',
-        engagementScore: 1250,
-        privacySettings: { isPublic: true, membersCanPost: true },
-      },
-      {
-        id: 'comm_area_W12',
-        name: 'W12 Shepherd’s Bush Yogis',
-        description: 'Local neighborhood area feed for yogis in Shepherd’s Bush and Askew Road.',
-        location_prefix: 'W12',
-        engagementScore: 810,
-        privacySettings: { isPublic: true, membersCanPost: true },
-      },
-    ];
+  /**
+   * Fetch a single community by ID
+   */
+  async fetchCommunityById(communityId: string): Promise<Community | null> {
+    try {
+      const docSnap = await getDoc(doc(db, 'communities', communityId));
+      if (docSnap.exists()) {
+        const d = docSnap.data();
+        return {
+          id: docSnap.id,
+          name: d.name,
+          description: d.description,
+          location_prefix: d.location_prefix,
+          linkedStudioId: d.linkedStudioId,
+          communityType: d.communityType || (d.id?.includes('brand') ? 'brand' : 'area'),
+          engagementScore: d.engagementScore || 500,
+          privacySettings: d.privacySettings || { isPublic: true, membersCanPost: true },
+        } as Community;
+      }
+    } catch (e) {
+      console.warn('[firestoreService] fetchCommunityById error:', e);
+    }
+    return null;
   },
 
   /** Detect nearest area for user */
@@ -546,24 +585,54 @@ export const firestoreService = {
     const communities: Community[] = [];
 
     for (const chunk of chunks) {
-      const q = query(
-        collection(db, 'communities'),
-        where(documentId(), 'in', chunk)
-      );
-      const snapshot = await getDocs(q);
-      const fetched = snapshot.docs.map((docSnap) => {
-        const d = docSnap.data();
-        return {
-          id: docSnap.id,
-          name: d.name,
-          description: d.description,
-          location_prefix: d.location_prefix,
-          linkedStudioId: d.linkedStudioId,
-          engagementScore: d.engagementScore,
-          privacySettings: d.privacySettings,
-        } as Community;
-      });
-      communities.push(...fetched);
+      try {
+        const q = query(
+          collection(db, 'communities'),
+          where(documentId(), 'in', chunk)
+        );
+        const snapshot = await getDocs(q);
+        const fetched = snapshot.docs.map((docSnap) => {
+          const d = docSnap.data();
+          return {
+            id: docSnap.id,
+            name: d.name, // Uses stored community name
+            description: d.description,
+            location_prefix: d.location_prefix,
+            linkedStudioId: d.linkedStudioId,
+            communityType: d.communityType,
+            engagementScore: d.engagementScore,
+            privacySettings: d.privacySettings,
+          } as Community;
+        });
+        communities.push(...fetched);
+      } catch (e) {
+        console.warn('[firestoreService] fetchCommunitiesByIds fallback:', e);
+      }
+    }
+
+    // Fallback for missing seed items
+    const suggested = await this.fetchSuggestedCommunities('');
+    for (const id of communityIds) {
+      if (!communities.some((c) => c.id === id)) {
+        const found = suggested.find((s) => s.id === id);
+        if (found) {
+          communities.push(found);
+        } else if (id.startsWith('studio_') || id.startsWith('comm_studio_')) {
+          const studioId = id.replace('comm_studio_', '');
+          const studio = await this.fetchStudioById(studioId);
+          if (studio) {
+            communities.push({
+              id: id,
+              name: studio.name,
+              description: studio.description || `Official feed for ${studio.name}.`,
+              location_prefix: studio.location_prefix,
+              linkedStudioId: studio.id,
+              engagementScore: 950,
+              privacySettings: { isPublic: true, membersCanPost: true },
+            });
+          }
+        }
+      }
     }
 
     return communities;
@@ -584,7 +653,14 @@ export const firestoreService = {
   /** Create a new Company Brand in Firestore */
   async createCompany(
     ownerId: string,
-    companyData: { name: string; contactEmail: string; website?: string; description: string }
+    companyData: {
+      name: string;
+      contactEmail: string;
+      website?: string;
+      description: string;
+      bannerImageUrl?: string;
+      logoUrl?: string;
+    }
   ): Promise<Company> {
     const companiesRef = collection(db, 'companies');
     const docData = {
@@ -593,6 +669,8 @@ export const firestoreService = {
       contactEmail: companyData.contactEmail.trim(),
       website: companyData.website?.trim() || null,
       description: companyData.description.trim(),
+      bannerImageUrl: companyData.bannerImageUrl?.trim() || null,
+      logoUrl: companyData.logoUrl?.trim() || null,
       createdAt: Timestamp.now().toDate().toISOString(),
     };
     const newDocRef = await addDoc(companiesRef, docData);
@@ -600,6 +678,8 @@ export const firestoreService = {
       id: newDocRef.id,
       ...docData,
       website: docData.website || undefined,
+      bannerImageUrl: docData.bannerImageUrl || undefined,
+      logoUrl: docData.logoUrl || undefined,
     };
   },
 
@@ -736,6 +816,11 @@ export const firestoreService = {
       companyId?: string;
       isClaimed?: boolean;
       userEmail?: string;
+      contactEmail?: string;
+      contactPhone?: string;
+      websiteUrl?: string;
+      coverImageUrl?: string;
+      logoUrl?: string;
     }
   ): Promise<YogaStudio> {
     const studiosRef = collection(db, 'studios');
@@ -749,6 +834,11 @@ export const firestoreService = {
       companyId: studioData.companyId || null,
       ownerId,
       isClaimed: isVerified,
+      contactEmail: studioData.contactEmail?.trim() || null,
+      contactPhone: studioData.contactPhone?.trim() || null,
+      websiteUrl: studioData.websiteUrl?.trim() || null,
+      coverImageUrl: studioData.coverImageUrl?.trim() || null,
+      logoUrl: studioData.logoUrl?.trim() || null,
       rating: 5.0,
       reviewCount: 0,
       engagementScore: 20,
@@ -876,38 +966,84 @@ export const firestoreService = {
     return deduplicatedStudios;
   },
 
+  /** Fetch all Studios by location prefix or area */
+  async fetchStudiosByLocation(location: string): Promise<YogaStudio[]> {
+    try {
+      const q = query(collection(db, 'studios'));
+      const snapshot = await getDocs(q);
+      const studios = snapshot.docs.map((docSnap) => {
+        const d = docSnap.data();
+        return {
+          id: docSnap.id,
+          name: d.name,
+          address: d.address,
+          about: d.about,
+          rating: d.rating,
+          isClaimed: d.isClaimed,
+          status: d.status || (d.isClosed ? 'closed' : 'active'),
+          statusNote: d.statusNote || undefined,
+          isClosed: d.isClosed || d.status === 'closed' || false,
+          closedAt: d.closedAt || undefined,
+          ownerId: d.ownerId,
+          companyId: d.companyId || undefined,
+          parentBrandName: d.parentBrandName || undefined,
+          parentBrandCommunityId: d.parentBrandCommunityId || undefined,
+          membersCount: d.membersCount || 0,
+          reviewCount: d.reviewCount,
+          location_prefix: d.location_prefix,
+          engagementScore: d.engagementScore,
+          moderationSettings: d.moderationSettings,
+          location: d.location,
+          assignedTeachers: d.assignedTeachers || [],
+        } as YogaStudio;
+      });
+
+      return studios;
+    } catch (e) {
+      console.warn('[firestoreService] fetchStudiosByLocation failed:', e);
+      return [];
+    }
+  },
+
   /** Fetch a single studio document by ID */
   async fetchStudioById(studioId: string): Promise<YogaStudio | null> {
-    const docRef = doc(db, 'studios', studioId);
-    const docSnap = await getDoc(docRef);
-    if (!docSnap.exists()) return null;
-    const d = docSnap.data();
-    return {
-      id: docSnap.id,
-      name: d.name,
-      address: d.address,
-      about: d.about,
-      rating: d.rating,
-      isClaimed: d.isClaimed,
-      status: d.status || (d.isClosed ? 'closed' : 'active'),
-      statusNote: d.statusNote || undefined,
-      isClosed: d.isClosed || d.status === 'closed' || false,
-      closedAt: d.closedAt || undefined,
-      ownerId: d.ownerId,
-      companyId: d.companyId || undefined,
-      parentBrandName: d.parentBrandName || undefined,
-      parentBrandCommunityId: d.parentBrandCommunityId || undefined,
-      membersCount: d.membersCount || 0,
-      reviewCount: d.reviewCount,
-      location_prefix: d.location_prefix,
-      engagementScore: d.engagementScore,
-      contactEmail: d.contactEmail,
-      contactPhone: d.contactPhone,
-      websiteUrl: d.websiteUrl,
-      moderationSettings: d.moderationSettings,
-      location: d.location,
-      assignedTeachers: d.assignedTeachers || [],
-    } as YogaStudio;
+    const rawId = studioId.replace('comm_studio_', '');
+    try {
+      const docRef = doc(db, 'studios', rawId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const d = docSnap.data();
+        return {
+          id: docSnap.id,
+          name: d.name,
+          address: d.address,
+          about: d.about,
+          rating: d.rating,
+          isClaimed: d.isClaimed,
+          status: d.status || (d.isClosed ? 'closed' : 'active'),
+          statusNote: d.statusNote || undefined,
+          isClosed: d.isClosed || d.status === 'closed' || false,
+          closedAt: d.closedAt || undefined,
+          ownerId: d.ownerId,
+          companyId: d.companyId || undefined,
+          parentBrandName: d.parentBrandName || undefined,
+          parentBrandCommunityId: d.parentBrandCommunityId || undefined,
+          membersCount: d.membersCount || 0,
+          reviewCount: d.reviewCount,
+          location_prefix: d.location_prefix,
+          engagementScore: d.engagementScore,
+          contactEmail: d.contactEmail,
+          contactPhone: d.contactPhone,
+          websiteUrl: d.websiteUrl,
+          moderationSettings: d.moderationSettings,
+          location: d.location,
+          assignedTeachers: d.assignedTeachers || [],
+        } as YogaStudio;
+      }
+    } catch (e) {
+      console.warn('[firestoreService] fetchStudioById failed:', e);
+    }
+    return null;
   },
 
   /** Submit a claim request for a shadow profile studio */
@@ -1322,6 +1458,7 @@ export const firestoreService = {
     const studioCommunityId = `comm_studio_${studioId}`;
     const communitiesToJoin = new Set(user.joinedCommunities || []);
     
+    communitiesToJoin.add(studioId);
     communitiesToJoin.add(studioCommunityId);
     if (parentBrandCommunityId) {
       communitiesToJoin.add(parentBrandCommunityId);

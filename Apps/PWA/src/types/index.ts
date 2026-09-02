@@ -25,9 +25,15 @@ export interface UserProfile {
   displayName?: string;
   bio?: string;
   lastSearchArea?: string;
+  location_prefix?: string;
   joinedCommunities: string[];
   profilePictureUrl?: string;
   thumbnailUrl?: string;
+  bannerImageUrl?: string;
+  isTeacher?: boolean;
+  teachingStudios?: string[];
+  subscriberCount?: number;
+  postCount?: number;
   isAdmin?: boolean;
   isProfilePublic?: boolean;
   privacySettings: PrivacySettings;
@@ -71,14 +77,23 @@ export interface CommunityPrivacySettings {
   membersCanPost: boolean;
 }
 
+export type CommunityType = 'area' | 'brand';
+
 export interface Community {
   id: string;
   name: string;
   description: string;
   location_prefix: string;
+  communityType?: CommunityType;
+  bannerImageUrl?: string;
+  emblemUrl?: string;
   linkedStudioId?: string;
+  studioBranchIds?: string[];
+  memberCount?: number;
+  postCount?: number;
   engagementScore: number;
   privacySettings: CommunityPrivacySettings;
+  createdAt?: string;
 }
 
 // --- Yoga Studio ---
