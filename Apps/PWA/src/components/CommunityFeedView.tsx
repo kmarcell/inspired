@@ -7,9 +7,10 @@ import { FeedPostTile } from './FeedPostTile';
 interface CommunityFeedViewProps {
   filterArea?: string;
   hideHeader?: boolean;
+  onSelectUser?: (userId: string) => void;
 }
 
-export const CommunityFeedView: React.FC<CommunityFeedViewProps> = ({ filterArea, hideHeader }) => {
+export const CommunityFeedView: React.FC<CommunityFeedViewProps> = ({ filterArea, hideHeader, onSelectUser }) => {
   const { user } = useAuth();
   
   const [area, setArea] = useState<string>('Askew');
@@ -206,6 +207,7 @@ export const CommunityFeedView: React.FC<CommunityFeedViewProps> = ({ filterArea
               post={post}
               isLiked={likedPostIds.has(post.id)}
               onLikeToggle={handleLikeToggle}
+              onSelectAuthor={onSelectUser}
             />
           ))}
         </div>

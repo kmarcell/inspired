@@ -6,9 +6,14 @@ import { Community, YogaStudio } from '../types';
 interface JoinedCommunitiesViewProps {
   onBack?: () => void;
   onSelectStudio?: (studio: YogaStudio) => void;
+  onSelectCommunity?: (communityId: string) => void;
 }
 
-export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ onBack, onSelectStudio }) => {
+export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({
+  onBack,
+  onSelectStudio,
+  onSelectCommunity,
+}) => {
   const { user, refreshUserProfile } = useAuth();
 
   const [joinedCommunities, setJoinedCommunities] = useState<Community[]>([]);
@@ -43,7 +48,14 @@ export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ on
         const communityIds = user.joinedCommunities || [];
         if (communityIds.length > 0) {
           const fetchedJoined = await firestoreService.fetchCommunitiesByIds(communityIds);
-          setJoinedCommunities(fetchedJoined || []);
+          const uniqueMap = new Map<string, Community>();
+          (fetchedJoined || []).forEach((c) => {
+            const key = c.linkedStudioId || (c.id.startsWith('comm_studio_') ? c.id.replace('comm_studio_', '') : c.id);
+            if (!uniqueMap.has(key)) {
+              uniqueMap.set(key, c);
+            }
+          });
+          setJoinedCommunities(Array.from(uniqueMap.values()));
         } else {
           setJoinedCommunities([]);
         }
@@ -52,7 +64,9 @@ export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ on
         const area = user.lastSearchArea || 'Askew';
         const suggestions = (await firestoreService.fetchSuggestedCommunities(area)) || [];
         // Exclude already joined ones
-        const filteredSuggestions = suggestions.filter((c) => !communityIds.includes(c.id));
+        const filteredSuggestions = suggestions.filter(
+          (c) => !communityIds.includes(c.id) && !communityIds.includes(`comm_studio_${c.id}`)
+        );
         setSuggestedCommunities(filteredSuggestions);
       } catch (err: unknown) {
         console.error('[JoinedCommunitiesView] Failed to load communities:', err);
@@ -102,16 +116,17 @@ export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ on
   };
 
   return (
-    <div data-testid="joined-communities-container" className="space-y-6 pb-12 max-w-2xl mx-auto">
-      {/* Navigation Header */}
+    <div data-testid="joined-communities-container" className="flex-1 max-w-xl w-full mx-auto px-4 py-4 space-y-4 pb-12">
+      {/* Navigation Header / Back Button */}
       {onBack && (
         <button
           type="button"
           onClick={onBack}
           data-testid="back-button"
-          className="group flex items-center space-x-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
+          className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
+          title="Back to Feed"
         >
-          <span className="text-base group-hover:-translate-x-1 transition-transform">←</span>
+          <span>←</span>
           <span>Back to Feed</span>
         </button>
       )}
@@ -153,14 +168,25 @@ export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ on
       {!isLoading && joinedCommunities.length > 0 && (
         <div data-testid="joined-communities-list" className="space-y-4">
           {joinedCommunities.map((community) => {
-            const studioId = community.linkedStudioId || (community.id.startsWith('comm_studio_') ? community.id.replace('comm_studio_', '') : null);
+            const studioId = community.linkedStudioId ||
+              (community.id.startsWith('comm_studio_')
+                ? community.id.replace('comm_studio_', '')
+                : community.id.startsWith('studio_')
+                ? community.id
+                : null);
             const isMenuOpen = activeMenuCommunityId === community.id;
 
             return (
               <div
                 key={community.id}
                 data-testid={`joined-community-${community.id}`}
-                onClick={() => studioId && handleOpenStudio(studioId)}
+                onClick={() => {
+                  if (studioId) {
+                    handleOpenStudio(studioId);
+                  } else if (onSelectCommunity) {
+                    onSelectCommunity(community.id);
+                  }
+                }}
                 className="p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-3 backdrop-blur-md transition-all hover:border-indigo-500/50 hover:shadow-2xl cursor-pointer relative group"
               >
                 {/* Top Header Line: Title + Area Tag + Top Right Joined Badge */}
@@ -276,32 +302,60 @@ export const JoinedCommunitiesView: React.FC<JoinedCommunitiesViewProps> = ({ on
         </div>
       )}
 
-      {/* Suggested Communities Section */}
+      {/* Suggested / Recommended Communities Section */}
       {!isLoading && suggestedCommunities.length > 0 && (
         <div className="space-y-3 pt-4">
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">
             Discover Recommended Communities
           </h3>
-          {suggestedCommunities.map((community) => (
-            <div
-              key={community.id}
-              data-testid={`suggested-community-${community.id}`}
-              className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between space-x-3 hover:border-indigo-500/40 transition-all"
-            >
-              <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{community.name}</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{community.description}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleToggleJoin(community.id, true)}
-                data-testid={`join-button-${community.id}`}
-                className="px-3.5 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-semibold transition-all shrink-0"
+          {suggestedCommunities.map((community) => {
+            const iconEmoji = community.id.startsWith('comm_studio_')
+              ? '🏢'
+              : community.id.startsWith('comm_brand_') || community.communityType === 'brand'
+              ? '🏢'
+              : '👥';
+
+            return (
+              <div
+                key={community.id}
+                data-testid={`suggested-community-${community.id}`}
+                onClick={() => onSelectCommunity?.(community.id)}
+                className="p-4 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center justify-between space-x-3.5 hover:border-indigo-500/40 transition-all shadow-md backdrop-blur-md cursor-pointer group"
               >
-                Join
-              </button>
-            </div>
-          ))}
+                {/* Icon Emblem Box */}
+                <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center text-xl font-bold shrink-0">
+                  {iconEmoji}
+                </div>
+
+                {/* Community Details */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2">
+                    <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-indigo-400 truncate transition-colors">
+                      {community.name}
+                    </h4>
+                    {community.location_prefix && (
+                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700/50 shrink-0 font-semibold">
+                        {community.location_prefix}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                    {community.description}
+                  </p>
+                </div>
+
+                {/* Join CTA Button */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleJoin(community.id, true)}
+                  data-testid={`join-button-${community.id}`}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-950/40 shrink-0"
+                >
+                  Join
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

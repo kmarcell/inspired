@@ -128,4 +128,33 @@ describe('StudioProfileView Component', () => {
     expect(screen.getByText('Members-Only Studio Feed')).toBeInTheDocument();
     expect(screen.getByText('＋ Join Studio to Unlock Feed')).toBeInTheDocument();
   });
+
+  it('renders unactionable Joined Studio status badge and ellipsis options menu when joined', () => {
+    const joinedUser: UserProfile = {
+      ...mockUser,
+      joinedCommunities: ['comm_studio_studio_askew_001'],
+    };
+
+    render(
+      <StudioProfileView
+        studio={mockStudio}
+        currentUser={joinedUser}
+        onBack={vi.fn()}
+      />
+    );
+
+    expect(screen.getByTestId('joined-studio-badge')).toBeInTheDocument();
+    expect(screen.getByText('✓ Joined Studio')).toBeInTheDocument();
+
+    // Dropdown should be initially closed
+    expect(screen.queryByTestId('leave-studio-btn')).not.toBeInTheDocument();
+
+    // Click ellipsis menu trigger
+    fireEvent.click(screen.getByTestId('studio-menu-trigger'));
+    expect(screen.getByTestId('leave-studio-btn')).toBeInTheDocument();
+
+    // Click tapaway backdrop to close
+    fireEvent.click(screen.getByTestId('studio-menu-backdrop'));
+    expect(screen.queryByTestId('leave-studio-btn')).not.toBeInTheDocument();
+  });
 });

@@ -20,12 +20,19 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
   const [companyEmail, setCompanyEmail] = useState<string>('');
   const [companyWebsite, setCompanyWebsite] = useState<string>('');
   const [companyDescription, setCompanyDescription] = useState<string>('');
+  const [companyBannerUrl, setCompanyBannerUrl] = useState<string>('');
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string>('');
 
   // Studio Form State
   const [studioName, setStudioName] = useState<string>('');
   const [locationPrefix, setLocationPrefix] = useState<string>('');
   const [address, setAddress] = useState<string>('');
+  const [contactEmail, setContactEmail] = useState<string>('');
+  const [contactPhone, setContactPhone] = useState<string>('');
+  const [websiteUrl, setWebsiteUrl] = useState<string>('');
   const [about, setAbout] = useState<string>('');
+  const [coverImageUrl, setCoverImageUrl] = useState<string>('');
+  const [logoUrl, setLogoUrl] = useState<string>('');
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +105,8 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
           contactEmail: companyEmail,
           website: companyWebsite,
           description: companyDescription || `${companyName} Yoga Brand`,
+          bannerImageUrl: companyBannerUrl,
+          logoUrl: companyLogoUrl,
         });
         finalCompanyId = newCompany.id;
       } else if (selectedCompanyId !== 'none') {
@@ -111,6 +120,11 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
         about,
         companyId: finalCompanyId,
         userEmail: user.username || `${user.id}@inspired.test`,
+        contactEmail: contactEmail || companyEmail || user.username || `${user.id}@inspired.test`,
+        contactPhone,
+        websiteUrl: websiteUrl || companyWebsite,
+        coverImageUrl,
+        logoUrl,
       });
 
       setSuccessMessage('Studio and Brand profile submitted for verification! 📩 Pending Admin Approval.');
@@ -248,6 +262,20 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Brand Banner Cover Image URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  data-testid="input-company-banner"
+                  value={companyBannerUrl}
+                  onChange={(e) => setCompanyBannerUrl(e.target.value)}
+                  placeholder="e.g. https://images.unsplash.com/photo-1545205597-3d9d02c29597"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   Brand Description
                 </label>
                 <textarea
@@ -311,6 +339,64 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="e.g. 123 Askew Rd, London W12 9AU"
+              className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          {/* Additional Contact & Media Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Studio Direct Contact Email (Optional)
+              </label>
+              <input
+                type="email"
+                data-testid="input-studio-contact-email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder="e.g. hello@askewzen.com"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Studio Contact Phone (Optional)
+              </label>
+              <input
+                type="tel"
+                data-testid="input-studio-phone"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="e.g. +44 20 7946 0912"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Studio Website URL (Optional)
+            </label>
+            <input
+              type="url"
+              data-testid="input-studio-website"
+              value={websiteUrl}
+              onChange={(e) => setWebsiteUrl(e.target.value)}
+              placeholder="e.g. https://askewzen.com"
+              className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Studio Cover Banner Image URL (Optional)
+            </label>
+            <input
+              type="url"
+              data-testid="input-studio-cover-url"
+              value={coverImageUrl}
+              onChange={(e) => setCoverImageUrl(e.target.value)}
+              placeholder="e.g. https://images.unsplash.com/photo-1545205597-3d9d02c29597"
               className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>

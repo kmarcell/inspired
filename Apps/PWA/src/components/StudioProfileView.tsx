@@ -4,6 +4,7 @@ import { firestoreService } from '../services/firestoreService';
 import { StudioScheduleView } from './StudioScheduleView';
 import { StudioMembersView } from './StudioMembersView';
 import { CommunityFeedView } from './CommunityFeedView';
+import { formatLocationBadge } from '../utils/locationFormatter';
 
 interface StudioProfileViewProps {
   studio: YogaStudio;
@@ -25,6 +26,7 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
   const [activeTab, setActiveTab] = useState<'schedule' | 'feed'>('schedule');
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const studioCommunityId = `comm_studio_${studio.id}`;
   const [localCommunities, setLocalCommunities] = useState<string[]>(currentUser?.joinedCommunities || []);
@@ -32,27 +34,60 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
 
   const isJoined = localCommunities.includes(studioCommunityId);
 
-  // Dynamically calculate actual enrolled members count from subcollection
+  const defaultTeachers: StudioTeacher[] = [
+    { id: 'user_maryia', displayName: 'Maryia Sharma', specialty: 'Vinyasa & Yin', isPublic: true },
+    { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Ashtanga Lead', isPublic: true },
+    { id: 'user_sarah', displayName: 'Sarah Jenkins', specialty: 'Restorative & Breath', isPublic: true },
+  ];
+
+  const initialTeachers = studio.assignedTeachers && studio.assignedTeachers.length > 0
+    ? studio.assignedTeachers
+    : defaultTeachers;
+
+  const [displayedTeachers, setDisplayedTeachers] = useState<StudioTeacher[]>(initialTeachers);
+
+  // Dynamically load assigned teachers AND schedule teachers for 100% data integrity
   React.useEffect(() => {
     let isMounted = true;
-    firestoreService.fetchStudioMembers(studio.id).then((membersList) => {
-      if (isMounted && membersList && membersList.length > 0) {
+    Promise.all([
+      firestoreService.fetchStudioClasses(studio.id),
+      firestoreService.fetchStudioMembers(studio.id),
+    ]).then(([classesList, membersList]) => {
+      if (!isMounted) return;
+      if (membersList && membersList.length > 0) {
         setMembersCount(membersList.length);
       }
+
+      const teacherMap = new Map<string, StudioTeacher>();
+      const baseList = studio.assignedTeachers && studio.assignedTeachers.length > 0
+        ? studio.assignedTeachers
+        : defaultTeachers;
+
+      baseList.forEach((t) => teacherMap.set(t.id, t));
+
+      if (classesList && classesList.length > 0) {
+        classesList.forEach((cls) => {
+          if (cls.teacherId && !teacherMap.has(cls.teacherId)) {
+            teacherMap.set(cls.teacherId, {
+              id: cls.teacherId,
+              displayName: cls.teacherName || cls.teacherId,
+              specialty: 'Yoga Instructor',
+              isPublic: true,
+            });
+          }
+        });
+      }
+
+      const merged = Array.from(teacherMap.values());
+      if (merged.length > 0) {
+        setDisplayedTeachers(merged);
+      }
     });
+
     return () => {
       isMounted = false;
     };
-  }, [studio.id]);
-
-  // Default Assigned Teachers for seed demonstration if not populated
-  const defaultTeachers: StudioTeacher[] = studio.assignedTeachers && studio.assignedTeachers.length > 0
-    ? studio.assignedTeachers
-    : [
-        { id: 'user_maryia', displayName: 'Maryia Sharma', specialty: 'Vinyasa & Yin', isPublic: true },
-        { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Ashtanga Lead', isPublic: true },
-        { id: 'user_sarah', displayName: 'Sarah Jenkins', specialty: 'Restorative & Breath', isPublic: true },
-      ];
+  }, [studio.id, studio.assignedTeachers]);
 
   const handleJoinToggle = async () => {
     if (!currentUser) return;
@@ -103,29 +138,90 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
 
       {/* Hero Cover Banner & Logo */}
       <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl transition-colors">
+        {/* Cover Banner */}
         <div className="h-36 w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900 relative">
           <div className="absolute inset-0 bg-black/20" />
+          
+          {/* Avatar Overlay */}
+          <div className="absolute -bottom-8 left-6">
+            <div className="w-20 h-20 rounded-2xl bg-white dark:bg-slate-900 p-1 shadow-lg ring-1 ring-slate-200 dark:ring-slate-800">
+              <div className="w-full h-full rounded-xl bg-indigo-600 flex items-center justify-center text-3xl font-bold text-white shadow-md">
+                🧘
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Avatar Overlay */}
-        <div className="px-6 pt-0 pb-6 relative">
-          <div className="-mt-12 mb-4 flex items-end justify-between">
-            <div className="w-20 h-20 rounded-2xl bg-white dark:bg-slate-900 border-4 border-indigo-600 flex items-center justify-center text-3xl shadow-lg">
-              🧘
-            </div>
+        {/* Studio Content & Action Bar */}
+        <div className="px-6 pt-10 pb-6 space-y-4">
+          {/* Action Bar Row */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div /> {/* Left spacer for avatar alignment */}
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleJoinToggle}
-                disabled={joining}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition transform active:scale-95 ${
-                  isJoined
-                    ? 'bg-slate-100 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-indigo-500/30'
-                    : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-950/40'
-                }`}
-              >
-                {joining ? 'Updating...' : isJoined ? '✓ Joined Studio' : '＋ Join Studio'}
-              </button>
+              {/* Main Join Action Bar */}
+              {!isJoined ? (
+                <button
+                  onClick={handleJoinToggle}
+                  disabled={joining}
+                  data-testid="join-studio-btn"
+                  className="px-5 py-2.5 rounded-xl font-bold text-xs bg-indigo-600 text-white hover:bg-indigo-500 shadow-md shadow-indigo-950/40 transition transform active:scale-95 flex items-center gap-1.5"
+                >
+                  {joining ? 'Updating...' : '＋ Join Studio'}
+                </button>
+              ) : (
+                <div className="relative flex items-center gap-2">
+                  {/* Unactionable Status Badge */}
+                  <div
+                    data-testid="joined-studio-badge"
+                    className="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 cursor-default select-none shadow-sm"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    ✓ Joined Studio
+                  </div>
+
+                  {/* Ellipsis Menu Trigger Button */}
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    data-testid="studio-menu-trigger"
+                    aria-label="Studio Options"
+                    className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition shadow-sm"
+                  >
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                      <circle cx="12" cy="5" r="2" />
+                      <circle cx="12" cy="12" r="2" />
+                      <circle cx="12" cy="19" r="2" />
+                    </svg>
+                  </button>
+
+                  {/* Ellipsis Options Dropdown Menu */}
+                  {isMenuOpen && (
+                    <>
+                      {/* Tapaway Backdrop Close Handler */}
+                      <div
+                        className="fixed inset-0 z-40 bg-black/10"
+                        onClick={() => setIsMenuOpen(false)}
+                        data-testid="studio-menu-backdrop"
+                      />
+
+                      <div className="absolute right-0 top-12 z-50 w-44 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150">
+                        <button
+                          onClick={async () => {
+                            setIsMenuOpen(false);
+                            await handleJoinToggle();
+                          }}
+                          disabled={joining}
+                          data-testid="leave-studio-btn"
+                          className="w-full px-4 py-2.5 text-left text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition flex items-center gap-2"
+                        >
+                          <span>🚪</span>
+                          {joining ? 'Leaving...' : 'Leave Studio'}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
 
               <button
                 onClick={() => setShowMembersModal(true)}
@@ -165,7 +261,7 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
             </div>
 
             <p className="text-xs text-slate-600 dark:text-slate-400">
-              📍 {studio.address} ({studio.location_prefix})
+              {formatLocationBadge(studio.location_prefix)} • {studio.address}
             </p>
 
             {studio.about && (
@@ -201,10 +297,13 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
         </h3>
 
         <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none snap-x">
-          {defaultTeachers.map((teacher) => (
+          {displayedTeachers.map((teacher) => (
             <div
               key={teacher.id}
-              onClick={() => onSelectTeacher?.(teacher.id)}
+              onClick={() => {
+                if (onSelectTeacher) onSelectTeacher(teacher.id);
+                else if (onSelectUserProfile) onSelectUserProfile(teacher.id);
+              }}
               className="flex-shrink-0 snap-start flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 cursor-pointer transition min-w-[170px]"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-xs text-white">

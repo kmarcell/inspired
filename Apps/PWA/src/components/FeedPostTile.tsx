@@ -4,12 +4,20 @@ import { Post } from '../types';
 interface FeedPostTileProps {
   post: Post;
   onLikeToggle?: (postId: string) => void;
+  onSelectAuthor?: (authorId: string) => void;
   isLiked?: boolean;
 }
 
-export const FeedPostTile: React.FC<FeedPostTileProps> = ({ post, onLikeToggle, isLiked }) => {
+export const FeedPostTile: React.FC<FeedPostTileProps> = ({ post, onLikeToggle, onSelectAuthor, isLiked }) => {
   const [imgError, setImgError] = useState(false);
   const initialLetter = (post.author.username || 'U').charAt(0).toUpperCase();
+
+  const handleAuthorClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onSelectAuthor) {
+      onSelectAuthor(post.author.id || 'user_elena');
+    }
+  };
 
   return (
     <article 
@@ -18,21 +26,24 @@ export const FeedPostTile: React.FC<FeedPostTileProps> = ({ post, onLikeToggle, 
     >
       {/* Header: Author & Source */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+        <div 
+          onClick={handleAuthorClick}
+          className="flex items-center space-x-3 cursor-pointer group"
+        >
           {!imgError && post.author.thumbnailUrl ? (
             <img
               src={post.author.thumbnailUrl}
               alt={post.author.username}
               onError={() => setImgError(true)}
-              className="w-10 h-10 rounded-2xl object-cover ring-2 ring-indigo-500/20"
+              className="w-10 h-10 rounded-2xl object-cover ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition"
             />
           ) : (
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center font-bold text-white text-sm shadow-md ring-2 ring-indigo-500/20">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center font-bold text-white text-sm shadow-md ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition">
               {initialLetter}
             </div>
           )}
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-mono tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
               {post.author.username}
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
