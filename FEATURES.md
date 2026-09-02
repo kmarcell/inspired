@@ -857,6 +857,60 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 
 ---
 
+### 5.19 Unified Community & User Profile Architecture (TBD)
+
+> [!NOTE]
+> **Status:** Tracked Design Idea & SVG Mockup Created [2026-09-02T10:14:33+01:00]  
+> **Goal:** Standardize User Profiles (Yogis, Teachers) and Community Profiles (Neighborhood Communities, Parent Brands, Studio Branches) under a single unified profile layout container.
+
+**Core Requirements & Design Principles:**
+1. **Unified Concept (Subscribable Entity Model):**
+   - In Inspired, **a Yogi/Teacher profile IS a community you can subscribe to**, and **a Community profile IS an entity you can join/follow**.
+   - Both entities share identical UI hierarchy: Cover Banner, Avatar / Emblem, Display Name, Handle/Postcode, Bio & Philosophy, Metrics Bar, Action Button, Sub-tab bar, and Post Feed.
+
+2. **The 4-Profile Type Hierarchy Matrix & SVG Mockups:**
+
+   | Profile Type | Parent Brand? | Children Entities | Key Badges & CTA Buttons | Visual SVG Mockup |
+   | :--- | :---: | :---: | :--- | :--- |
+   | **1. Personal User Profile** (Yogi / Teacher) | ❌ No | None | `🧘 Teacher` • `📍 W4` <br> `[ Subscribe ]` + `[ 📅 View Schedule ➔ ]` | [`5.19_PersonalUserProfile.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.19_PersonalUserProfile.svg) |
+   | **2. Neighborhood Area Profile** (Geographic) | ❌ No | Local Studios & Teachers | `👥 Area Community` • `📍 W4` <br> `[ Join Area Community ]` | [`5.19_AreaCommunityProfile.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.19_AreaCommunityProfile.svg) |
+   | **3. Parent Brand Network Profile** (Top-Level) | ❌ No | Studio Branches | `🏢 Brand Network (Top Level)` <br> `[ Join Brand Community ]` | [`5.19_BrandCommunityProfile.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.19_BrandCommunityProfile.svg) |
+   | **4. Studio Branch Profile** (Location Branch) | ✅ Yes (`parentBrandName`) | Operating Schedule & Members | `🟢 Open` • `🏢 Affordable London Yoga` <br> `[ Joined Studio ]` + `[ 👥 Members ➔ ]` | [`5.13_StudioProfilePage.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.13_StudioProfilePage.svg) |
+
+3. **Single Main Action Button & Canonical Sub-Tab Navigation (UX Optimization):**
+   - **No Duplicate Buttons:** Having both a header button AND a sub-tab for Studios/Classes is redundant. 
+   - **Canonical Sub-Tab Navigation:** The Sub-Tab bar (`🏢 Studio Branches` / `🧘 Studios & Teachers` / `🧘 Classes & Schedule`) serves as the single primary navigation control to view children entities.
+   - **Brand Community Studios Sub-Tab ([`5.19_BrandCommunityStudiosTab.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.19_BrandCommunityStudiosTab.svg)):** Selecting `🏢 Studios (4)` on a Brand Profile displays all studio branches in that brand network.
+   - **Area Community Studios Sub-Tab ([`5.19_AreaCommunityStudiosTab.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.19_AreaCommunityStudiosTab.svg)):** Selecting `🧘 Studios & Teachers (3)` on an Area Profile displays local studio locations and resident teachers in that postcode area.
+
+4. **Teacher Multi-Studio Schedule Views (`UI/Mockups/5.19_TeacherProfileClassesTab.svg` & `UI/Mockups/5.19_TeacherScheduleModalView.svg`):**
+   - **View 1: In-Page "Classes" Sub-Tab ([`5.19_TeacherProfileClassesTab.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.19_TeacherProfileClassesTab.svg)):**
+     - Selecting **`🧘 Classes`** on the teacher profile sub-tab bar renders an inline chronological feed of the teacher's upcoming classes across all studio locations where they teach.
+     - **Rolling 7-Day Capping Rule:** To prevent infinite scrolling lists from recurring weekly classes, the in-page "Classes" sub-tab strictly caps rendered classes to **Next 7 Days** (rolling 7-day window from today forward).
+     - At the bottom of the list, a concise **`[ 📅 Schedule ➔ ]`** CTA button opens the full calendar schedule modal.
+   - **View 2: Dedicated Multi-Studio Calendar Modal ([`5.19_TeacherScheduleModalView.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.19_TeacherScheduleModalView.svg)):**
+     - Tapping **`[ 📅 Schedule ➔ ]`** (in header or sub-tab bottom) opens the full calendar sheet with **Week Switcher** (`◀ Aug 31 – Sep 6, 2026 ▶`), **Horizontally Scrollable Studio Location Filter Bar**, and **7-Day Date Selector Pills**.
+
+5. **Multi-Location & Privacy Domain Guardrails:**
+   - **No Artificial Sectors:** Location badges strictly reflect outward postcode codes (`location_prefix`: `"W4"`, `"W12"`) without synthetic sector entities.
+   - **Multi-Postcode Badge Truncation (4+ Postcodes):** If a teacher teaches across 4 or more studio postcodes, the badge truncates after 3 postcodes: `📍 W4, W12, W5...`. All assigned studios remain accessible under the `🧘 Classes` sub-tab.
+   - **Private Teacher Profiles (`isTeacher: true` + `isProfilePublic: false`):**
+     - Allowed by domain schema.
+     - Public studio class schedules show their assigned classes at verified studios.
+     - On their personal profile page, non-subscribers see standard privacy guardrails (`🔒 This Yogi's profile is private`).
+
+6. **Visual Layout & Component Breakdown:**
+   - **Hero Banner:** Full-width gradient/image cover (`bannerImageUrl`) with subtle glassmorphic pattern overlay.
+   - **Avatar & Handle Badge:** Circular avatar picture / brand emblem, display name with verification checkmark, handle (`@username`), postcode badge (e.g. `📍 W4 (Chiswick)`), and entity tag.
+   - **Bio & Philosophy Statement:** Custom bio description and philosophy.
+   - **Clean 2-Item Metrics Bar:** Standardizes on two meaningful social indicators: **Subscribers/Members Count** and **Total Posts Count**. (`createdAt` timestamps remain stored in Firestore documents for audit/sorting metadata, but are omitted from UI rendering).
+   - **Sub-Tab Navigation Bar:** `📝 Posts & Feed` | `🏢 Studio Branches` (for Brand Networks) / `🧘 Classes & Schedule` (for Teachers/Studios) | `ℹ️ Bio & Philosophy` | `👥 Subscribers / Members`.
+
+7. **TCA & Domain Model Integration (iOS & Web):**
+   - Single unified container component `UnifiedProfileView.tsx` (web) and `UnifiedProfileFeature` reducer (TCA iOS) handling subscription/join actions, post feed pagination, and class schedule links.
+
+---
+
 13. **Issue Reporting & Support** (TBD)
 14. **Accessibility** (Requirements Defined)
 15. **Maintenance Mode** (Triggered via Remote Config)

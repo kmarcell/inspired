@@ -18,6 +18,7 @@
 - **Never Commit Secrets/PII:** Keys go in Cloud Functions env vars. Never commit test users or passwords.
 - **Never Use Shell File Editors:** Never use `sed`, `cat`, etc. Use native AI file operations (`replace`, `write_file`).
 - **Never Use xcodebuild Directly:** Always use `fastlane` for repetitive automation, testing, and deployment.
+- **Never Use Mock Data Fallbacks in Production Code:** Never include hardcoded arrays or mock object fallbacks inside production services (e.g. `firestoreService.ts`). Database services must query Firestore directly and return `null` or `[]` on empty/error. Mock data belongs strictly in test files (`*.test.tsx`, `*.test.ts`) via Vitest/Jest mocks or in seed scripts (`seeder.js`).
 - **Data & State Management:** NoSQL database. Perform heavy image processing client-side. Backend seeding creates "Shadow Profiles" for studios. Location privacy is paramount (use Location Fuzzing).
 
 ## 4. Execution Workflows
