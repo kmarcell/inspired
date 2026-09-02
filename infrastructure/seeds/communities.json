@@ -2,21 +2,10 @@
   {
     "id": "area_askew",
     "name": "Askew",
-    "description": "Community feed for the Askew area.",
+    "description": "Automatic local area community for Askew (W12) yogis.",
     "location_prefix": "W12",
-    "linkedStudioId": "studio_askew_001",
-    "engagementScore": 850,
-    "privacySettings": {
-      "isPublic": true,
-      "membersCanPost": true
-    }
-  },
-  {
-    "id": "comm_studio_studio_askew_001",
-    "name": "Askew Road Zen Den Community",
-    "description": "Official community feed for Askew Road Zen Den studio branch.",
-    "location_prefix": "W12",
-    "linkedStudioId": "studio_askew_001",
+    "communityType": "area",
+    "linkedStudioId": null,
     "engagementScore": 920,
     "privacySettings": {
       "isPublic": true,
@@ -24,24 +13,13 @@
     }
   },
   {
-    "id": "comm_studio_studio_chiswick_002",
-    "name": "Chiswick Hot Yoga Community",
-    "description": "Official community feed for Chiswick Hot Yoga Studio branch.",
+    "id": "area_chiswick",
+    "name": "Chiswick",
+    "description": "Automatic local area community for Chiswick (W4) yogis.",
     "location_prefix": "W4",
-    "linkedStudioId": "studio_chiswick_002",
-    "engagementScore": 720,
-    "privacySettings": {
-      "isPublic": true,
-      "membersCanPost": true
-    }
-  },
-  {
-    "id": "comm_brand_affordable_london",
-    "name": "Affordable London Yoga Community",
-    "description": "Parent brand community aggregating all studio branch updates across London.",
-    "location_prefix": "W12",
+    "communityType": "area",
     "linkedStudioId": null,
-    "engagementScore": 1250,
+    "engagementScore": 890,
     "privacySettings": {
       "isPublic": true,
       "membersCanPost": true
@@ -50,8 +28,9 @@
   {
     "id": "area_chelsea",
     "name": "Chelsea",
-    "description": "Community feed for Chelsea.",
+    "description": "Automatic local area community for Chelsea (SW3) yogis.",
     "location_prefix": "SW3",
+    "communityType": "area",
     "linkedStudioId": null,
     "engagementScore": 1200,
     "privacySettings": {
@@ -62,10 +41,76 @@
   {
     "id": "area_hammersmith",
     "name": "Hammersmith",
-    "description": "Yoga in Hammersmith.",
+    "description": "Automatic local area community for Hammersmith (W6) yogis.",
     "location_prefix": "W6",
-    "linkedStudioId": "studio_hammersmith_shadow_001",
+    "communityType": "area",
+    "linkedStudioId": null,
     "engagementScore": 600,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_brand_affordable_london",
+    "name": "Affordable London Yoga Network",
+    "description": "Parent brand community aggregating all studio branch updates across London.",
+    "location_prefix": "W12",
+    "communityType": "brand",
+    "linkedStudioId": null,
+    "engagementScore": 1250,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_studio_studio_askew_001",
+    "name": "Askew Road Zen Den Official",
+    "description": "Automatic studio branch community for Askew Road Zen Den (W12).",
+    "location_prefix": "W12",
+    "communityType": "studio",
+    "linkedStudioId": "studio_askew_001",
+    "engagementScore": 980,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_studio_studio_chiswick_002",
+    "name": "Chiswick Hot Yoga Studio Official",
+    "description": "Automatic studio branch community for Chiswick Hot Yoga Studio (W4).",
+    "location_prefix": "W4",
+    "communityType": "studio",
+    "linkedStudioId": "studio_chiswick_002",
+    "engagementScore": 950,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_studio_studio_ravenscourt_003",
+    "name": "Ravenscourt Park Zen Pavilion Official",
+    "description": "Automatic studio branch community for Ravenscourt Park Zen Pavilion (W6).",
+    "location_prefix": "W6",
+    "communityType": "studio",
+    "linkedStudioId": "studio_ravenscourt_003",
+    "engagementScore": 910,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_askew_area",
+    "name": "Askew Area Yoga Community",
+    "description": "Manually created public neighborhood yoga community for Askew & Shepherd's Bush yogis.",
+    "location_prefix": "W12",
+    "communityType": "area",
+    "linkedStudioId": null,
+    "engagementScore": 850,
     "privacySettings": {
       "isPublic": true,
       "membersCanPost": true
@@ -74,13 +119,53 @@
   {
     "id": "comm_ravenscourt_yoga",
     "name": "Ravenscourt Park Yoga",
-    "description": "Outdoor yoga sessions in Ravenscourt Park.",
+    "description": "Manually created public parkside yoga & mindfulness group in Ravenscourt Park W6.",
     "location_prefix": "W6",
+    "communityType": "area",
     "linkedStudioId": null,
-    "engagementScore": 450,
+    "engagementScore": 810,
     "privacySettings": {
       "isPublic": true,
       "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_londonyoga_beginners",
+    "name": "London Yoga Beginners & Newbies Club",
+    "description": "Manually created public welcoming group for new yogis across London sharing tips and studio recommendations.",
+    "location_prefix": "W12",
+    "communityType": "custom",
+    "linkedStudioId": null,
+    "engagementScore": 1100,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_westlondon_teachers",
+    "name": "West London Yoga Teachers Guild (Private)",
+    "description": "Manually created private circle for certified yoga instructors in West London. Request to join required.",
+    "location_prefix": "W4",
+    "communityType": "custom",
+    "linkedStudioId": null,
+    "engagementScore": 750,
+    "privacySettings": {
+      "isPublic": false,
+      "membersCanPost": false
+    }
+  },
+  {
+    "id": "comm_chelsea_vip",
+    "name": "Chelsea Private Sound Healing & Kundalini Circle",
+    "description": "Manually created private invitation-only meditation and sound bath circle in Chelsea. Approval required.",
+    "location_prefix": "SW3",
+    "communityType": "custom",
+    "linkedStudioId": null,
+    "engagementScore": 680,
+    "privacySettings": {
+      "isPublic": false,
+      "membersCanPost": false
     }
   }
 ]

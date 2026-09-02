@@ -7,19 +7,22 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
-    // Helper to check if user is a member of a community
+    // Helper to check if user is a member of a community or studio
     function isMember(communityId) {
       return request.auth != null && 
              communityId != null &&
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
              'joinedCommunities' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data &&
-             communityId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities;
+             (
+               communityId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities ||
+               ('comm_studio_' + communityId) in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.joinedCommunities
+             );
     }
 
-    // Helper to check if a community is public
+    // Helper to check if a community is public (defaults to true if non-community, e.g. studio or area post)
     function isCommunityPublic(communityId) {
-      return communityId != null && 
-             exists(/databases/$(database)/documents/communities/$(communityId)) &&
+      return communityId == null || 
+             !exists(/databases/$(database)/documents/communities/$(communityId)) ||
              get(/databases/$(database)/documents/communities/$(communityId)).data.privacySettings.isPublic == true;
     }
 
@@ -42,15 +45,20 @@ service cloud.firestore {
       allow write: if true;
     }
     
-    // 4. Community Posts
+    // 4. Community & Studio Posts
     match /posts/{postId} {
-      // Area posts and public community posts are public. Private community posts require membership.
-      allow get, list: if (resource.data.source is map && 'type' in resource.data.source && resource.data.source.type == "area") ||
-                          (resource.data.source is map && 'id' in resource.data.source && isCommunityPublic(resource.data.source.id)) || 
-                          (resource.data.source is map && 'id' in resource.data.source && isMember(resource.data.source.id));
+      allow get, list: if !('source' in resource.data) || 
+                          !('id' in resource.data.source) || 
+                          isCommunityPublic(resource.data.source.id) || 
+                          isMember(resource.data.source.id);
       allow create: if request.auth != null && 
                       request.resource.data.author.id == request.auth.uid &&
-                      (request.resource.data.source.type == "area" || isMember(request.resource.data.source.id));
+                      (
+                        !('source' in request.resource.data) ||
+                        !('id' in request.resource.data.source) ||
+                        isCommunityPublic(request.resource.data.source.id) ||
+                        isMember(request.resource.data.source.id)
+                      );
       allow update, delete: if request.auth != null && resource.data.author.id == request.auth.uid;
     }
     

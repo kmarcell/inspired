@@ -43,7 +43,7 @@
     "parentBrandName": "Affordable London Yoga",
     "parentBrandCommunityId": "comm_brand_affordable_london",
     "reviewCount": 28,
-    "membersCount": 3,
+    "membersCount": 94,
     "location_prefix": "W4",
     "engagementScore": 720,
     "contactEmail": "info@chiswickhotyoga.co.uk",
@@ -58,7 +58,69 @@
       "lng": -0.2600
     },
     "assignedTeachers": [
-      { "id": "user_elena", "displayName": "Elena Rostova", "specialty": "Hot Yoga Specialist", "isPublic": true }
+      { "id": "user_elena", "displayName": "Elena Rostova", "specialty": "Hot Yoga Specialist", "isPublic": true },
+      { "id": "user_maryia", "displayName": "Maryia Sharma", "specialty": "Vinyasa & Yin", "isPublic": true }
+    ]
+  },
+  {
+    "id": "studio_ravenscourt_003",
+    "name": "Ravenscourt Park Zen Pavilion",
+    "address": "12 Goldhawk Road, London W6 8DH",
+    "about": "Peaceful parkside sanctuary offering outdoor summer flows, Ashtanga, and mindfulness meditation.",
+    "rating": 4.9,
+    "isClaimed": true,
+    "status": "active",
+    "ownerId": "user_david_kim",
+    "parentBrandName": null,
+    "parentBrandCommunityId": null,
+    "reviewCount": 35,
+    "membersCount": 112,
+    "location_prefix": "W6",
+    "engagementScore": 810,
+    "contactEmail": "hello@ravenscourtyoga.co.uk",
+    "contactPhone": "+44 20 8741 5566",
+    "websiteUrl": "https://ravenscourtyoga.co.uk",
+    "moderationSettings": {
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": true
+    },
+    "location": {
+      "lat": 51.4985,
+      "lng": -0.2360
+    },
+    "assignedTeachers": [
+      { "id": "user_david_kim", "displayName": "David Kim", "specialty": "Ashtanga & Outdoor Flow", "isPublic": true },
+      { "id": "user_teacher_001", "displayName": "Maya Sharma", "specialty": "Vinyasa Flow", "isPublic": true }
+    ]
+  },
+  {
+    "id": "studio_chelsea_004",
+    "name": "Chelsea Sanctuary Studio",
+    "address": "45 King's Road, London SW3 4ND",
+    "about": "Boutique holistic studio specializing in Kundalini, Sound Healing, and Reformer Pilates Flow.",
+    "rating": 4.95,
+    "isClaimed": true,
+    "status": "active",
+    "ownerId": "user_sophia_vane",
+    "parentBrandName": null,
+    "parentBrandCommunityId": null,
+    "reviewCount": 54,
+    "membersCount": 185,
+    "location_prefix": "SW3",
+    "engagementScore": 1200,
+    "contactEmail": "concierge@chelseasanctuary.co.uk",
+    "contactPhone": "+44 20 7351 8899",
+    "websiteUrl": "https://chelseasanctuary.co.uk",
+    "moderationSettings": {
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": true
+    },
+    "location": {
+      "lat": 51.4880,
+      "lng": -0.1620
+    },
+    "assignedTeachers": [
+      { "id": "user_sophia_vane", "displayName": "Sophia Vane", "specialty": "Kundalini & Sound Healing", "isPublic": true }
     ]
   }
 ]

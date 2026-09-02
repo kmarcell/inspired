@@ -17,7 +17,7 @@
       "likeCount": 34,
       "commentCount": 8
     },
-    "createdAt": "2026-03-09T09:30:00Z"
+    "createdAt": "2026-09-09T09:30:00Z"
   },
   {
     "id": "post_chiswick_studio_002",
@@ -37,7 +37,7 @@
       "likeCount": 21,
       "commentCount": 4
     },
-    "createdAt": "2026-03-09T11:15:00Z"
+    "createdAt": "2026-09-09T11:15:00Z"
   },
   {
     "id": "post_askew_studio_001",
@@ -57,7 +57,27 @@
       "likeCount": 42,
       "commentCount": 9
     },
-    "createdAt": "2026-03-09T10:00:00Z"
+    "createdAt": "2026-09-09T10:00:00Z"
+  },
+  {
+    "id": "post_askew_private_001",
+    "author": {
+      "id": "user_members_only",
+      "username": "private_yogi#2026",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "members-only"
+    },
+    "content": "Morning outdoor practice at Ravenscourt Park! Beautiful sunrise flow today in Askew. 🧘‍♀️🌅",
+    "source": {
+      "type": "community",
+      "id": "area_askew",
+      "name": "Askew"
+    },
+    "stats": {
+      "likeCount": 14,
+      "commentCount": 2
+    },
+    "createdAt": "2026-09-09T08:00:00Z"
   },
   {
     "id": "post_hammersmith_001",
@@ -77,7 +97,7 @@
       "likeCount": 18,
       "commentCount": 3
     },
-    "createdAt": "2026-03-08T17:00:00Z"
+    "createdAt": "2026-09-08T17:00:00Z"
   },
   {
     "id": "post_hammersmith_002",
@@ -97,7 +117,7 @@
       "likeCount": 29,
       "commentCount": 7
     },
-    "createdAt": "2026-03-08T19:00:00Z"
+    "createdAt": "2026-09-08T19:00:00Z"
   },
   {
     "id": "post_askew_001",
@@ -116,7 +136,7 @@
       "likeCount": 15,
       "commentCount": 2
     },
-    "createdAt": "2026-03-07T08:00:00Z"
+    "createdAt": "2026-09-07T08:00:00Z"
   },
   {
     "id": "post_askew_002",
@@ -135,7 +155,7 @@
       "likeCount": 5,
       "commentCount": 1
     },
-    "createdAt": "2026-03-07T11:00:00Z"
+    "createdAt": "2026-09-07T11:00:00Z"
   },
   {
     "id": "post_askew_003",
@@ -154,7 +174,7 @@
       "likeCount": 12,
       "commentCount": 4
     },
-    "createdAt": "2026-03-07T06:30:00Z"
+    "createdAt": "2026-09-07T06:30:00Z"
   },
   {
     "id": "post_askew_004",
@@ -173,7 +193,7 @@
       "likeCount": 3,
       "commentCount": 0
     },
-    "createdAt": "2026-03-07T12:45:00Z"
+    "createdAt": "2026-09-07T12:45:00Z"
   },
   {
     "id": "post_askew_005",
@@ -192,7 +212,7 @@
       "likeCount": 20,
       "commentCount": 5
     },
-    "createdAt": "2026-03-07T14:20:00Z"
+    "createdAt": "2026-09-07T14:20:00Z"
   },
   {
     "id": "post_askew_006",
@@ -211,7 +231,7 @@
       "likeCount": 8,
       "commentCount": 2
     },
-    "createdAt": "2026-03-07T16:10:00Z"
+    "createdAt": "2026-09-07T16:10:00Z"
   },
   {
     "id": "post_askew_007",
@@ -230,7 +250,7 @@
       "likeCount": 35,
       "commentCount": 12
     },
-    "createdAt": "2026-03-07T18:00:00Z"
+    "createdAt": "2026-09-07T18:00:00Z"
   },
   {
     "id": "post_askew_008",
@@ -249,7 +269,7 @@
       "likeCount": 14,
       "commentCount": 1
     },
-    "createdAt": "2026-03-07T19:30:00Z"
+    "createdAt": "2026-09-07T19:30:00Z"
   },
   {
     "id": "post_askew_009",
@@ -268,7 +288,7 @@
       "likeCount": 50,
       "commentCount": 6
     },
-    "createdAt": "2026-03-08T08:15:00Z"
+    "createdAt": "2026-09-08T08:15:00Z"
   },
   {
     "id": "post_askew_010",
@@ -287,7 +307,7 @@
       "likeCount": 6,
       "commentCount": 3
     },
-    "createdAt": "2026-03-08T10:00:00Z"
+    "createdAt": "2026-09-08T10:00:00Z"
   },
   {
     "id": "post_askew_011",
@@ -306,7 +326,7 @@
       "likeCount": 28,
       "commentCount": 4
     },
-    "createdAt": "2026-03-08T11:45:00Z"
+    "createdAt": "2026-09-08T11:45:00Z"
   },
   {
     "id": "post_askew_012",
@@ -325,7 +345,7 @@
       "likeCount": 11,
       "commentCount": 2
     },
-    "createdAt": "2026-03-08T13:30:00Z"
+    "createdAt": "2026-09-08T13:30:00Z"
   },
   {
     "id": "post_askew_013",
@@ -344,7 +364,7 @@
       "likeCount": 19,
       "commentCount": 3
     },
-    "createdAt": "2026-03-08T15:10:00Z"
+    "createdAt": "2026-09-08T15:10:00Z"
   },
   {
     "id": "post_askew_014",
@@ -363,7 +383,7 @@
       "likeCount": 7,
       "commentCount": 0
     },
-    "createdAt": "2026-03-08T07:00:00Z"
+    "createdAt": "2026-09-08T07:00:00Z"
   },
   {
     "id": "post_askew_015",
@@ -382,7 +402,7 @@
       "likeCount": 44,
       "commentCount": 9
     },
-    "createdAt": "2026-03-08T17:40:00Z"
+    "createdAt": "2026-09-08T17:40:00Z"
   },
   {
     "id": "post_askew_016",
@@ -401,7 +421,7 @@
       "likeCount": 22,
       "commentCount": 5
     },
-    "createdAt": "2026-03-08T19:20:00Z"
+    "createdAt": "2026-09-08T19:20:00Z"
   },
   {
     "id": "post_askew_017",
@@ -420,7 +440,7 @@
       "likeCount": 16,
       "commentCount": 7
     },
-    "createdAt": "2026-03-08T20:50:00Z"
+    "createdAt": "2026-09-08T20:50:00Z"
   },
   {
     "id": "post_askew_018",
@@ -439,7 +459,7 @@
       "likeCount": 13,
       "commentCount": 1
     },
-    "createdAt": "2026-03-09T21:15:00Z"
+    "createdAt": "2026-09-09T21:15:00Z"
   },
   {
     "id": "post_askew_019",
@@ -458,7 +478,7 @@
       "likeCount": 31,
       "commentCount": 4
     },
-    "createdAt": "2026-03-09T08:30:00Z"
+    "createdAt": "2026-09-09T08:30:00Z"
   },
   {
     "id": "post_askew_020",
@@ -477,7 +497,7 @@
       "likeCount": 9,
       "commentCount": 2
     },
-    "createdAt": "2026-03-09T10:45:00Z"
+    "createdAt": "2026-09-09T10:45:00Z"
   },
   {
     "id": "post_askew_021",
@@ -496,7 +516,7 @@
       "likeCount": 55,
       "commentCount": 10
     },
-    "createdAt": "2026-03-09T12:30:00Z"
+    "createdAt": "2026-09-09T12:30:00Z"
   },
   {
     "id": "post_askew_022",
@@ -515,7 +535,7 @@
       "likeCount": 4,
       "commentCount": 8
     },
-    "createdAt": "2026-03-09T14:15:00Z"
+    "createdAt": "2026-09-09T14:15:00Z"
   },
   {
     "id": "post_askew_023",
@@ -534,7 +554,7 @@
       "likeCount": 21,
       "commentCount": 3
     },
-    "createdAt": "2026-03-09T16:00:00Z"
+    "createdAt": "2026-09-09T16:00:00Z"
   },
   {
     "id": "post_askew_024",
@@ -553,7 +573,7 @@
       "likeCount": 5,
       "commentCount": 2
     },
-    "createdAt": "2026-03-09T17:45:00Z"
+    "createdAt": "2026-09-09T17:45:00Z"
   },
   {
     "id": "post_askew_025",
@@ -572,7 +592,7 @@
       "likeCount": 62,
       "commentCount": 15
     },
-    "createdAt": "2026-03-09T20:30:00Z"
+    "createdAt": "2026-09-09T20:30:00Z"
   },
   {
     "id": "post_ravenscourt_001",
@@ -592,7 +612,7 @@
       "likeCount": 42,
       "commentCount": 8
     },
-    "createdAt": "2026-03-07T10:00:00Z"
+    "createdAt": "2026-09-07T10:00:00Z"
   },
   {
     "id": "post_chelsea_001",
@@ -611,7 +631,7 @@
       "likeCount": 8,
       "commentCount": 3
     },
-    "createdAt": "2026-03-07T07:00:00Z"
+    "createdAt": "2026-09-07T07:00:00Z"
   },
   {
     "id": "post_long_content_001",
@@ -630,6 +650,206 @@
       "likeCount": 0,
       "commentCount": 0
     },
-    "createdAt": "2026-03-06T18:00:00Z"
+    "createdAt": "2026-09-06T18:00:00Z"
+  },
+  {
+    "id": "post_askew_area_001",
+    "author": {
+      "id": "user_maryia",
+      "username": "maryia_sharma#2026",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "✨ Community park meetup this Saturday morning at Askew Green! Bring your mat, water bottle, and good vibes. All levels welcome! 🧘‍♂️☀️",
+    "source": {
+      "type": "community",
+      "id": "comm_askew_area",
+      "name": "Askew Area Yoga Community"
+    },
+    "stats": {
+      "likeCount": 38,
+      "commentCount": 6
+    },
+    "createdAt": "2026-09-02T08:00:00Z"
+  },
+  {
+    "id": "post_askew_area_002",
+    "author": {
+      "id": "user_sarah",
+      "username": "sarah_jenkins#2026",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "Loved meeting so many local Askew yogis at the Zen Den restorative sound bath yesterday. West London yoga community is unmatched! 🕯️✨",
+    "source": {
+      "type": "community",
+      "id": "comm_askew_area",
+      "name": "Askew Area Yoga Community"
+    },
+    "stats": {
+      "likeCount": 29,
+      "commentCount": 5
+    },
+    "createdAt": "2026-09-01T14:30:00Z"
+  },
+  {
+    "id": "post_ravenscourt_002",
+    "author": {
+      "id": "user_teacher_001",
+      "username": "yoga_maya#1001",
+      "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_thumb.jpg",
+      "avatarPrivacy": "public"
+    },
+    "content": "🌿 Weekly outdoor Vinyasa flow under the big oak trees in Ravenscourt Park W6! Class starts at 10 AM every Sunday. 🧘‍♀️🍃",
+    "source": {
+      "type": "community",
+      "id": "comm_ravenscourt_yoga",
+      "name": "Ravenscourt Park Yoga"
+    },
+    "stats": {
+      "likeCount": 45,
+      "commentCount": 11
+    },
+    "createdAt": "2026-09-02T09:15:00Z"
+  },
+  {
+    "id": "post_ravenscourt_003",
+    "author": {
+      "id": "user_active",
+      "username": "active_yogini#2026",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "Mindfulness & Breathwork walk through Ravenscourt Park before sunset tonight. Meet by the glasshouse at 6:30 PM! 🌅",
+    "source": {
+      "type": "community",
+      "id": "comm_ravenscourt_yoga",
+      "name": "Ravenscourt Park Yoga"
+    },
+    "stats": {
+      "likeCount": 24,
+      "commentCount": 4
+    },
+    "createdAt": "2026-09-01T16:45:00Z"
+  },
+  {
+    "id": "post_beginners_001",
+    "author": {
+      "id": "user_newbie",
+      "username": "yoga_newbie#101",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "Hi everyone! Just joined the London Yoga Beginners Club. Any studio recommendations for friendly beginner hot yoga in West London? 🙏✨",
+    "source": {
+      "type": "community",
+      "id": "comm_londonyoga_beginners",
+      "name": "London Yoga Beginners & Newbies Club"
+    },
+    "stats": {
+      "likeCount": 19,
+      "commentCount": 7
+    },
+    "createdAt": "2026-09-02T11:00:00Z"
+  },
+  {
+    "id": "post_teachers_guild_001",
+    "author": {
+      "id": "user_maryia",
+      "username": "maryia_sharma#2026",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "🔒 [Teachers Only] Monthly peer sequencing & posture adjustment workshop hosted next Tuesday at 2 PM. Please RSVP in the guild chat!",
+    "source": {
+      "type": "community",
+      "id": "comm_westlondon_teachers",
+      "name": "West London Yoga Teachers Guild (Private)"
+    },
+    "stats": {
+      "likeCount": 14,
+      "commentCount": 3
+    },
+    "createdAt": "2026-09-01T12:00:00Z"
+  },
+  {
+    "id": "post_chelsea_vip_001",
+    "author": {
+      "id": "user_sophia_vane",
+      "username": "sophia_vane#2026",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "🔒 [Private Circle] Equinox Kundalini Gong Sanctuary session details sent to approved members via email. See you under the full moon 🌕✨",
+    "source": {
+      "type": "community",
+      "id": "comm_chelsea_vip",
+      "name": "Chelsea Private Sound Healing & Kundalini Circle"
+    },
+    "stats": {
+      "likeCount": 28,
+      "commentCount": 5
+    },
+    "createdAt": "2026-08-31T20:00:00Z"
+  },
+  {
+    "id": "post_elena_002",
+    "author": {
+      "id": "user_elena",
+      "username": "elena_rostova#204",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "🔥 Hot Ashtanga Primary series tips: Focus on steady Ujjayi breath and dristi gaze focus during Navasana posture hold. See you in class tonight at 5:30 PM! 🧘‍♀️✨",
+    "source": {
+      "type": "studio",
+      "id": "studio_chiswick_002",
+      "name": "Chiswick Hot Yoga Studio"
+    },
+    "stats": {
+      "likeCount": 38,
+      "commentCount": 6
+    },
+    "createdAt": "2026-09-02T12:30:00Z"
+  },
+  {
+    "id": "post_maryia_003",
+    "author": {
+      "id": "user_maryia",
+      "username": "maryia_sharma#108",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "✨ Restorative Yin & Sound Bath session tonight in Askew Road Zen Den! Bringing Tibetan singing bowls and deep hip openers. All levels welcome. 🧘‍♂️🎶",
+    "source": {
+      "type": "studio",
+      "id": "studio_askew_001",
+      "name": "Askew Road Zen Den"
+    },
+    "stats": {
+      "likeCount": 52,
+      "commentCount": 12
+    },
+    "createdAt": "2026-09-02T13:15:00Z"
+  },
+  {
+    "id": "post_sarah_002",
+    "author": {
+      "id": "user_sarah",
+      "username": "sarah_jenkins#99",
+      "thumbnailUrl": null,
+      "avatarPrivacy": "public"
+    },
+    "content": "🌿 Gentle Vinyasa & Pranayama breathwork flow this Sunday morning. Perfect way to reset for the week ahead. See you on the mat! 🌸",
+    "source": {
+      "type": "studio",
+      "id": "studio_askew_001",
+      "name": "Askew Road Zen Den"
+    },
+    "stats": {
+      "likeCount": 29,
+      "commentCount": 4
+    },
+    "createdAt": "2026-09-01T15:00:00Z"
   }
 ]

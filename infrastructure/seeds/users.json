@@ -5,6 +5,7 @@
     "displayName": "Sarah Jenkins",
     "bio": "Yogi practitioner exploring studios across London.",
     "lastSearchArea": "Askew",
+    "location_prefix": "W12",
     "joinedCommunities": ["area_askew", "comm_area_W12"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
@@ -22,6 +23,7 @@
     "displayName": "Maryia Sharma",
     "bio": "Owner of Askew Road Zen Den & Founder of Affordable London Yoga.",
     "lastSearchArea": "Askew",
+    "location_prefix": "W12",
     "joinedCommunities": ["area_askew", "comm_studio_studio_askew_001", "comm_brand_affordable_london"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
@@ -39,6 +41,7 @@
     "displayName": "Elena Rostova",
     "bio": "Lead Hot Yoga Instructor specializing in 35°C Hot Ashtanga.",
     "lastSearchArea": "Askew",
+    "location_prefix": "W12",
     "joinedCommunities": ["area_askew", "comm_studio_studio_askew_001"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
@@ -108,6 +111,108 @@
     "bio": "New to yoga, exploring local studios.",
     "lastSearchArea": "Askew",
     "joinedCommunities": ["area_askew"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_david_kim",
+    "username": "david_kim#2026",
+    "displayName": "David Kim",
+    "bio": "Owner & Lead Ashtanga Teacher at Ravenscourt Park Zen Pavilion W6.",
+    "lastSearchArea": "Hammersmith",
+    "joinedCommunities": ["area_hammersmith", "comm_ravenscourt_yoga"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_sophia_vane",
+    "username": "sophia_vane#2026",
+    "displayName": "Sophia Vane",
+    "bio": "Owner & Master Sound Healer at Chelsea Sanctuary Studio SW3.",
+    "lastSearchArea": "Chelsea",
+    "joinedCommunities": ["area_chelsea", "comm_chelsea_vip"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_privacy_001",
+    "username": "public_user#1111",
+    "displayName": "Public Yogi",
+    "bio": "Exploring public yoga flows in West London.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_privacy_002",
+    "username": "overlap_user#2222",
+    "displayName": "Overlap Yogi",
+    "bio": "Yoga enthusiast practicing in Askew & Chiswick.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew", "area_chiswick"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/p2_thumb.jpg",
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "groups-only",
+      "showJoinedGroups": "groups-only"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_privacy_003",
+    "username": "private_user#3333",
+    "displayName": "Private Yogi #3",
+    "bio": "Private yoga practitioner.",
+    "lastSearchArea": "Askew",
+    "joinedCommunities": ["area_askew"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": false,
+      "avatarPrivacy": "members-only",
+      "showJoinedGroups": "members-only"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_active",
+    "username": "active_yogini#2026",
+    "displayName": "Active Yogini",
+    "bio": "Daily practitioner & community organizer in West London.",
+    "lastSearchArea": "Hammersmith",
+    "joinedCommunities": ["area_hammersmith", "area_askew"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
     "privacySettings": {
