@@ -61,6 +61,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   useEffect(() => {
+    // Process Firebase Email Magic Link if present in URL
+    const processEmailLinkAndCleanUrl = async () => {
+      try {
+        const { isSignInWithEmailLink, signInWithEmailLink } = await import('firebase/auth');
+        if (isSignInWithEmailLink(auth, window.location.href)) {
+          let email = window.localStorage.getItem('emailForSignIn');
+          if (!email) {
+            email = window.prompt('Please confirm your email address for sign-in:');
+          }
+          if (email) {
+            await signInWithEmailLink(auth, email, window.location.href);
+            window.localStorage.removeItem('emailForSignIn');
+          }
+        }
+      } catch (err) {
+        console.error('[AuthContext] Email link sign-in error:', err);
+      } finally {
+        // Clean URL params and redirect to root path seamlessly
+        if (
+          window.location.pathname.includes('/finish-sign-in') ||
+          window.location.search.includes('oobCode') ||
+          window.location.search.includes('apiKey')
+        ) {
+          window.history.replaceState({}, document.title, window.location.origin + '/');
+        }
+      }
+    };
+
+    processEmailLinkAndCleanUrl();
+
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         await loadUserProfile(fbUser);

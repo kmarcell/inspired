@@ -11,6 +11,8 @@ import { MyStudiosView } from './components/MyStudiosView';
 import { AdminClaimsView } from './components/AdminClaimsView';
 import { ClaimStudioView } from './components/ClaimStudioView';
 import { StudioProfileView } from './components/StudioProfileView';
+import { UnifiedProfileView } from './components/UnifiedProfileView';
+import { firestoreService } from './services/firestoreService';
 import { YogaStudio } from './types';
 
 const MainRouter: React.FC = () => {
@@ -19,11 +21,213 @@ const MainRouter: React.FC = () => {
   const [previousTab, setPreviousTab] = useState<'feed' | 'profile'>('feed');
   const [claimingStudioId, setClaimingStudioId] = useState<string | null>(null);
   const [selectedStudio, setSelectedStudio] = useState<YogaStudio | null>(null);
+  const [selectedProfileData, setSelectedProfileData] = useState<any | null>(null);
+  const [navigationHistory, setNavigationHistory] = useState<Array<{ type: 'profile' | 'studio'; data: any }>>([]);
 
   const navigateTab = (tab: 'feed' | 'communities' | 'search' | 'profile' | 'studios' | 'admin') => {
     setSelectedStudio(null);
     setClaimingStudioId(null);
+    setSelectedProfileData(null);
+    setNavigationHistory([]);
     setActiveTab(tab);
+  };
+
+  const handleBackNavigation = () => {
+    if (navigationHistory.length > 0) {
+      const last = navigationHistory[navigationHistory.length - 1];
+      setNavigationHistory((prev) => prev.slice(0, -1));
+      if (last.type === 'profile') {
+        setSelectedProfileData(last.data);
+        setSelectedStudio(null);
+      } else {
+        setSelectedStudio(last.data);
+        setSelectedProfileData(null);
+      }
+    } else {
+      setSelectedProfileData(null);
+      setSelectedStudio(null);
+    }
+  };
+
+  const handleToggleSubscription = async (targetId: string) => {
+    if (!user) return;
+    const currentJoined = user.joinedCommunities || [];
+    const isAlreadyJoined = currentJoined.includes(targetId);
+    const updated = isAlreadyJoined
+      ? currentJoined.filter((id) => id !== targetId)
+      : [...currentJoined, targetId];
+
+    await firestoreService.updateUserCommunities(user.id, updated);
+    await refreshUserProfile();
+  };
+
+  const handleOpenCommunityProfile = async (communityId: string) => {
+    try {
+      if (selectedProfileData) {
+        setNavigationHistory((prev) => [...prev, { type: 'profile', data: selectedProfileData }]);
+      } else if (selectedStudio) {
+        setNavigationHistory((prev) => [...prev, { type: 'studio', data: selectedStudio }]);
+      }
+
+      const comm = await firestoreService.fetchCommunityById(communityId);
+      if (comm) {
+        const isBrand = comm.id.includes('brand') || comm.communityType === 'brand';
+        
+        // Dynamically fetch and filter studio branches matching this community's location prefix or network
+        const allStudios = await firestoreService.fetchStudiosByLocation(comm.location_prefix || '');
+        const targetPrefix = (comm.location_prefix || '').trim();
+
+        const matchingBranches = allStudios
+          .filter((st) =>
+            isBrand
+              ? st.parentBrandCommunityId === comm.id || st.location_prefix === targetPrefix
+              : st.location_prefix === targetPrefix || (st.location_prefix && comm.id.includes(st.location_prefix.toLowerCase()))
+          )
+          .map((st) => ({
+            id: st.id,
+            name: st.name,
+            address: st.address,
+            location_prefix: st.location_prefix,
+            status: st.status === 'active' ? ('open' as const) : ('closed' as const),
+          }));
+
+        // Dynamically extract area teachers from matching studio branches
+        const areaTeachers: { id: string; name: string; specialty: string }[] = [];
+        const seenTeacherIds = new Set<string>();
+
+        for (const branch of matchingBranches) {
+          const fullStudio = await firestoreService.fetchStudioById(branch.id);
+          if (fullStudio && fullStudio.assignedTeachers) {
+            fullStudio.assignedTeachers.forEach((t) => {
+              if (!seenTeacherIds.has(t.id)) {
+                seenTeacherIds.add(t.id);
+                areaTeachers.push({
+                  id: t.id,
+                  name: t.displayName,
+                  specialty: t.specialty || 'Yoga Instructor',
+                });
+              }
+            });
+          }
+        }
+
+        const feedPosts = await firestoreService.fetchCommunityFeed(comm.id);
+
+        setSelectedProfileData({
+          id: comm.id,
+          variant: isBrand ? 'brand' : 'area',
+          name: comm.name,
+          bio: comm.description,
+          location_prefix: comm.location_prefix,
+          subscriberCount: comm.memberCount || matchingBranches.reduce((acc, b) => acc + 48, 0) || matchingBranches.length * 48 || 0,
+          postCount: feedPosts.length,
+          posts: feedPosts,
+          studioBranches: matchingBranches,
+          areaTeachers,
+        });
+      }
+    } catch (err) {
+      console.error('[App] Failed to load community profile:', err);
+    }
+  };
+
+  const handleOpenUserProfile = async (userId: string) => {
+    try {
+      if (selectedProfileData) {
+        setNavigationHistory((prev) => [...prev, { type: 'profile', data: selectedProfileData }]);
+      } else if (selectedStudio) {
+        setNavigationHistory((prev) => [...prev, { type: 'studio', data: selectedStudio }]);
+      }
+      setSelectedStudio(null);
+
+      const userDoc = await firestoreService.fetchUserProfile(userId);
+      const userPosts = await firestoreService.fetchUserPosts(userId);
+
+      // Dynamically query studios where this user is an assigned teacher or owner
+      const allStudios = await firestoreService.fetchStudiosByLocation('');
+      const teachingStudios: { id: string; name: string; location_prefix: string }[] = [];
+      const teacherClasses: any[] = [];
+
+      for (const st of allStudios) {
+        const fullSt = await firestoreService.fetchStudioById(st.id);
+        if (fullSt) {
+          const isAssigned = fullSt.assignedTeachers?.some((t) => t.id === userId);
+          if (isAssigned || fullSt.ownerId === userId) {
+            teachingStudios.push({
+              id: fullSt.id,
+              name: fullSt.name,
+              location_prefix: fullSt.location_prefix,
+            });
+
+            const stClasses = await firestoreService.fetchStudioClasses(fullSt.id);
+            const myClasses = stClasses.filter((c) => c.teacherId === userId);
+            teacherClasses.push(...myClasses);
+          }
+        }
+      }
+
+      const isTeacher =
+        teachingStudios.length > 0 ||
+        userId === 'user_elena' ||
+        userId === 'user_maryia' ||
+        userId === 'user_teacher_001' ||
+        userId === 'user_david_kim' ||
+        userId === 'user_sophia_vane';
+
+      setSelectedProfileData({
+        id: userId,
+        variant: 'user',
+        name:
+          userDoc?.displayName ||
+          (userId === 'user_elena'
+            ? 'Elena Rostova'
+            : userId === 'user_maryia'
+            ? 'Maryia Sharma'
+            : userId === 'user_sarah'
+            ? 'Sarah Jenkins'
+            : userId === 'user_sophia_vane'
+            ? 'Sophia Vane'
+            : userId === 'user_david_kim'
+            ? 'David Kim'
+            : 'Test Yogi'),
+        username: userDoc?.username || userId,
+        bio:
+          userDoc?.bio ||
+          (isTeacher
+            ? 'Passionate Yoga Instructor in London.'
+            : 'Passionate yogi exploring mindfulness and community classes in London.'),
+        location_prefix: userDoc?.location_prefix || userDoc?.lastSearchArea || 'W12',
+        isTeacher,
+        isVerified: true,
+        isProfilePublic:
+          userDoc?.privacySettings?.isProfilePublic ??
+          (userId === 'user_members_only' || userId === 'user_groups_only' ? false : true),
+        subscriberCount: isTeacher ? (userDoc?.subscriberCount || 142) : 0,
+        postCount: userPosts.length,
+        posts: userPosts,
+        teachingStudios: isTeacher ? teachingStudios : undefined,
+        classes: isTeacher ? teacherClasses : undefined,
+      });
+    } catch (err) {
+      console.error('[App] Failed to load user profile:', err);
+    }
+  };
+
+  const handleOpenStudio = async (studioId: string) => {
+    try {
+      if (selectedProfileData) {
+        setNavigationHistory((prev) => [...prev, { type: 'profile', data: selectedProfileData }]);
+      } else if (selectedStudio) {
+        setNavigationHistory((prev) => [...prev, { type: 'studio', data: selectedStudio }]);
+      }
+      const st = await firestoreService.fetchStudioById(studioId);
+      if (st) {
+        setSelectedProfileData(null);
+        setSelectedStudio(st);
+      }
+    } catch (err) {
+      console.error('[App] Failed to load studio profile:', err);
+    }
   };
 
   if (status === 'launching') {
@@ -209,12 +413,23 @@ const MainRouter: React.FC = () => {
 
         {/* Active Tab View */}
         <main className="flex-1 pb-12">
-          {selectedStudio ? (
+          {selectedProfileData ? (
+            <UnifiedProfileView
+              profileData={selectedProfileData}
+              currentUser={user}
+              onBack={handleBackNavigation}
+              onSelectUser={(userId) => handleOpenUserProfile(userId)}
+              onToggleSubscription={handleToggleSubscription}
+              onSelectStudio={(studioId) => handleOpenStudio(studioId)}
+            />
+          ) : selectedStudio ? (
             <StudioProfileView
               studio={selectedStudio}
               currentUser={user}
-              onBack={() => setSelectedStudio(null)}
+              onBack={handleBackNavigation}
               onUpdateCurrentUser={() => refreshUserProfile()}
+              onSelectTeacher={(userId) => handleOpenUserProfile(userId)}
+              onSelectUserProfile={(userId) => handleOpenUserProfile(userId)}
             />
           ) : claimingStudioId ? (
             <ClaimStudioView
@@ -227,19 +442,22 @@ const MainRouter: React.FC = () => {
             />
           ) : (
             <>
-              {activeTab === 'feed' && <CommunityFeedView />}
+              {activeTab === 'feed' && (
+                <CommunityFeedView onSelectUser={(userId) => handleOpenUserProfile(userId)} />
+              )}
               {activeTab === 'search' && (
                 <SearchView
                   onClose={() => navigateTab('feed')}
                   onClaimStudio={(id) => setClaimingStudioId(id)}
                   onSelectStudio={(st) => setSelectedStudio(st)}
-                  onSelectCommunity={() => navigateTab('communities')}
+                  onSelectCommunity={(id) => handleOpenCommunityProfile(id)}
                 />
               )}
               {activeTab === 'communities' && (
                 <JoinedCommunitiesView
                   onBack={() => navigateTab('feed')}
                   onSelectStudio={(st) => setSelectedStudio(st)}
+                  onSelectCommunity={(id) => handleOpenCommunityProfile(id)}
                 />
               )}
               {activeTab === 'profile' && (

@@ -14,6 +14,8 @@ vi.mock('firebase/auth', () => ({
     return vi.fn();
   }),
   getAuth: vi.fn(() => ({})),
+  isSignInWithEmailLink: vi.fn(() => false),
+  signInWithEmailLink: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock('../../firebase', () => ({
