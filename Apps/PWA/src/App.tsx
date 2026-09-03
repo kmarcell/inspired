@@ -119,7 +119,7 @@ const MainRouter: React.FC = () => {
           name: comm.name,
           bio: comm.description,
           location_prefix: comm.location_prefix,
-          subscriberCount: comm.memberCount || matchingBranches.reduce((acc, b) => acc + 48, 0) || matchingBranches.length * 48 || 0,
+          subscriberCount: comm.memberCount || matchingBranches.reduce((acc) => acc + 48, 0) || matchingBranches.length * 48 || 0,
           postCount: feedPosts.length,
           posts: feedPosts,
           studioBranches: matchingBranches,

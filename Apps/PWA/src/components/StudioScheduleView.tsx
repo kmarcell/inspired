@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StudioClass, UserProfile } from '../types';
+import { StudioClass, UserProfile, UserPass, CompanyCurrency } from '../types';
 import { firestoreService } from '../services/firestoreService';
 import { ClassInfoModal } from './ClassInfoModal';
+import { BookingPassSelectionModalView } from './BookingPassSelectionModalView';
+import { NoPassAvailableModalView } from './NoPassAvailableModalView';
+import { CurrencyStoreCheckoutModalView } from './CurrencyStoreCheckoutModalView';
 
 interface StudioScheduleViewProps {
   studioId: string;
@@ -28,6 +31,13 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
   const [userBookings, setUserBookings] = useState<Record<string, 'confirmed' | 'waitlisted'>>({});
   const [cancelingClassId, setCancelingClassId] = useState<string | null>(null);
   const [showJoinPromptModal, setShowJoinPromptModal] = useState(false);
+
+  // Section 5.20 Pass Selection & Store State
+  const [bookingPassTargetClass, setBookingPassTargetClass] = useState<StudioClass | null>(null);
+  const [userWalletPasses, setUserWalletPasses] = useState<UserPass[]>([]);
+  const [showNoPassModal, setShowNoPassModal] = useState(false);
+  const [showStoreModal, setShowStoreModal] = useState(false);
+  const [studioStoreCurrencies, setStudioStoreCurrencies] = useState<CompanyCurrency[]>([]);
 
   // Generate 7 days for the active week offset
   const getDaysOfWeek = (offset: number) => {
@@ -76,24 +86,55 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
     }
 
     try {
-      const res = await firestoreService.bookStudioClass(studioId, cls.id, currentUser);
-      setUserBookings((prev) => ({ ...prev, [cls.id]: res.status }));
+      const passes = await firestoreService.fetchUserPasses(currentUser.id);
+      const validPasses = passes.filter(
+        (p) => p.status === 'active' && (p.tierType === 'unlimited' || (p.creditsRemaining && p.creditsRemaining > 0))
+      );
 
-      // Refresh class capacity in local state
+      if (validPasses.length > 0) {
+        setUserWalletPasses(validPasses);
+        setBookingPassTargetClass(cls);
+      } else {
+        setBookingPassTargetClass(cls);
+        setShowNoPassModal(true);
+      }
+    } catch {
+      // Fallback if pass check fails
+      setBookingPassTargetClass(cls);
+      setShowNoPassModal(true);
+    }
+  };
+
+  const executeConfirmBookWithPass = async (selectedPassId: string) => {
+    if (!currentUser || !bookingPassTargetClass) return;
+
+    try {
+      const res = await firestoreService.bookClassWithPass(
+        bookingPassTargetClass.id,
+        studioId,
+        currentUser.id,
+        currentUser.displayName || 'Yogi Member',
+        selectedPassId
+      );
+
+      setUserBookings((prev) => ({ ...prev, [bookingPassTargetClass.id]: res.status }));
+
       setClasses((prev) =>
         prev.map((item) => {
-          if (item.id === cls.id) {
-            if (res.status === 'confirmed') {
-              return { ...item, bookedCount: item.bookedCount + 1 };
-            } else {
-              return { ...item, waitlist: [...item.waitlist, currentUser.id] };
-            }
+          if (item.id === bookingPassTargetClass.id) {
+            return {
+              ...item,
+              bookedCount: res.status === 'confirmed' ? item.bookedCount + 1 : item.bookedCount,
+              waitlist: res.status === 'waitlisted' ? [...item.waitlist, currentUser.id] : item.waitlist,
+            };
           }
           return item;
         })
       );
+      setBookingPassTargetClass(null);
     } catch (e) {
-      console.error('Booking failed:', e);
+      console.error('Booking with pass failed:', e);
+      setBookingPassTargetClass(null);
     }
   };
 
@@ -102,7 +143,10 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
     setCancelingClassId(clsId);
 
     try {
-      await firestoreService.cancelStudioBooking(studioId, clsId, currentUser.id);
+      const cls = classes.find((c) => c.id === clsId);
+      const classDateISO = cls ? cls.dateString : new Date().toISOString();
+      await firestoreService.cancelClassBooking(clsId, studioId, currentUser.id, classDateISO);
+
       setUserBookings((prev) => {
         const next = { ...prev };
         delete next[clsId];
@@ -349,6 +393,54 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Section 5.20 Pass Selection Modal */}
+      {bookingPassTargetClass && userWalletPasses.length > 0 && (
+        <BookingPassSelectionModalView
+          classNameTitle={bookingPassTargetClass.className}
+          studioName={studioName || 'Studio'}
+          classDateString={bookingPassTargetClass.dateString}
+          startTime={bookingPassTargetClass.startTime}
+          userPasses={userWalletPasses}
+          onConfirmBook={executeConfirmBookWithPass}
+          onClose={() => setBookingPassTargetClass(null)}
+        />
+      )}
+
+      {/* Section 5.20 No Valid Pass Fallback Modal */}
+      {showNoPassModal && bookingPassTargetClass && (
+        <NoPassAvailableModalView
+          studioName={studioName || 'Studio'}
+          classNameTitle={bookingPassTargetClass.className}
+          onPurchasePassClick={async () => {
+            setShowNoPassModal(false);
+            const currencies = await firestoreService.fetchCompanyCurrencies(studioId);
+            setStudioStoreCurrencies(currencies);
+            setShowStoreModal(true);
+          }}
+          onClose={() => {
+            setShowNoPassModal(false);
+            setBookingPassTargetClass(null);
+          }}
+        />
+      )}
+
+      {/* Section 5.20 Currency Store Checkout Modal */}
+      {showStoreModal && (
+        <CurrencyStoreCheckoutModalView
+          studioName={studioName || 'Studio'}
+          currencies={studioStoreCurrencies}
+          userId={currentUser?.id || ''}
+          onPassActivated={() => {
+            setShowStoreModal(false);
+            alert('Pass successfully activated in your wallet!');
+          }}
+          onClose={() => {
+            setShowStoreModal(false);
+            setBookingPassTargetClass(null);
+          }}
+        />
       )}
     </div>
   );

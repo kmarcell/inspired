@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { UnifiedProfileView, UnifiedProfileData } from '../UnifiedProfileView';
@@ -38,15 +37,20 @@ const mockTeacherProfile: UnifiedProfileData = {
       id: 'cls_1',
       studioId: 'st_1',
       studioName: 'Chiswick Hot Yoga Studio',
+      className: 'Sunset Hot Ashtanga Flow',
+      title: 'Sunset Hot Ashtanga Flow',
+      classTypeDescription: 'Hot Ashtanga Flow',
+      dayOfWeek: 1,
       teacherId: 'user_teacher_001',
       teacherName: 'Elena Rostova',
-      title: 'Sunset Hot Ashtanga Flow',
       dateString: new Date().toISOString().split('T')[0],
       startTime: '18:00',
       endTime: '19:15',
       roomClimate: 'hot_studio',
+      capacity: 20,
       maxCapacity: 20,
       bookedCount: 5,
+      waitlist: [],
     },
   ],
 };
