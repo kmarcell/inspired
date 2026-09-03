@@ -58,10 +58,21 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
     setError(null);
 
     try {
-      const [fetchedCompanies, fetchedStudios] = await Promise.all([
+      let [fetchedCompanies, fetchedStudios] = await Promise.all([
         firestoreService.fetchCompaniesByOwner(user.id),
         firestoreService.fetchStudiosByOwner(user.id),
       ]);
+
+      // If user is an Admin and has no explicit ownership records, load all platform brands & studios for testing
+      if (user.isAdmin && (fetchedCompanies.length === 0 || fetchedStudios.length === 0)) {
+        const [allCompanies, allStudios] = await Promise.all([
+          firestoreService.fetchAllCompanies(),
+          firestoreService.fetchAllStudios(),
+        ]);
+        if (fetchedCompanies.length === 0) fetchedCompanies = allCompanies;
+        if (fetchedStudios.length === 0) fetchedStudios = allStudios;
+      }
+
       setCompanies(fetchedCompanies || []);
       setStudios(fetchedStudios || []);
 

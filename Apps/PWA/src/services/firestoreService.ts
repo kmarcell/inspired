@@ -694,6 +694,12 @@ export const firestoreService = {
     };
   },
 
+  /** Fetch all Companies on the platform */
+  async fetchAllCompanies(): Promise<Company[]> {
+    const snapshot = await getDocs(collection(db, 'companies'));
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Company));
+  },
+
   /** Fetch all Companies owned by a user (auto-prunes orphan studio-less brands & deduplicates by name) */
   async fetchCompaniesByOwner(ownerId: string): Promise<Company[]> {
     const [companiesSnap, studiosSnap] = await Promise.all([

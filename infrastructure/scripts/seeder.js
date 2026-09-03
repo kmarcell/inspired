@@ -439,8 +439,25 @@ async function run() {
         const authUser = await admin.auth().getUserByEmail(cleanAdminEmail);
         if (authUser) {
           await admin.auth().setCustomUserClaims(authUser.uid, { isAdmin: true });
-          await db.collection('users').doc(authUser.uid).set({ isAdmin: true }, { merge: true });
-          console.log(`🛡️ Granted Admin permissions to: ${cleanAdminEmail} (${authUser.uid})`);
+          await db.collection('users').doc(authUser.uid).set({
+            id: authUser.uid,
+            username: authUser.displayName ? `${authUser.displayName.toLowerCase().replace(/\s+/g, '_')}#001` : 'admin_user#001',
+            email: cleanAdminEmail,
+            displayName: authUser.displayName || 'Platform Admin',
+            isAdmin: true,
+            bio: 'Platform Administrator & Yoga Community Founder.',
+            lastSearchArea: 'Askew',
+            location_prefix: 'W12',
+            joinedCommunities: ['area_askew', 'comm_studio_studio_askew_001', 'comm_brand_affordable_london'],
+            privacySettings: {
+              isProfilePublic: true,
+              avatarPrivacy: 'public',
+              showJoinedGroups: 'public'
+            },
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+          console.log(`🛡️ Granted Admin permissions & created full profile for: ${cleanAdminEmail} (${authUser.uid})`);
         }
       } catch (e) {
         // User not registered yet in Auth; invite created in /stagingInvites
