@@ -200,6 +200,17 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Automated Testing (`ClaimStudioView.test.tsx`):** 100% passing Vitest test coverage (43/43 tests passing across 12 test suites).
 - [ ] **Production Legal & Email Template Links:** Update placeholder URLs (`privacyUrl`, `termsUrl`, `websiteUrl`) in `infrastructure/backend/templates/emails/index.ts` with final domain links prior to release.
 
+### Phase 9: Brand Currency Catalog, Studio Acceptance Policies & Pass Booking System (Completed)
+- [x] **SVG Mockups (Desktop `*_Desktop.svg` & Mobile `*_Mobile.svg` Viewports):** Completed high-fidelity visual mockups for Desktop and Mobile viewports with Save & Discard controls.
+- [x] **Feature Specification (`FEATURES.md` Section 5.20):** Codified Brand Currency Catalog, Studio Acceptance Modes, User Pass Wallet, and Class Booking Selector logic.
+- [x] **Brand Currency Catalog & Admin Granting Manager (`MyStudiosView.tsx`):** UI for brand/studio owners to manage currencies, drop-in rates, 40% OFF promo windows, and manually grant passes/credits (`grantUserPass`) with credit quantity stepper input (`[ − ] 2 [ ＋ ]`) to test users on Staging and record in-person cash sales.
+- [x] **Studio Currency Acceptance Policy Selector:** UI for studio branches to choose `Follow Brand` vs `Custom Studio Policy`.
+- [x] **User Digital Pass Wallet (`UserPassWalletView.tsx`):** Interface for yogis to view active credit balances, unlimited subscriptions, and expiration dates.
+- [x] **Class Booking, Fallback & Currency Store Modals (`BookingPassSelectionModalView.tsx`, `NoPassAvailableModalView.tsx`, `CurrencyStoreCheckoutModalView.tsx`):** Booking modal with concise **"Book"** button, fallback popup when user has no valid passes or credits, and interactive Currency Store Checkout screen.
+- [x] **Push/Pop Subpage Navigation & Tabbed Layout Refactoring (`MyStudiosView.tsx`):** Full-page navigation subpages (`← Back to My Brands` & `← Back to My Studios`) replacing inline popup modals, with tabbed organization (**Studios**, **Brand Currencies**, **Brand Info & Settings** for Brands; **General Settings** and **Pricing & Currency Policy** for Studios) and polished dark mode styling.
+- [x] **Cancellation Booking Transaction Reversal Engine:** Credit refund logic reversing the transaction and restoring the exact number of redeemed credits back to the user's pass balance when cancelling >= 12h prior to class start.
+- [ ] **Pass Auto-Renewal Toggle [TBD / ON HOLD]:** Optional `isAutoRenewable?: boolean` currency toggle to auto-renew passes on expiration date (pinned for future payment gateway recurring subscription setup).
+
 ---
 
 ## 3. Project Milestones

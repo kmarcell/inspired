@@ -911,6 +911,111 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 
 ---
 
+### 5.20 Brand Currency Catalog, Studio Acceptance Policies & Pass Booking System
+
+**Goal:** Provide brand owners with flexible, multi-tier pricing currencies (drop-ins, limited credit packs, weekly/monthly/annual unlimited passes, studio-specific passes) and allow studio branches to accept brand currencies or define custom pricing. Enable users to hold multiple passes in a digital wallet and select their preferred valid pass when booking a class.
+
+**Mockups (Desktop & Mobile Responsive Viewports):**
+- **Brand Currency Catalog & Promo Manager:**
+  - Desktop: `UI/Mockups/5.20_BrandCurrencyManagerView_Desktop.svg`
+  - Mobile List: `UI/Mockups/5.20_BrandCurrencyManagerView_Mobile.svg`
+  - Mobile Push/Pop Detail Editor: `UI/Mockups/5.20_CurrencyEditorDetailView_Mobile.svg`
+- **Standalone Studio Currency Manager:**
+  - Desktop: `UI/Mockups/5.20_StandaloneStudioCurrencyManagerView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_StandaloneStudioCurrencyManagerView_Mobile.svg`
+- **Studio Custom Location Pricing Overrides:**
+  - Desktop: `UI/Mockups/5.20_StudioCustomOverrideCurrencyView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_StudioCustomOverrideCurrencyView_Mobile.svg`
+- **Studio Currency Acceptance Policy Selector:**
+  - Desktop: `UI/Mockups/5.20_StudioCurrencyAcceptanceView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_StudioCurrencyAcceptanceView_Mobile.svg`
+- **Yogi User Pass Wallet:**
+  - Desktop: `UI/Mockups/5.20_UserPassWalletView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_UserPassWalletView_Mobile.svg`
+- **Class Booking Pass Selection Modal:**
+  - Desktop: `UI/Mockups/5.20_BookingPassSelectionModalView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_BookingPassSelectionModalView_Mobile.svg`
+- **No Valid Pass / Insufficient Credits Fallback Modal:**
+  - Desktop: `UI/Mockups/5.20_NoPassAvailableModalView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_NoPassAvailableModalView_Mobile.svg`
+- **Currency & Pass Store Purchase Checkout Modal:**
+  - Desktop: `UI/Mockups/5.20_CurrencyStoreCheckoutModalView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_CurrencyStoreCheckoutModalView_Mobile.svg`
+- **Admin Pass & Credit Granting Modal:**
+  - Desktop: `UI/Mockups/5.20_AdminGrantPassModalView_Desktop.svg`
+  - Mobile: `UI/Mockups/5.20_AdminGrantPassModalView_Mobile.svg`
+
+#### 1. Brand & Standalone Currency Catalog (`CompanyCurrency` / `StudioCurrency` Schema)
+- **Form Controls:** All currency editing and configuration panels MUST feature both a primary **"Save Currency Changes"** button and a secondary **"✕ Discard Changes"** button to revert uncommitted form edits.
+- **Mobile Push/Pop Navigation Pattern:** On mobile viewports, currency catalog lists omit desktop edit buttons and top segmented tabs. Rows render native disclosure chevrons (`❯`). Tapping a row pushes to a full-screen **Currency Details & Edit Screen** featuring a top back button (`‹ Back`) and bottom **Save / Discard** action bar.
+- **Ownership & Brand Centralized Visibility:** Brand currencies are defined at the **Company / Parent Brand** level in *My Studios / My Brands*. The brand owner's manager view aggregates and displays ALL currencies in the brand network, including custom location-specific currencies created by owned studio branches.
+- **Scope Badge Labeling:** Currencies restricted to specific studios explicitly display their location scope badge (e.g. `Valid: Chiswick Hot Yoga Only` or `Studio Exclusive`) to distinguish location passes from network-wide passes (`Valid: All Studios`).
+- **Currency Configuration Settings:**
+  - **`id`**: Unique string identifier (e.g., `curr_brand_5pack_001`).
+  - **`companyId`**: Parent brand company reference.
+  - **`name`**: Display title (e.g., "Single Hot Yoga Drop-In", "5-Class Pack (Summer Special)", "Monthly Unlimited Zen Pass").
+  - **`creditType`**: `'limited'` (numeric credits e.g. 1, 5, 10) OR `'unlimited'` (unrestricted bookings).
+  - **`creditsCount`**: Number of credits (required if `creditType === 'limited'`).
+  - **`validityDays`**: Expiration duration in days calculated from purchase time UTC (e.g. 30 days, 60 days, 365 days).
+  - **`basePriceAmount`**: Numeric price (e.g. £15.00, £60.00, £95.00).
+  - **`currencyCode`**: ISO currency symbol (e.g. `'GBP'`).
+  - **`allowedStudioIds`**: `'all'` OR specific array of studio branch IDs where the pass can be redeemed.
+  - **`promoOffer` (Active Discounts):**
+    - `discountPercentage`: Discount percent (e.g., 40% OFF).
+    - `promoStartDate`: UTC ISO start date string.
+    - `promoEndDate`: UTC ISO end date string.
+    - `discountedPriceAmount`: Calculated promo purchase price (e.g., £36.00 instead of £60.00).
+
+#### 2. Studio Currency Acceptance & Pricing Policy (`StudioCurrencyPolicy`)
+- **Naming Convention:** All action buttons for adding pricing tiers MUST use **`＋ Add Currency`** or **`＋ Create Currency`** across all screens.
+- **Standalone Studio Rule:** Independent studios without a parent brand do NOT render a policy selection card or radio buttons. They directly present the location's **Studio Currency Catalog Manager**.
+- **Mode Options for Brand Studio Branches:**
+  - **`'follow_brand'` (Default):** Studio automatically inherits and accepts all active brand currencies that include this studio in `allowedStudioIds` (or `'all'`).
+  - **`'custom'`:** Studio explicitly toggles accepted brand currencies or overrides prices (e.g. £20.00 drop-in rate override).
+
+#### 3. User Digital Pass Wallet (`UserPass` Schema)
+- **Purchased Pass Properties:**
+  - `id`: Unique pass instance ID.
+  - `userId`: Pass owner ID.
+  - `currencyId`: Reference to parent `CompanyCurrency` definition.
+  - `companyId`: Parent brand reference.
+  - `currencyName`: Snapshot of currency name at time of purchase.
+  - `creditsRemaining`: Numeric remaining count (decremented by 1 per booking) or `'unlimited'`.
+  - `purchasedAt`: ISO timestamp UTC.
+  - `expiresAt`: Calculated ISO timestamp UTC (`purchasedAt + validityDays`).
+  - `status`: `'active'` | `'expired'` | `'depleted'`.
+
+#### 4. Class Booking & Pass Selection Flow
+- **Eligibility Validation Rule:**
+  When a user taps **"Book Class"** on a studio schedule:
+  1. System queries user's wallet for active passes where:
+     - `expiresAt >= classDate` (valid through class date/time).
+     - Studio accepts the pass's `currencyId`.
+     - Studio is listed in pass's `allowedStudioIds` (or `'all'`).
+     - `creditsRemaining > 0` or pass is `'unlimited'`.
+  2. **Multi-Pass Selector Modal (`5.20_BookingPassSelectionModalView.svg`):** If valid passes exist, the UI presents a modal displaying valid passes with remaining balances and expiration dates, allowing the user to select which pass to redeem and tap **"Book"**.
+  3. **No Valid Pass Fallback Modal (`5.20_NoPassAvailableModalView.svg`):** If no active valid pass or remaining credits exist for the target studio, attempting to book pops up an alert modal explaining that no valid pass was found, offering a direct **`💳 Purchase Pass`** button to open the studio pass store, alongside a **`Cancel`** option.
+  4. **Currency Store & Purchase Flow (`5.20_CurrencyStoreCheckoutModalView.svg`):**
+     - **Status:** **[TBD / Payment Gateway Integration Pending]**.
+     - **Environment Security & Execution Rules:**
+       - **Local Dev (`import.meta.env.DEV`):** Tapping **`🔒 Pay & Activate Pass`** safely simulates payment by triggering a local Cloud Function emulator that writes a test `UserPass` to the local Firestore emulator.
+       - **Staging (`mode === 'staging'`):** Direct user purchase checkout is **DISABLED** for safety. Staging testing uses **Admin Pass Granting** (`grantUserPass(userId, currencyId)`), allowing studio owners and brand admins to manually grant passes and credits to test users directly inside the Studio Management Suite via verified Cloud Functions.
+       - **Production In-Person Cash & Terminal Sales:** In production, **Admin Pass Granting (`5.20_AdminGrantPassModalView.svg`)** serves as the front-desk POS tool for studio owners to record in-person cash payments, card terminal transactions, or issue VIP complimentary passes directly to students at the studio.
+       - **Custom Credit Quantity Stepper:** The Admin Granting Modal features a **Credit Quantity Stepper Field (`Credit Quantity: [ 2 ] (+ / -)`)**, allowing admins to grant custom credit counts (e.g. 2 credits, 3 credits, or custom top-ups) as well as fixed pass tiers.
+       - **Production Online Gateway (`mode === 'production'`):** Online self-service checkout displays an informative notice (`"Online payment integration coming soon"`) prior to live Stripe webhook configuration.
+     - **Anti-Tampering & OWASP Security Enforcement:**
+       - **`firestore.rules` Write Block:** Client SDK requests CANNOT write to `user_passes` (`allow write: if false;`). Pass creation is 100% server-side isolated using the Firebase Admin SDK inside authenticated Cloud Functions.
+       - **Cryptographic Webhooks:** Production pass issuance requires a valid, verified Stripe signature (`stripe-signature` header check) on the Node.js backend. Client-side JS modifications or environment variable spoofing cannot grant free passes or forge credit balances.
+     - **Legal Links:** Must render clickable links to **Terms & Conditions** and **Privacy Policy**.
+  5. **Automatic Credit Deduction:** Confirming booking deducts 1 credit from limited passes or records booking under unlimited passes.
+  6. **Cancellation Transaction Reversal:** Cancelling a class prior to the studio cancellation deadline (e.g. 12h prior) automatically reverses the booking transaction, refunding the exact number of credits used for that booking back to the user's pass balance.
+
+#### 5. Pass Auto-Renewal Toggle [TBD / ON HOLD]
+- **Pinned Feature Idea:** Currency definitions may include an optional `isAutoRenewable?: boolean` toggle (allowing a pass to automatically renew on the day of its expiration).
+- **Status:** **[ON HOLD / TBD]** Pending specification of payment gateway recurring subscription webhooks and automatic billing renewal workflows. Initial implementation focuses on fixed-duration passes (`validityDays`).
+
+---
+
 13. **Issue Reporting & Support** (TBD)
 14. **Accessibility** (Requirements Defined)
 15. **Maintenance Mode** (Triggered via Remote Config)

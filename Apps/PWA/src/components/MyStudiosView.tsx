@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { firestoreService } from '../services/firestoreService';
-import { Company, YogaStudio } from '../types';
+import { Company, YogaStudio, CompanyCurrency, StudioCurrencyPolicy, CurrencyTierType } from '../types';
 import { CreateStudioView } from './CreateStudioView';
+import { AdminGrantPassModalView } from './AdminGrantPassModalView';
 
 interface MyStudiosViewProps {
   onBack?: () => void;
@@ -20,11 +21,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
   const [isCreatingStudio, setIsCreatingStudio] = useState<boolean>(false);
   const [managingStudio, setManagingStudio] = useState<YogaStudio | null>(null);
   const [bioText, setBioText] = useState<string>('');
-  const [statusNote, setStatusNote] = useState<string>('');
   const [isSavingBio, setIsSavingBio] = useState<boolean>(false);
-
-  const [deletingStudio, setDeletingStudio] = useState<YogaStudio | null>(null);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   // Company Brand Management State
   const [managingCompany, setManagingCompany] = useState<Company | null>(null);
@@ -36,8 +33,24 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
   const [companyError, setCompanyError] = useState<string | null>(null);
   const [deletingCompany, setDeletingCompany] = useState<Company | null>(null);
 
+  // Subpage Active Tab States
+  const [brandActiveTab, setBrandActiveTab] = useState<'studios' | 'currencies' | 'settings'>('studios');
+  const [studioActiveTab, setStudioActiveTab] = useState<'general' | 'pricing'>('general');
+
   // In-App Hard Delete Studio Confirmation State
   const [hardDeletingStudio, setHardDeletingStudio] = useState<YogaStudio | null>(null);
+
+  // Section 5.20 Currency Catalog & Policy State
+  const [companyCurrencies, setCompanyCurrencies] = useState<CompanyCurrency[]>([]);
+  const [studioPolicy, setStudioPolicy] = useState<StudioCurrencyPolicy | null>(null);
+  const [isAddingCurrency, setIsAddingCurrency] = useState<boolean>(false);
+  const [newCurrTitle, setNewCurrTitle] = useState<string>('');
+  const [newCurrDesc, setNewCurrDesc] = useState<string>('');
+  const [newCurrTier, setNewCurrTier] = useState<CurrencyTierType>('drop_in');
+  const [newCurrCredits, setNewCurrCredits] = useState<number>(1);
+  const [newCurrPrice, setNewCurrPrice] = useState<number>(15);
+  const [newCurrValidity, setNewCurrValidity] = useState<number>(30);
+  const [isGrantingPass, setIsGrantingPass] = useState<boolean>(false);
 
   const loadOwnedEntities = async () => {
     if (!user) return;
@@ -51,6 +64,11 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
       ]);
       setCompanies(fetchedCompanies || []);
       setStudios(fetchedStudios || []);
+
+      if (fetchedCompanies && fetchedCompanies.length > 0) {
+        const currencies = await firestoreService.fetchCompanyCurrencies(fetchedCompanies[0].id);
+        setCompanyCurrencies(currencies);
+      }
     } catch (err: unknown) {
       console.error('[MyStudiosView] Failed to load owned studios:', err);
       setError(err instanceof Error ? err.message : 'Failed to load owned studios and brands.');
@@ -72,10 +90,18 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
     };
   }, [user]);
 
-  const handleOpenManageModal = (st: YogaStudio) => {
+  const handleOpenManageModal = async (st: YogaStudio) => {
+    setManagingCompany(null);
     setManagingStudio(st);
     setBioText(st.about || '');
-    setStatusNote(st.statusNote || '');
+    setStudioActiveTab('general');
+
+    try {
+      const policy = await firestoreService.fetchStudioCurrencyPolicy(st.id);
+      setStudioPolicy(policy);
+    } catch {
+      setStudioPolicy(null);
+    }
   };
 
   const handleSaveBio = async (e: React.FormEvent) => {
@@ -94,29 +120,21 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
     }
   };
 
-  const handleConfirmDelete = async () => {
-    if (!deletingStudio) return;
-
-    setIsDeleting(true);
-    try {
-      await firestoreService.deleteStudio(deletingStudio.id);
-      setDeletingStudio(null);
-      setManagingStudio(null);
-      loadOwnedEntities();
-    } catch (err: unknown) {
-      console.error('[MyStudiosView] Failed to close studio:', err);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  const handleOpenCompanyModal = (comp: Company) => {
+  const handleOpenCompanyModal = async (comp: Company) => {
     setManagingCompany(comp);
     setEditCompanyName(comp.name || '');
     setEditCompanyEmail(comp.contactEmail || '');
     setEditCompanyWebsite(comp.website || '');
     setEditCompanyDescription(comp.description || '');
     setCompanyError(null);
+    setBrandActiveTab('studios');
+
+    try {
+      const currencies = await firestoreService.fetchCompanyCurrencies(comp.id);
+      setCompanyCurrencies(currencies);
+    } catch {
+      setCompanyCurrencies([]);
+    }
   };
 
   const handleSaveCompany = async (e: React.FormEvent) => {
@@ -188,627 +206,813 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
     );
   }
 
-  const standaloneStudios = studios.filter((s) => !s.companyId);
+  // --- SUBPAGE 1: BRAND MANAGEMENT SUBPAGE ---
+  if (managingCompany) {
+    const brandStudios = studios.filter(
+      (s) => s.companyId === managingCompany.id || s.parentBrandCommunityId === managingCompany.id
+    );
 
-  return (
-    <div className="flex-1 max-w-4xl w-full mx-auto px-4 py-4 space-y-6">
-      <div className="flex items-center justify-between">
-        {onBack && (
+    return (
+      <div className="flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6 text-slate-900 dark:text-slate-100 animate-fadeIn">
+        {/* Push / Pop Subpage Navigation Bar */}
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
           <button
             type="button"
-            onClick={onBack}
-            data-testid="my-studios-back-button"
-            className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
+            onClick={() => setManagingCompany(null)}
+            data-testid="brand-back-button"
+            className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
           >
             <span>←</span>
-            <span>{backLabel || 'Back to Feed'}</span>
+            <span>Back to My Brands</span>
           </button>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setIsCreatingStudio(true)}
-          data-testid="add-studio-header-button"
-          className="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all active:scale-95 ml-auto"
-        >
-          <span>＋</span>
-          <span>Add Studio / Brand</span>
-        </button>
-      </div>
-
-      <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-2 backdrop-blur-md">
-        <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">
-          My Brands &amp; Studios
-        </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Manage your physical studio locations and parent brand network across postcodes.
-        </p>
-      </div>
-
-      {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-medium">
-          ⚠️ {error}
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+              Brand Owner
+            </span>
+          </div>
         </div>
-      )}
 
-      {isLoading ? (
-        <div className="p-12 text-center text-xs text-slate-400">Loading your studios and brands...</div>
-      ) : companies.length === 0 && studios.length === 0 ? (
-        <div className="p-10 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl text-center space-y-4 backdrop-blur-md">
-          <div className="w-16 h-16 rounded-3xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-3xl mx-auto shadow-inner">
-            🏢
+        {/* Brand Overview Card */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3 shadow-xl dark:shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
+              <span>🏢</span>
+              <span>{managingCompany.name}</span>
+            </h1>
           </div>
-          <div className="space-y-1">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              Manage Your Yoga Studio &amp; Brands
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-              Create your studio brand profile, add location branches across postcodes, and engage with your local yoga community.
-            </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {managingCompany.description || 'Parent Brand Network for Yoga Studios across London.'}
+          </p>
+          <div className="flex flex-wrap gap-4 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800/60">
+            <div>✉️ {managingCompany.contactEmail}</div>
+            {managingCompany.website && <div>🌐 {managingCompany.website}</div>}
           </div>
+        </div>
 
+        {/* Tab Navigation Selector */}
+        <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
           <button
             type="button"
-            onClick={() => setIsCreatingStudio(true)}
-            data-testid="create-studio-empty-button"
-            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition-all active:scale-95"
+            onClick={() => setBrandActiveTab('studios')}
+            data-testid="brand-tab-studios"
+            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all ${
+              brandActiveTab === 'studios'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
           >
-            ＋ Create Your Studio Profile
+            🏢 Studio Branches ({brandStudios.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setBrandActiveTab('currencies')}
+            data-testid="brand-tab-currencies"
+            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all ${
+              brandActiveTab === 'currencies'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            💳 Brand Currencies &amp; Pricing ({companyCurrencies.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setBrandActiveTab('settings')}
+            data-testid="brand-tab-settings"
+            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all ${
+              brandActiveTab === 'settings'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            ⚙️ Brand Info &amp; Settings
           </button>
         </div>
-      ) : (
-        <div className="space-y-6">
-          {companies.map((comp) => {
-            const companyBranchStudios = studios.filter((s) => s.companyId === comp.id);
 
-            return (
-              <div
-                key={comp.id}
-                data-testid={`company-card-${comp.id}`}
-                className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-4 backdrop-blur-md"
+        {/* TAB 1: STUDIOS */}
+        {brandActiveTab === 'studios' && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-extrabold text-slate-700 dark:text-slate-300">Network Locations</h2>
+              <button
+                type="button"
+                onClick={() => setIsCreatingStudio(true)}
+                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow-md"
               >
-                <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center font-extrabold text-white text-sm shadow-md">
-                      {comp.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                        <span>{comp.name}</span>
-                        <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-extrabold uppercase">
-                          Verified Brand
-                        </span>
-                      </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{comp.description}</p>
-                    </div>
-                  </div>
+                ＋ Add New Location
+              </button>
+            </div>
 
-                  <button
-                    type="button"
-                    onClick={() => handleOpenCompanyModal(comp)}
-                    data-testid={`manage-company-btn-${comp.id}`}
-                    className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition-all active:scale-95 shrink-0"
-                  >
-                    ⚙️ Manage
-                  </button>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-                    Studio Locations ({companyBranchStudios.length})
-                  </p>
-
-                  {companyBranchStudios.map((st) => (
-                      <div
-                        key={st.id}
-                        data-testid={`studio-item-${st.id}`}
-                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between"
-                      >
-                        <div className="space-y-1 max-w-md">
-                          <p className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                            <span>{st.name}</span>
-                            <span className="text-indigo-600 dark:text-indigo-400 font-mono text-[11px]">({st.location_prefix})</span>
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400">{st.address}</p>
-                        </div>
-
-                        <div className="flex items-center space-x-2 shrink-0">
-                          {st.status === 'temp_closed' ? (
-                            <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-bold">
-                              ⏸️ Temp Closed
-                            </span>
-                          ) : st.isClosed ? (
-                            <span className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-[11px] font-bold">
-                              🔴 Closed
-                            </span>
-                          ) : st.isClaimed ? (
-                            <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-semibold">
-                              Verified ✓
-                            </span>
-                          ) : (
-                            <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-semibold">
-                              ⏳ Pending
-                            </span>
-                          )}
-
-                          <button
-                            type="button"
-                            onClick={() => handleOpenManageModal(st)}
-                            data-testid={`manage-studio-btn-${st.id}`}
-                            className="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
-                          >
-                            ⚙️ Manage
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
+            {brandStudios.length === 0 ? (
+              <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-2">
+                <div className="text-3xl">🧘</div>
+                <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">No Studios Assigned Yet</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                  Create a new location or assign existing independent studios to {managingCompany.name}.
+                </p>
               </div>
-            );
-          })}
-
-          {standaloneStudios.length > 0 && (
-            <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Independent Studios ({standaloneStudios.length})
-              </h2>
-
-              {standaloneStudios.map((st) => (
-                <div
-                  key={st.id}
-                  data-testid={`standalone-studio-item-${st.id}`}
-                  className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between"
-                >
-                  <div className="space-y-1 max-w-md">
-                    <p className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                      <span>{st.name}</span>
-                      <span className="text-indigo-600 dark:text-indigo-400 font-mono text-[11px]">({st.location_prefix})</span>
-                    </p>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{st.address}</p>
-                  </div>
-
-                  <div className="flex items-center space-x-2 shrink-0">
-                    {st.status === 'temp_closed' ? (
-                      <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-bold">
-                        ⏸️ Temp Closed
-                      </span>
-                    ) : st.isClosed ? (
-                      <span className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-[11px] font-bold">
-                        🔴 Closed
-                      </span>
-                    ) : st.isClaimed ? (
-                      <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-semibold">
-                        Verified ✓
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-semibold">
-                        ⏳ Pending
-                      </span>
-                    )}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {brandStudios.map((st) => (
+                  <div
+                    key={st.id}
+                    className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-md"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">{st.name}</h3>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                            st.isClosed
+                              ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                              : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                          }`}
+                        >
+                          {st.isClosed ? 'Closed' : 'Open & Active'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{st.address}</p>
+                    </div>
 
                     <button
                       type="button"
                       onClick={() => handleOpenManageModal(st)}
-                      data-testid={`manage-studio-btn-${st.id}`}
-                      className="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
+                      className="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl border border-slate-200 dark:border-slate-700/80 transition"
                     >
-                      ⚙️ Manage
+                      Manage Location ⚙️
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 2: BRAND CURRENCIES */}
+        {brandActiveTab === 'currencies' && (
+          <div className="space-y-6">
+            <div className="p-5 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-base font-extrabold text-slate-900 dark:text-white">Brand Currencies &amp; Passes</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Pricing packages created here automatically apply to all location branches following brand policy.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddingCurrency(true)}
+                  className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl shadow-md transition"
+                >
+                  ＋ Create Currency
+                </button>
+              </div>
+
+              {/* Add Currency Form */}
+              {isAddingCurrency && (
+                <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-3">
+                  <h3 className="text-xs font-bold text-indigo-600 dark:text-indigo-300">New Brand Currency Pass</h3>
+                  <input
+                    type="text"
+                    placeholder="Pass Title e.g. 5-Class Summer Pack"
+                    value={newCurrTitle}
+                    onChange={(e) => setNewCurrTitle(e.target.value)}
+                    className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Description e.g. Valid across all brand studios"
+                    value={newCurrDesc}
+                    onChange={(e) => setNewCurrDesc(e.target.value)}
+                    className="w-full p-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Tier Type</label>
+                      <select
+                        value={newCurrTier}
+                        onChange={(e) => setNewCurrTier(e.target.value as CurrencyTierType)}
+                        className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
+                      >
+                        <option value="drop_in">Single Drop-In</option>
+                        <option value="credit_pack">Credit Pack</option>
+                        <option value="unlimited">Unlimited Pass</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Base Price (£)</label>
+                      <input
+                        type="number"
+                        value={newCurrPrice}
+                        onChange={(e) => setNewCurrPrice(Number(e.target.value))}
+                        className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Credit Count</label>
+                      <input
+                        type="number"
+                        value={newCurrCredits}
+                        onChange={(e) => setNewCurrCredits(Number(e.target.value))}
+                        disabled={newCurrTier === 'unlimited'}
+                        className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Lifespan (Days)</label>
+                      <input
+                        type="number"
+                        value={newCurrValidity}
+                        onChange={(e) => setNewCurrValidity(Number(e.target.value))}
+                        className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingCurrency(false)}
+                      className="w-1/2 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl"
+                    >
+                      ✕ Discard Changes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!newCurrTitle) return;
+                        try {
+                          const currencyPayload: Omit<CompanyCurrency, 'id' | 'createdAt' | 'updatedAt'> = {
+                            companyId: managingCompany.id,
+                            title: newCurrTitle,
+                            description: newCurrDesc || 'Brand Pass',
+                            tierType: newCurrTier,
+                            basePriceAmount: newCurrPrice,
+                            currencySymbol: '£',
+                            validityDays: newCurrValidity,
+                            allowedStudioIds: 'all',
+                          };
+                          if (newCurrTier !== 'unlimited') {
+                            currencyPayload.creditCount = newCurrCredits;
+                          }
+
+                          await firestoreService.createCompanyCurrency(currencyPayload);
+                          setIsAddingCurrency(false);
+                          setNewCurrTitle('');
+                          setNewCurrDesc('');
+                          const updated = await firestoreService.fetchCompanyCurrencies(managingCompany.id);
+                          setCompanyCurrencies(updated);
+                        } catch (err: unknown) {
+                          console.error('[MyStudiosView] Failed to create brand currency:', err);
+                          alert(err instanceof Error ? err.message : 'Failed to save currency.');
+                        }
+                      }}
+                      className="w-1/2 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl shadow-md"
+                    >
+                      Save Changes
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+              )}
 
-      {managingStudio && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="max-w-lg w-full p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                  <span>⚙️ Manage {managingStudio.name}</span>
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{managingStudio.address}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setManagingStudio(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold flex items-center justify-center transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Status</span>
-              {managingStudio.isClosed ? (
-                <span className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold">
-                  🔴 Permanently Closed
-                </span>
-              ) : managingStudio.isClaimed ? (
-                <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold">
-                  Verified Owner ✓
-                </span>
+              {/* Currency List */}
+              {companyCurrencies.length === 0 ? (
+                <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">No brand currencies created yet.</div>
               ) : (
-                <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold">
-                  ⏳ Verification Pending
-                </span>
-              )}
-            </div>
-
-            <form onSubmit={handleSaveBio} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Studio Bio / About Text
-                </label>
-                {!managingStudio.isClaimed && (
-                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
-                    🔒 Editable upon verification
-                  </span>
-                )}
-              </div>
-
-              <textarea
-                rows={4}
-                value={bioText}
-                onChange={(e) => setBioText(e.target.value)}
-                disabled={!managingStudio.isClaimed}
-                placeholder="A peaceful vinyasa oasis in the heart of London..."
-                data-testid="input-edit-studio-bio"
-                className="w-full p-3 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500 disabled:opacity-50"
-              />
-
-              {managingStudio.isClaimed && (
-                <button
-                  type="submit"
-                  disabled={isSavingBio}
-                  data-testid="submit-save-bio-button"
-                  className="w-full py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md transition-all active:scale-98"
-                >
-                  {isSavingBio ? 'Saving Bio...' : 'Save Studio Bio'}
-                </button>
-              )}
-            </form>
-
-            {/* Parent Brand Assignment */}
-            <div className="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-4">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Parent Company Brand Assignment
-              </label>
-              <select
-                value={managingStudio.companyId || 'none'}
-                onChange={async (e) => {
-                  const selectedId = e.target.value === 'none' ? null : e.target.value;
-                  await firestoreService.updateStudioCompany(managingStudio.id, selectedId);
-                  setManagingStudio((prev) => (prev ? { ...prev, companyId: selectedId || undefined } : null));
-                  loadOwnedEntities();
-                }}
-                data-testid={`select-studio-company-${managingStudio.id}`}
-                className="w-full p-3 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500 font-medium"
-              >
-                <option value="none">🏢 None (Independent Studio)</option>
-                {companies.map((comp) => (
-                  <option key={comp.id} value={comp.id}>
-                    🏢 {comp.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Operating Status Management */}
-            <div className="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-4">
-              <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Operating Status
-              </label>
-
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await firestoreService.updateStudioStatus(managingStudio.id, 'active');
-                    setManagingStudio((prev) => (prev ? { ...prev, status: 'active', isClosed: false } : null));
-                    loadOwnedEntities();
-                  }}
-                  data-testid={`status-active-btn-${managingStudio.id}`}
-                  className={`py-2 px-2 rounded-2xl text-xs font-bold border transition-all flex flex-col items-center justify-center space-y-1 ${
-                    managingStudio.status === 'active' || (!managingStudio.status && !managingStudio.isClosed)
-                      ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500'
-                  }`}
-                >
-                  <span className="text-base">🟢</span>
-                  <span>Open &amp; Active</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await firestoreService.updateStudioStatus(managingStudio.id, 'temp_closed', statusNote);
-                    setManagingStudio((prev) => (prev ? { ...prev, status: 'temp_closed', isClosed: false } : null));
-                    loadOwnedEntities();
-                  }}
-                  data-testid={`status-temp-closed-btn-${managingStudio.id}`}
-                  className={`py-2 px-2 rounded-2xl text-xs font-bold border transition-all flex flex-col items-center justify-center space-y-1 ${
-                    managingStudio.status === 'temp_closed'
-                      ? 'bg-amber-500/10 border-amber-500 text-amber-600 dark:text-amber-400 shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500'
-                  }`}
-                >
-                  <span className="text-base">⏸️</span>
-                  <span>Temp Closed</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setDeletingStudio(managingStudio)}
-                  data-testid={`status-closed-btn-${managingStudio.id}`}
-                  className={`py-2 px-2 rounded-2xl text-xs font-bold border transition-all flex flex-col items-center justify-center space-y-1 ${
-                    managingStudio.isClosed || managingStudio.status === 'closed'
-                      ? 'bg-rose-500/10 border-rose-500 text-rose-600 dark:text-rose-400 shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500'
-                  }`}
-                >
-                  <span className="text-base">🔴</span>
-                  <span>Closed</span>
-                </button>
-              </div>
-
-              {managingStudio.status === 'temp_closed' && (
-                <div className="space-y-1.5 pt-1">
-                  <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400">
-                    Temporary Closure Reason / Expected Reopening Note
-                  </label>
-                  <input
-                    type="text"
-                    value={statusNote}
-                    onChange={(e) => setStatusNote(e.target.value)}
-                    onBlur={async () => {
-                      await firestoreService.updateStudioStatus(managingStudio.id, 'temp_closed', statusNote);
-                      loadOwnedEntities();
-                    }}
-                    placeholder="e.g. Closed for summer refurbishment until Sept 15..."
-                    data-testid="input-status-note"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
-                  />
+                <div className="space-y-3">
+                  {companyCurrencies.map((curr) => (
+                    <div
+                      key={curr.id}
+                      className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">{curr.title}</h4>
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                            {curr.tierType === 'unlimited' ? 'Unlimited' : `${curr.creditCount} Credits`}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{curr.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">£{curr.basePriceAmount}</div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500">{curr.validityDays} Days Lifespan</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
-
-              {/* Hard Delete Studio Record */}
-              <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setHardDeletingStudio(managingStudio)}
-                  data-testid={`hard-delete-studio-btn-${managingStudio.id}`}
-                  className="w-full py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-98 flex items-center justify-center space-x-1.5"
-                >
-                  <span>🗑️</span>
-                  <span>Permanently Delete Studio Record</span>
-                </button>
-              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Manage Company Brand Modal */}
-      {managingCompany && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="max-w-lg w-full p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                  <span>⚙️ Manage {managingCompany.name}</span>
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Parent Company Brand Settings</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setManagingCompany(null)}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold flex items-center justify-center transition-colors"
-              >
-                ✕
-              </button>
-            </div>
+        {/* TAB 3: BRAND SETTINGS */}
+        {brandActiveTab === 'settings' && (
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-6 shadow-xl">
+            <h2 className="text-base font-extrabold text-slate-900 dark:text-white">Brand Profile &amp; Contact Details</h2>
 
             {companyError && (
-              <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-medium">
+              <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold">
                 ⚠️ {companyError}
               </div>
             )}
 
             <form onSubmit={handleSaveCompany} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Brand / Company Name *
-                </label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Brand Name</label>
                 <input
                   type="text"
                   value={editCompanyName}
                   onChange={(e) => setEditCompanyName(e.target.value)}
-                  placeholder="e.g. Zen Sanctuary Group"
-                  data-testid="input-edit-company-name"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+                  placeholder="e.g. Affordable London Yoga"
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Business Contact Email *
-                </label>
-                <div className="relative">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Contact Email</label>
                   <input
                     type="email"
                     value={editCompanyEmail}
                     onChange={(e) => setEditCompanyEmail(e.target.value)}
-                    placeholder="e.g. contact@zensanctuary.co.uk"
-                    data-testid="input-edit-company-email"
-                    className="w-full pr-9 pl-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+                    placeholder="contact@brand.co.uk"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
                   />
-                  {editCompanyEmail && (
-                    <button
-                      type="button"
-                      onClick={() => setEditCompanyEmail('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-[10px] font-bold flex items-center justify-center transition-colors"
-                    >
-                      ✕
-                    </button>
-                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Website URL</label>
+                  <input
+                    type="url"
+                    value={editCompanyWebsite}
+                    onChange={(e) => setEditCompanyWebsite(e.target.value)}
+                    placeholder="https://brand.co.uk"
+                    className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Website URL
-                </label>
-                <input
-                  type="url"
-                  value={editCompanyWebsite}
-                  onChange={(e) => setEditCompanyWebsite(e.target.value)}
-                  placeholder="e.g. https://zensanctuary.co.uk"
-                  data-testid="input-edit-company-website"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
-                />
-                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 flex items-center space-x-1 font-medium">
-                  <span>⚠️</span>
-                  <span>Changing your website URL will submit your brand for Admin Re-Verification and temporarily revert your verified badge until approved.</span>
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Brand Description
-                </label>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Brand Description</label>
                 <textarea
-                  rows={3}
                   value={editCompanyDescription}
                   onChange={(e) => setEditCompanyDescription(e.target.value)}
-                  placeholder="e.g. Boutique hot yoga sanctuaries..."
-                  data-testid="input-edit-company-description"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+                  placeholder="Describe your studio network..."
+                  rows={3}
+                  className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSavingCompany}
-                data-testid="submit-save-company-button"
-                className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md transition-all active:scale-98 disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-md transition disabled:opacity-50"
               >
-                {isSavingCompany ? 'Saving Brand Profile...' : '✨ Save Brand Profile'}
+                {isSavingCompany ? 'Saving...' : 'Save Brand Info'}
               </button>
             </form>
 
-            <div className="border-t border-slate-200 dark:border-slate-800 pt-4">
+            {/* Danger Zone: Delete Brand Network */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+              <div>
+                <h4 className="text-xs font-bold text-rose-600 dark:text-rose-400">Delete Brand Network</h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Unlinks studios and moves them to Independent Studios.</p>
+              </div>
               <button
                 type="button"
                 onClick={() => setDeletingCompany(managingCompany)}
-                data-testid={`delete-company-btn-${managingCompany.id}`}
-                className="w-full py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold transition-all active:scale-98 flex items-center justify-center space-x-1.5"
+                className="px-3.5 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-500/20 transition"
               >
-                <span>🗑️</span>
-                <span>Delete Company Brand</span>
+                🗑️ Delete Brand Network
               </button>
             </div>
           </div>
+        )}
+      </div>
+    );
+  }
+
+  // --- SUBPAGE 2: STUDIO LOCATION MANAGEMENT SUBPAGE ---
+  if (managingStudio) {
+    return (
+      <div className="flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6 text-slate-900 dark:text-slate-100 animate-fadeIn">
+        {/* Push / Pop Subpage Navigation Bar */}
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
+          <button
+            type="button"
+            onClick={() => setManagingStudio(null)}
+            data-testid="studio-back-button"
+            className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
+          >
+            <span>←</span>
+            <span>Back to My Studios</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsGrantingPass(true)}
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md transition"
+          >
+            🎁 Grant Pass to Member
+          </button>
         </div>
-      )}
 
-      {/* Soft Closure Confirmation Modal */}
-      {deletingStudio && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-center">
-            <div className="text-3xl">🛑</div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              Mark Studio Location as Closed?
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Closing <strong>{deletingStudio.name}</strong> will mark it as permanently closed so existing subscribed members can still view studio history, while hiding it from active discovery. You can reopen it at any time.
-            </p>
+        {/* Studio Overview Header */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-2 shadow-xl dark:shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center space-x-2">
+              <span>🧘</span>
+              <span>{managingStudio.name}</span>
+            </h1>
+            <span
+              className={`text-xs font-bold px-3 py-1 rounded-full ${
+                managingStudio.isClosed
+                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+              }`}
+            >
+              {managingStudio.isClosed ? 'Closed' : 'Verified Owner ✓'}
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{managingStudio.address}</p>
+        </div>
 
-            <div className="flex items-center space-x-2 pt-2">
+        {/* Tab Navigation Selector */}
+        <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+          <button
+            type="button"
+            onClick={() => setStudioActiveTab('general')}
+            data-testid="studio-tab-general"
+            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all ${
+              studioActiveTab === 'general'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            ⚙️ General Settings
+          </button>
+          <button
+            type="button"
+            onClick={() => setStudioActiveTab('pricing')}
+            data-testid="studio-tab-pricing"
+            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all ${
+              studioActiveTab === 'pricing'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            💳 Pricing &amp; Currency Policy
+          </button>
+        </div>
+
+        {/* TAB 1: GENERAL SETTINGS */}
+        {studioActiveTab === 'general' && (
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-6 shadow-xl">
+            {/* Bio Editor Form */}
+            <form onSubmit={handleSaveBio} className="space-y-3">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Studio Bio / About Text</label>
+              <textarea
+                value={bioText}
+                onChange={(e) => setBioText(e.target.value)}
+                placeholder="Heated flows, dynamic Vinyasa, sound baths..."
+                rows={3}
+                className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500 transition"
+              />
               <button
-                type="button"
-                onClick={() => setDeletingStudio(null)}
-                className="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold"
+                type="submit"
+                disabled={isSavingBio}
+                className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-md transition disabled:opacity-50"
               >
-                Cancel
+                {isSavingBio ? 'Saving...' : 'Save Studio Bio'}
               </button>
+            </form>
+
+            {/* Parent Brand Assignment Selector */}
+            <div className="space-y-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Parent Brand Assignment</label>
+              <select
+                value={managingStudio.companyId || ''}
+                onChange={async (e) => {
+                  const compId = e.target.value;
+                  await firestoreService.assignStudioToCompany(managingStudio.id, compId || null);
+                  setManagingStudio({ ...managingStudio, companyId: compId || undefined });
+                  loadOwnedEntities();
+                }}
+                className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs"
+              >
+                <option value="">Independent Location (No Parent Brand)</option>
+                {companies.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    🏢 {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Danger Zone: Delete Studio */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+              <div>
+                <h4 className="text-xs font-bold text-rose-600 dark:text-rose-400">Permanently Delete Location</h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Remove studio record from platform.</p>
+              </div>
               <button
                 type="button"
-                onClick={handleConfirmDelete}
-                disabled={isDeleting}
-                data-testid="confirm-delete-studio-button"
-                className="flex-1 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md"
+                onClick={() => setHardDeletingStudio(managingStudio)}
+                className="px-3.5 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-500/20 transition"
               >
-                {isDeleting ? 'Closing...' : '🔴 Confirm Studio Closure'}
+                🗑️ Delete Studio
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* In-App Hard Delete Studio Confirmation Modal */}
-      {hardDeletingStudio && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-center">
-            <div className="text-3xl">🗑️</div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              Permanently Delete Studio Record?
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Are you sure you want to permanently erase <strong>{hardDeletingStudio.name}</strong> from the database? This action cannot be undone.
-            </p>
+        {/* TAB 2: PRICING & CURRENCY POLICY */}
+        {studioActiveTab === 'pricing' && (
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-6 shadow-xl">
+            <div>
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white">Currency Acceptance Policy</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Choose whether this location follows parent brand pricing or uses a custom override.
+              </p>
+            </div>
 
-            <div className="flex items-center space-x-2 pt-2">
+            {/* Policy Selector Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setHardDeletingStudio(null)}
-                className="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold"
+                onClick={async () => {
+                  if (!managingStudio.companyId) return;
+                  await firestoreService.saveStudioCurrencyPolicy({
+                    studioId: managingStudio.id,
+                    companyId: managingStudio.companyId,
+                    policyMode: 'follow_brand',
+                    acceptedCurrencyIds: [],
+                    updatedAt: new Date().toISOString(),
+                  });
+                  setStudioPolicy({
+                    studioId: managingStudio.id,
+                    companyId: managingStudio.companyId,
+                    policyMode: 'follow_brand',
+                    acceptedCurrencyIds: [],
+                    updatedAt: new Date().toISOString(),
+                  });
+                }}
+                className={`p-4 rounded-2xl border text-left space-y-2 transition ${
+                  studioPolicy?.policyMode === 'follow_brand' || !studioPolicy
+                    ? 'bg-indigo-500/10 border-indigo-500 text-slate-900 dark:text-white shadow-lg'
+                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
               >
-                Cancel
+                <div className="text-sm font-extrabold text-slate-900 dark:text-white">🏛️ Follow Brand Pricing</div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Accepts all credit packs &amp; passes issued by parent brand.
+                </p>
               </button>
+
               <button
                 type="button"
-                onClick={handleConfirmHardDeleteStudio}
-                data-testid="confirm-hard-delete-studio-button"
-                className="flex-1 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md"
+                onClick={async () => {
+                  await firestoreService.saveStudioCurrencyPolicy({
+                    studioId: managingStudio.id,
+                    companyId: managingStudio.companyId,
+                    policyMode: 'custom_override',
+                    acceptedCurrencyIds: [],
+                    updatedAt: new Date().toISOString(),
+                  });
+                  setStudioPolicy({
+                    studioId: managingStudio.id,
+                    companyId: managingStudio.companyId,
+                    policyMode: 'custom_override',
+                    acceptedCurrencyIds: [],
+                    updatedAt: new Date().toISOString(),
+                  });
+                }}
+                className={`p-4 rounded-2xl border text-left space-y-2 transition ${
+                  studioPolicy?.policyMode === 'custom_override'
+                    ? 'bg-indigo-500/10 border-indigo-500 text-slate-900 dark:text-white shadow-lg'
+                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
               >
-                🗑️ Confirm Permanent Delete
+                <div className="text-sm font-extrabold text-slate-900 dark:text-white">⚙️ Custom Location Pricing</div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Set independent drop-in rates and location-specific passes.
+                </p>
               </button>
             </div>
           </div>
+        )}
+
+        {/* Admin Pass Granting Modal */}
+        {isGrantingPass && user && (
+          <AdminGrantPassModalView
+            studioId={managingStudio.id}
+            studioName={managingStudio.name}
+            currencies={companyCurrencies}
+            adminUserId={user.id}
+            onGrantSuccess={() => {
+              setIsGrantingPass(false);
+              alert('Pass granted and deposited directly into recipient wallet!');
+            }}
+            onClose={() => setIsGrantingPass(false)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // --- ROOT VIEW: MY BRANDS & STUDIOS LIST ---
+  const standaloneStudios = studios.filter((s) => !s.companyId);
+
+  return (
+    <div className="flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-8 text-slate-900 dark:text-slate-100 animate-fadeIn">
+      {/* Top Header */}
+      <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            data-testid="my-studios-back-button"
+            className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
+          >
+            <span>←</span>
+            <span>{backLabel || 'Back'}</span>
+          </button>
+        )}
+
+        <div className="text-right ml-auto">
+          <div className="flex items-center space-x-2 justify-end">
+            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">My Brands &amp; Studios</h1>
+            {isLoading && <span className="animate-spin text-xs text-indigo-500">🌀</span>}
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Manage location profiles, currency passes, and member grants</p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-medium">
+          ⚠️ {error}
         </div>
       )}
 
-      {/* In-App Delete Company Brand Confirmation Modal */}
+      {/* SECTION 1: MY BRAND NETWORKS */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-sm font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center space-x-2">
+            <span>🏢</span>
+            <span>My Brand Networks ({companies.length})</span>
+          </h2>
+        </div>
+
+        {companies.length === 0 ? (
+          <div className="p-6 text-center bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400">No brand networks configured.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {companies.map((comp) => {
+              const compStudios = studios.filter((s) => s.companyId === comp.id);
+              return (
+                <div
+                  key={comp.id}
+                  className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-xl"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-extrabold text-slate-900 dark:text-white">{comp.name}</h3>
+                      <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                        {compStudios.length} Locations
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                      {comp.description || 'Parent Brand Network'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenCompanyModal(comp)}
+                    data-testid={`manage-company-${comp.id}`}
+                    className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl shadow-md transition"
+                  >
+                    Manage Brand &amp; Currencies ⚙️
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 2: INDEPENDENT STUDIOS */}
+      <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800/80">
+        <div className="flex justify-between items-center">
+          <h2 className="text-sm font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center space-x-2">
+            <span>🧘</span>
+            <span>Independent Studios ({standaloneStudios.length})</span>
+          </h2>
+          <button
+            type="button"
+            onClick={() => setIsCreatingStudio(true)}
+            data-testid="create-studio-button"
+            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-md transition"
+          >
+            ＋ Create New Studio
+          </button>
+        </div>
+
+        {standaloneStudios.length === 0 ? (
+          <div className="p-6 text-center bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl space-y-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400">No independent studios registered.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {standaloneStudios.map((st) => (
+              <div
+                key={st.id}
+                className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-xl"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white">{st.name}</h3>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                        st.isClosed
+                          ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20'
+                          : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                      }`}
+                    >
+                      {st.isClosed ? 'Closed' : 'Active'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{st.address}</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleOpenManageModal(st)}
+                  data-testid={`manage-studio-${st.id}`}
+                  className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl border border-slate-200 dark:border-slate-700/80 transition"
+                >
+                  Manage Studio ⚙️
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Delete Company Modal Confirmation */}
       {deletingCompany && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 text-center">
-            <div className="text-3xl">🏢</div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              Delete Company Brand?
-            </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 text-center shadow-2xl">
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Delete Brand Network?</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Deleting brand <strong>{deletingCompany.name}</strong> will not delete your studio locations. All associated studio locations will remain active and move to your <strong>Independent Studios</strong> list, where you can reassign them to another brand at any time.
+              Deleting <strong>{deletingCompany.name}</strong> will move assigned studios to Independent Studios.
             </p>
-
-            <div className="flex items-center space-x-2 pt-2">
+            <div className="flex space-x-2 pt-2">
               <button
                 type="button"
                 onClick={() => setDeletingCompany(null)}
-                className="flex-1 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold"
+                className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDeleteCompany}
-                data-testid="confirm-delete-company-button"
-                className="flex-1 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md"
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-md"
               >
                 🗑️ Confirm Delete Brand
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hard Delete Studio Modal Confirmation */}
+      {hardDeletingStudio && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 text-center shadow-2xl">
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Permanently Delete Studio?</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Are you sure you want to permanently delete <strong>{hardDeletingStudio.name}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex space-x-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setHardDeletingStudio(null)}
+                className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmHardDeleteStudio}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-md"
+              >
+                🗑️ Confirm Delete Location
               </button>
             </div>
           </div>

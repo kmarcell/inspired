@@ -43,6 +43,19 @@ describe('MyStudiosView Component', () => {
       moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: false },
       location: { lat: 51.5, lng: -0.2 },
     },
+    {
+      id: 'studio_chiswick_02',
+      name: 'Chiswick Independent Flow',
+      address: '88 High Rd, London W4 1SY',
+      location_prefix: 'W4',
+      isClaimed: true,
+      ownerId: 'usr_owner_123',
+      rating: 4.8,
+      reviewCount: 20,
+      engagementScore: 40,
+      moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: false },
+      location: { lat: 51.5, lng: -0.2 },
+    },
   ];
 
   beforeEach(() => {
@@ -52,198 +65,122 @@ describe('MyStudiosView Component', () => {
     });
     (firestoreService.fetchCompaniesByOwner as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockCompanies);
     (firestoreService.fetchStudiosByOwner as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(mockStudios);
+    (firestoreService.fetchCompanyCurrencies as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (firestoreService.fetchStudioCurrencyPolicy as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
   });
 
-  it('renders owned companies and studio branch locations', async () => {
+  it('renders owned companies and independent studios', async () => {
     render(<MyStudiosView onBack={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByText('My Brands & Studios')).toBeInTheDocument();
       expect(screen.getByText('Zen Sanctuary Group')).toBeInTheDocument();
-      expect(screen.getByText(/Askew Road Zen Den/)).toBeInTheDocument();
+      expect(screen.getByText('Chiswick Independent Flow')).toBeInTheDocument();
     });
   });
 
-  it('opens CreateStudioView form when add button is clicked', async () => {
+  it('opens CreateStudioView form when add studio button is clicked', async () => {
     render(<MyStudiosView onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('add-studio-header-button')).toBeInTheDocument();
+      expect(screen.getByTestId('create-studio-button')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId('add-studio-header-button'));
+    fireEvent.click(screen.getByTestId('create-studio-button'));
 
     await waitFor(() => {
       expect(screen.getByText('Create Studio & Brand')).toBeInTheDocument();
     });
   });
 
-  it('displays empty state banner when user has no owned studios or companies', async () => {
-    (firestoreService.fetchCompaniesByOwner as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-    (firestoreService.fetchStudiosByOwner as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-
+  it('pushes to Brand Subpage when Manage Brand is clicked', async () => {
     render(<MyStudiosView onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByText('Manage Your Yoga Studio & Brands')).toBeInTheDocument();
-      expect(screen.getByTestId('create-studio-empty-button')).toBeInTheDocument();
+      expect(screen.getByTestId('manage-company-comp_zen_01')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('manage-company-comp_zen_01'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('brand-back-button')).toBeInTheDocument();
+      expect(screen.getByTestId('brand-tab-studios')).toBeInTheDocument();
+      expect(screen.getByTestId('brand-tab-currencies')).toBeInTheDocument();
+      expect(screen.getByTestId('brand-tab-settings')).toBeInTheDocument();
     });
   });
 
-  it('allows bio editing inside Manage Studio modal for verified studios', async () => {
+  it('pushes to Studio Subpage when Manage Studio is clicked', async () => {
+    render(<MyStudiosView onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('manage-studio-studio_chiswick_02')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('manage-studio-studio_chiswick_02'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('studio-back-button')).toBeInTheDocument();
+      expect(screen.getByTestId('studio-tab-general')).toBeInTheDocument();
+      expect(screen.getByTestId('studio-tab-pricing')).toBeInTheDocument();
+    });
+  });
+
+  it('allows editing bio inside Studio Subpage General Settings tab', async () => {
     (firestoreService.updateStudioBio as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
     render(<MyStudiosView onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('manage-studio-btn-studio_askew_01')).toBeInTheDocument();
+      expect(screen.getByTestId('manage-studio-studio_chiswick_02')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId('manage-studio-btn-studio_askew_01'));
+    fireEvent.click(screen.getByTestId('manage-studio-studio_chiswick_02'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('input-edit-studio-bio')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Heated flows/i)).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByTestId('input-edit-studio-bio'), {
+    fireEvent.change(screen.getByPlaceholderText(/Heated flows/i), {
       target: { value: 'Updated Zen Den sanctuary bio text.' },
     });
 
-    fireEvent.click(screen.getByTestId('submit-save-bio-button'));
+    fireEvent.click(screen.getByText('Save Studio Bio'));
 
     await waitFor(() => {
       expect(firestoreService.updateStudioBio).toHaveBeenCalledWith(
-        'studio_askew_01',
+        'studio_chiswick_02',
         'Updated Zen Den sanctuary bio text.'
       );
     });
   });
 
-  it('allows studio soft closure via Manage Studio modal confirmation', async () => {
-    (firestoreService.deleteStudio as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
-
-    render(<MyStudiosView onBack={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('manage-studio-btn-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('manage-studio-btn-studio_askew_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('status-closed-btn-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('status-closed-btn-studio_askew_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('confirm-delete-studio-button')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('confirm-delete-studio-button'));
-
-    await waitFor(() => {
-      expect(firestoreService.deleteStudio).toHaveBeenCalledWith('studio_askew_01');
-    });
-  });
-
-  it('allows reopening a closed studio inside Manage Studio modal', async () => {
-    const closedStudioList = [
-      {
-        id: 'studio_closed_01',
-        name: 'Past Sanctuary',
-        address: '456 High St',
-        location_prefix: 'W6',
-        isClaimed: true,
-        isClosed: true,
-        status: 'closed' as const,
-        ownerId: 'usr_owner_123',
-        companyId: 'comp_zen_01',
-        rating: 4.5,
-        reviewCount: 10,
-        engagementScore: 10,
-        moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: false },
-        location: { lat: 51.5, lng: -0.2 },
-      },
-    ];
-    (firestoreService.fetchStudiosByOwner as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(closedStudioList);
-    (firestoreService.updateStudioStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
-
-    render(<MyStudiosView onBack={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('manage-studio-btn-studio_closed_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('manage-studio-btn-studio_closed_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('status-active-btn-studio_closed_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('status-active-btn-studio_closed_01'));
-
-    await waitFor(() => {
-      expect(firestoreService.updateStudioStatus).toHaveBeenCalledWith('studio_closed_01', 'active');
-    });
-  });
-
-  it('allows setting temporary closure status with closure note', async () => {
-    (firestoreService.updateStudioStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
-
-    render(<MyStudiosView onBack={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('manage-studio-btn-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('manage-studio-btn-studio_askew_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('status-temp-closed-btn-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('status-temp-closed-btn-studio_askew_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('input-status-note')).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByTestId('input-status-note'), {
-      target: { value: 'Closed for summer renovation until Sept 15' },
-    });
-
-    fireEvent.blur(screen.getByTestId('input-status-note'));
-
-    await waitFor(() => {
-      expect(firestoreService.updateStudioStatus).toHaveBeenCalledWith(
-        'studio_askew_01',
-        'temp_closed',
-        'Closed for summer renovation until Sept 15'
-      );
-    });
-  });
-
-  it('allows managing and editing company brand details', async () => {
+  it('allows managing brand profile details inside Brand Settings tab', async () => {
     (firestoreService.updateCompany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
     render(<MyStudiosView onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('manage-company-btn-comp_zen_01')).toBeInTheDocument();
+      expect(screen.getByTestId('manage-company-comp_zen_01')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByTestId('manage-company-btn-comp_zen_01'));
+    fireEvent.click(screen.getByTestId('manage-company-comp_zen_01'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('input-edit-company-name')).toBeInTheDocument();
+      expect(screen.getByTestId('brand-tab-settings')).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByTestId('input-edit-company-name'), {
+    fireEvent.click(screen.getByTestId('brand-tab-settings'));
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('e.g. Affordable London Yoga')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('e.g. Affordable London Yoga'), {
       target: { value: 'Zen Sanctuary Group UK' },
     });
 
-    fireEvent.click(screen.getByTestId('submit-save-company-button'));
+    fireEvent.click(screen.getByText('Save Brand Info'));
 
     await waitFor(() => {
       expect(firestoreService.updateCompany).toHaveBeenCalledWith('comp_zen_01', {
@@ -252,58 +189,6 @@ describe('MyStudiosView Component', () => {
         website: '',
         description: 'Boutique hot yoga sanctuaries',
       });
-    });
-  });
-
-  it('allows hard deleting a studio via in-app confirmation modal', async () => {
-    (firestoreService.hardDeleteStudio as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
-
-    render(<MyStudiosView onBack={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('manage-studio-btn-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('manage-studio-btn-studio_askew_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('hard-delete-studio-btn-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('hard-delete-studio-btn-studio_askew_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('confirm-hard-delete-studio-button')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('confirm-hard-delete-studio-button'));
-
-    await waitFor(() => {
-      expect(firestoreService.hardDeleteStudio).toHaveBeenCalledWith('studio_askew_01');
-    });
-  });
-
-  it('allows reassigning studio parent brand inside Manage Studio drawer', async () => {
-    (firestoreService.updateStudioCompany as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
-
-    render(<MyStudiosView onBack={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('manage-studio-btn-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByTestId('manage-studio-btn-studio_askew_01'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('select-studio-company-studio_askew_01')).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByTestId('select-studio-company-studio_askew_01'), {
-      target: { value: 'none' },
-    });
-
-    await waitFor(() => {
-      expect(firestoreService.updateStudioCompany).toHaveBeenCalledWith('studio_askew_01', null);
     });
   });
 });

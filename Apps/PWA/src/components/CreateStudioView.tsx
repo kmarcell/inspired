@@ -21,7 +21,7 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
   const [companyWebsite, setCompanyWebsite] = useState<string>('');
   const [companyDescription, setCompanyDescription] = useState<string>('');
   const [companyBannerUrl, setCompanyBannerUrl] = useState<string>('');
-  const [companyLogoUrl, setCompanyLogoUrl] = useState<string>('');
+  const [companyLogoUrl, _setCompanyLogoUrl] = useState<string>('');
 
   // Studio Form State
   const [studioName, setStudioName] = useState<string>('');
@@ -32,7 +32,7 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
   const [websiteUrl, setWebsiteUrl] = useState<string>('');
   const [about, setAbout] = useState<string>('');
   const [coverImageUrl, setCoverImageUrl] = useState<string>('');
-  const [logoUrl, setLogoUrl] = useState<string>('');
+  const [logoUrl, _setLogoUrl] = useState<string>('');
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
