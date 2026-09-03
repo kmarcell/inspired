@@ -82,14 +82,36 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
     }
 
-    // 8. Studio Verification Claims
+    // 8. Brand & Studio Currencies (Section 5.20)
+    match /company_currencies/{currencyId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // 9. Studio Currency Policy Overrides
+    match /studio_currency_policies/{policyId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // 10. User Pass Digital Wallet
+    match /user_passes/{passId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // 11. Class Bookings
+    match /class_bookings/{bookingId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // 12. Studio Verification Claims
     match /studioClaims/{claimId} {
       allow read: if request.auth != null && (resource.data.userId == request.auth.uid || request.auth.token.isAdmin == true);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && request.auth.token.isAdmin == true;
     }
 
-    // 9. Staging Invites Gating
+    // 13. Staging Invites Gating
     match /stagingInvites/{inviteId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.token.isAdmin == true;

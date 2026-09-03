@@ -82,12 +82,7 @@ platform :ios do
     )
   end
 
-  desc "Deploy PWA, Firestore rules, indexes & Cloud Functions to Firebase Staging"
-  lane :deploy_pwa_staging do
-    UI.message("🚀 Deploying Firestore Rules, Indexes, Functions & PWA to Staging...")
-    sh("cd ../../../.. && npx firebase deploy --only firestore:rules,firestore:indexes,functions,hosting --project inspired-yoga-app-staging")
-  end
-    
+
     desc "Analyze Accessibility (Generate Hierarchy & Screenshots)"
     lane :analyze_accessibility do
       sh("mkdir -p ../../../../Accessibility")

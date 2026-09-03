@@ -2,6 +2,7 @@
   {
     "id": "user_sarah",
     "username": "sarah_jenkins#99",
+    "email": "user_sarah@inspired.test",
     "displayName": "Sarah Jenkins",
     "bio": "Yogi practitioner exploring studios across London.",
     "lastSearchArea": "Askew",
@@ -20,6 +21,7 @@
   {
     "id": "user_maryia",
     "username": "maryia_sharma#108",
+    "email": "user_maryia@inspired.test",
     "displayName": "Maryia Sharma",
     "bio": "Owner of Askew Road Zen Den & Founder of Affordable London Yoga.",
     "lastSearchArea": "Askew",
@@ -38,6 +40,7 @@
   {
     "id": "user_elena",
     "username": "elena_rostova#204",
+    "email": "user_elena@inspired.test",
     "displayName": "Elena Rostova",
     "bio": "Lead Hot Yoga Instructor specializing in 35°C Hot Ashtanga.",
     "lastSearchArea": "Askew",
@@ -56,6 +59,7 @@
   {
     "id": "user_teacher_001",
     "username": "yoga_maya#1001",
+    "email": "user_teacher_001@inspired.test",
     "displayName": "Maya Sharma",
     "bio": "Certified Vinyasa teacher. Finding peace in movement.",
     "lastSearchArea": "Askew",
@@ -73,6 +77,7 @@
   {
     "id": "user_groups_only",
     "username": "groups_yogi#2026",
+    "email": "user_groups_only@inspired.test",
     "displayName": "Groups-Only Practitioner",
     "bio": "Sharing my yoga journey exclusively with fellow community members.",
     "lastSearchArea": "Askew",
@@ -90,6 +95,7 @@
   {
     "id": "user_members_only",
     "username": "private_yogi#2026",
+    "email": "user_members_only@inspired.test",
     "displayName": "Members-Only Yogi",
     "bio": "Private yoga account.",
     "lastSearchArea": "Askew",
@@ -107,6 +113,7 @@
   {
     "id": "user_newbie",
     "username": "yoga_newbie#101",
+    "email": "user_newbie@inspired.test",
     "displayName": "Yoga Newbie",
     "bio": "New to yoga, exploring local studios.",
     "lastSearchArea": "Askew",
@@ -124,6 +131,7 @@
   {
     "id": "user_david_kim",
     "username": "david_kim#2026",
+    "email": "user_david_kim@inspired.test",
     "displayName": "David Kim",
     "bio": "Owner & Lead Ashtanga Teacher at Ravenscourt Park Zen Pavilion W6.",
     "lastSearchArea": "Hammersmith",
@@ -141,6 +149,7 @@
   {
     "id": "user_sophia_vane",
     "username": "sophia_vane#2026",
+    "email": "user_sophia_vane@inspired.test",
     "displayName": "Sophia Vane",
     "bio": "Owner & Master Sound Healer at Chelsea Sanctuary Studio SW3.",
     "lastSearchArea": "Chelsea",
@@ -158,6 +167,7 @@
   {
     "id": "user_privacy_001",
     "username": "public_user#1111",
+    "email": "user_privacy_001@inspired.test",
     "displayName": "Public Yogi",
     "bio": "Exploring public yoga flows in West London.",
     "lastSearchArea": "Askew",
@@ -175,6 +185,7 @@
   {
     "id": "user_privacy_002",
     "username": "overlap_user#2222",
+    "email": "user_privacy_002@inspired.test",
     "displayName": "Overlap Yogi",
     "bio": "Yoga enthusiast practicing in Askew & Chiswick.",
     "lastSearchArea": "Askew",
@@ -192,6 +203,7 @@
   {
     "id": "user_privacy_003",
     "username": "private_user#3333",
+    "email": "user_privacy_003@inspired.test",
     "displayName": "Private Yogi #3",
     "bio": "Private yoga practitioner.",
     "lastSearchArea": "Askew",
@@ -209,6 +221,7 @@
   {
     "id": "user_active",
     "username": "active_yogini#2026",
+    "email": "user_active@inspired.test",
     "displayName": "Active Yogini",
     "bio": "Daily practitioner & community organizer in West London.",
     "lastSearchArea": "Hammersmith",

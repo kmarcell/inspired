@@ -3,7 +3,7 @@ import { chunkArray, ProfileValidationError, firestoreService } from '../firesto
 
 // Mock Firebase SDKs
 vi.mock('firebase/firestore', () => ({
-  doc: vi.fn(),
+  doc: vi.fn().mockImplementation(() => ({ id: 'mock_doc_id_123' })),
   getDoc: vi.fn(),
   setDoc: vi.fn().mockResolvedValue(undefined),
   updateDoc: vi.fn().mockResolvedValue(undefined),
@@ -102,6 +102,45 @@ describe('firestoreService & Utilities', () => {
       expect(updated.joinedCommunities).toContain('comm_brand_affordable_london');
       expect(updated.joinedCommunities).toContain('area_askew');
       expect(updated.joinedCommunities?.length).toBe(4);
+    });
+  });
+
+  describe('Section 5.20 Brand Currency & Pass Wallet Methods', () => {
+    it('creates company currency and returns document with generated ID', async () => {
+      const result = await firestoreService.createCompanyCurrency({
+        companyId: 'company_affordable_london',
+        title: '5-Class Pack (Summer Special)',
+        description: 'Valid for 5 sessions across all brand studios',
+        tierType: 'credit_pack',
+        creditCount: 5,
+        basePriceAmount: 60,
+        currencySymbol: '£',
+        validityDays: 60,
+        allowedStudioIds: 'all',
+      });
+
+      expect(result.title).toBe('5-Class Pack (Summer Special)');
+      expect(result.creditCount).toBe(5);
+      expect(result.basePriceAmount).toBe(60);
+      expect(result.id).toBeDefined();
+    });
+
+    it('grants a pass to user and calculates 60-day expiration date', async () => {
+      const result = await firestoreService.grantUserPass({
+        userId: 'elena@inspiredyoga.app',
+        currencyId: 'curr_5pack',
+        currencyTitle: '5-Class Pack',
+        tierType: 'credit_pack',
+        totalCredits: 5,
+        creditsRemaining: 5,
+        validityDays: 60,
+        grantNote: 'Cash Payment Recorded (£20)',
+      });
+
+      expect(result.userId).toBe('elena@inspiredyoga.app');
+      expect(result.creditsRemaining).toBe(5);
+      expect(result.status).toBe('active');
+      expect(result.grantNote).toBe('Cash Payment Recorded (£20)');
     });
   });
 });

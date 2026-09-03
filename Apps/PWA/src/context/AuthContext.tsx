@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const loadUserProfile = async (fbUser: FirebaseUser) => {
     try {
-      const profile = await firestoreService.fetchUserProfile(fbUser.uid);
+      const profile = await firestoreService.fetchUserProfile(fbUser.uid, fbUser.email || undefined);
       setAuthState({
         status: 'authenticated',
         firebaseUser: fbUser,

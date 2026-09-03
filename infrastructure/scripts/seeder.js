@@ -184,6 +184,7 @@ async function run() {
     await seedAuth(usersData);
     
     await seedCollection('users', 'users.json');
+    await seedCollection('companies', 'companies.json');
     await seedCollection('studios', 'studios.json');
     await seedCollection('communities', 'communities.json');
     await seedCollection('posts', 'posts.json');

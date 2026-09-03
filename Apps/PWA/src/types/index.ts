@@ -22,6 +22,7 @@ export const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
 export interface UserProfile {
   id: string;
   username: string;
+  email?: string;
   displayName?: string;
   bio?: string;
   lastSearchArea?: string;
@@ -136,6 +137,8 @@ export interface StudioClass {
   id: string;
   studioId: string;
   className: string;
+  title?: string;
+  studioName?: string;
   classTypeDescription: string;
   teacherId: string;
   teacherName: string;
@@ -144,6 +147,7 @@ export interface StudioClass {
   startTime: string; // e.g. "10:00 AM"
   endTime: string;   // e.g. "11:00 AM"
   capacity: number;  // e.g. 24
+  maxCapacity?: number;
   bookedCount: number;
   waitlist: string[]; // array of userIds in waitlist order
   roomClimate: RoomClimateType;
@@ -179,6 +183,70 @@ export interface ClassBooking {
   bookedAt: string; // ISO Timestamp
   status: 'confirmed' | 'waitlisted';
   waitlistPosition?: number;
+  passIdUsed?: string;
+  creditsRedeemed?: number;
+}
+
+// --- Section 5.20: Brand Currency Catalog, Studio Acceptance Policies & User Pass Wallet ---
+
+export type CurrencyTierType = 'drop_in' | 'credit_pack' | 'unlimited';
+export type UnlimitedPeriodType = 'weekly' | 'monthly' | 'yearly';
+
+export interface PromoOffer {
+  promoDiscountPercent: number; // e.g. 40 for 40% OFF
+  promoStartDate: string;       // ISO Date e.g. "2026-06-01"
+  promoEndDate: string;         // ISO Date e.g. "2026-08-31"
+  promoTitle?: string;          // e.g. "Summer Special 40% OFF"
+}
+
+export interface CompanyCurrency {
+  id: string;
+  companyId: string;           // Parent Brand ID
+  studioId?: string;           // Present if created by a specific studio branch as a custom override
+  title: string;               // e.g. "5-Class Pack (Summer Special)"
+  description: string;         // e.g. "Valid for 5 Hot Yoga classes across all brand studios"
+  tierType: CurrencyTierType;
+  creditCount?: number;        // Total credits granted (e.g. 1, 5, 10). Omitted if unlimited.
+  basePriceAmount: number;     // Standard price e.g. 60.00
+  currencySymbol: string;      // e.g. "£", "$", "€"
+  validityDays: number;        // Pass lifespan e.g. 30, 60, 365
+  unlimitedPeriod?: UnlimitedPeriodType; // Present if tierType === 'unlimited'
+  promoOffer?: PromoOffer;
+  allowedStudioIds: string[] | 'all'; // Studios where this currency is valid
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type StudioCurrencyPolicyMode = 'follow_brand' | 'custom_override';
+
+export interface StudioCurrencyPolicy {
+  studioId: string;
+  companyId?: string;
+  policyMode: StudioCurrencyPolicyMode;
+  acceptedCurrencyIds: string[]; // List of CompanyCurrency IDs accepted by this studio
+  customCurrencies?: CompanyCurrency[]; // Custom studio-level pricing tiers (if policyMode === 'custom_override')
+  updatedAt: string;
+}
+
+export type UserPassStatus = 'active' | 'expired' | 'exhausted';
+
+export interface UserPass {
+  id: string;
+  userId: string;
+  currencyId: string;
+  currencyTitle: string;
+  studioId?: string;            // Primary studio branch ID (or empty if global brand pass)
+  companyId?: string;
+  tierType: CurrencyTierType;
+  totalCredits?: number;
+  creditsRemaining?: number;
+  unlimitedPeriod?: UnlimitedPeriodType;
+  validityDays: number;
+  purchasedAt: string;          // ISO Timestamp
+  expiresAt: string;            // ISO Timestamp
+  status: UserPassStatus;
+  grantedByAdminId?: string;    // Admin UID if granted via front-desk POS / Staging admin tool
+  grantNote?: string;           // Grant note e.g. "Cash Payment Recorded (£20)"
 }
 
 export interface YogaStudio {
@@ -186,6 +254,7 @@ export interface YogaStudio {
   name: string;
   address: string;
   about?: string;
+  description?: string;
   rating: number;
   isClaimed: boolean;
   status?: StudioStatus;
@@ -219,6 +288,8 @@ export interface Company {
   contactEmail: string;
   website?: string;
   description: string;
+  bannerImageUrl?: string;
+  logoUrl?: string;
   createdAt: string;
 }
 

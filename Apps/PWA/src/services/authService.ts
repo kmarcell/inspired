@@ -6,6 +6,7 @@ import {
   signOut, 
   User as FirebaseUser 
 } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
 import { auth } from '../firebase';
 
 export interface AuthService {
@@ -20,8 +21,31 @@ export interface AuthService {
 export const authService: AuthService = {
   async loginWithGoogle(): Promise<FirebaseUser> {
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    return result.user;
+    try {
+      const result = await signInWithPopup(auth, provider);
+      return result.user;
+    } catch (err: unknown) {
+      const { fetchSignInMethodsForEmail, linkWithCredential } = await import('firebase/auth');
+      if (err instanceof FirebaseError && err.code === 'auth/account-exists-with-different-credential') {
+        const pendingCred = GoogleAuthProvider.credentialFromError(err);
+        const email = err.customData?.email as string;
+
+        if (email && pendingCred) {
+          const methods = await fetchSignInMethodsForEmail(auth, email);
+          if (methods.includes('password')) {
+            const password = window.prompt(`An account already exists for ${email}. Enter your password to link Google sign-in:`);
+            if (password) {
+              const userCred = await authService.loginWithEmailPassword(email, password);
+              if (auth.currentUser) {
+                await linkWithCredential(auth.currentUser, pendingCred);
+              }
+              return userCred;
+            }
+          }
+        }
+      }
+      throw err;
+    }
   },
 
   async loginWithEmailPassword(email: string, pass: string): Promise<FirebaseUser> {

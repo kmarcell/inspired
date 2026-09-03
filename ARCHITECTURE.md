@@ -297,8 +297,25 @@ To prevent email provider throttling and Firebase billing exhaustion, the follow
 3.  **Authentication & App Check**:
     *   `validateDisplayName` is restricted to authenticated users only (`request.auth != null`).
     *   App Check is enforced to reject requests from unofficial app binaries.
-3.  **Client-Side "Cooldown" State:**
-    *   The UI enforces a 60-second lockout period to manage user expectations and reduce accidental double-taps.
+### 4.8 Pass Purchasing & Wallet Security Architecture (OWASP Anti-Tampering)
+
+To eliminate client-side bundle tampering, environment spoofing (e.g. setting local dev mode in production), and OWASP Broken Access Control (A01/A04/A08), pass issuance and wallet credit writes are strictly enforced as follows:
+
+1. **Zero Client-Side Wallet Writes (`firestore.rules`):**
+   - The `user_passes` collection in Cloud Firestore enforces **`allow write, create, update, delete: if false;`** for all Client SDK requests.
+   - Users have `read` access to their own passes (`request.auth.uid == resource.data.userId`), but **no client binary or REST request can directly insert or increment pass credits**.
+
+2. **Cryptographic Webhook Issuance (`stripeWebhook` Cloud Function):**
+   - Passes in Staging and Production are created exclusively by the Firebase Admin SDK inside the `stripeWebhook` Cloud Function.
+   - Requires valid **Stripe Signature** cryptographic verification (`stripe.webhooks.constructEvent(body, sig, secret)`).
+   - Prevents replay attacks, price tampering (`basePriceAmount` manipulation), and fake payment intent IDs.
+
+3. **Admin Pass Granting Backend Isolation (`grantUserPass` Callable Function):**
+   - On Staging and Production, admins/studio owners grant passes via an HTTPS Callable Cloud Function (`grantUserPass`).
+   - Requires verified Firebase Auth custom claims (`context.auth.token.role === 'studio_owner'` or `'brand_admin'`).
+
+4. **Local Dev Emulator Guard Isolation:**
+   - The local dev auto-deposit feature checks `process.env.FUNCTIONS_EMULATOR === 'true'` on the Node.js serverless backend, which is physically impossible to trigger on GCP production infrastructure regardless of client-side JS changes.
 
 ### 4.7 Cloud Functions API Reference
 All backend logic is exposed via **HTTPS Callable Functions**. These require an authenticated Firebase Auth session and a valid App Check token.

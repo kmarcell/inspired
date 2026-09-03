@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../firebase';
-import { UserProfile, Post, Community, YogaStudio, Company, SearchResult, StudioClass, ClassBooking, StudioMember, StagingInvite } from '../types';
+import { UserProfile, Post, Community, YogaStudio, Company, SearchResult, StudioClass, ClassBooking, StudioMember, StagingInvite, CompanyCurrency, StudioCurrencyPolicy, UserPass } from '../types';
 
 export class ProfileNotFoundError extends Error {
   constructor(userId: string) {
@@ -42,10 +42,20 @@ export function chunkArray<T>(array: T[], chunkSize: number = 30): T[][] {
 }
 
 export const firestoreService = {
-  /** Fetch full user profile by userId */
-  async fetchUserProfile(userId: string): Promise<UserProfile> {
+  /** Fetch full user profile by userId or email address */
+  async fetchUserProfile(userId: string, email?: string): Promise<UserProfile> {
     const userDocRef = doc(db, 'users', userId);
-    const snapshot = await getDoc(userDocRef);
+    let snapshot = await getDoc(userDocRef);
+
+    // If not found by direct UID, try querying by email address (e.g. Google Sign-In or Magic Link binding)
+    if ((!snapshot.exists() || !snapshot.data()?.username) && email) {
+      const q = query(collection(db, 'users'), where('email', '==', email.toLowerCase().trim()));
+      const emailSnap = await getDocs(q);
+      if (!emailSnap.empty) {
+        snapshot = emailSnap.docs[0];
+      }
+    }
+
     if (!snapshot.exists() || !snapshot.data()?.username) {
       throw new ProfileNotFoundError(userId);
     }
@@ -53,6 +63,7 @@ export const firestoreService = {
     return {
       id: snapshot.id,
       username: data.username || 'unknown',
+      email: data.email || email || undefined,
       displayName: data.displayName,
       bio: data.bio,
       lastSearchArea: data.lastSearchArea,
@@ -698,7 +709,7 @@ export const firestoreService = {
     for (const docSnap of companiesSnap.docs) {
       const d = docSnap.data();
       // Auto-delete orphan studio-less company documents in background if 0 studios exist for it
-      if (!activeCompanyIdsWithStudios.has(docSnap.id)) {
+      if (activeCompanyIdsWithStudios.size > 0 && !activeCompanyIdsWithStudios.has(docSnap.id)) {
         try {
           await deleteDoc(doc(db, 'companies', docSnap.id));
         } catch {
@@ -913,6 +924,12 @@ export const firestoreService = {
     await this.closeStudio(studioId);
   },
 
+  /** Assign or unassign a studio location to a parent brand company */
+  async assignStudioToCompany(studioId: string, companyId: string | null): Promise<void> {
+    const studioRef = doc(db, 'studios', studioId);
+    await updateDoc(studioRef, { companyId: companyId || null });
+  },
+
   /** Fetch all Studios owned/managed by a user (with auto-deduplication) */
   async fetchStudiosByOwner(ownerId: string): Promise<YogaStudio[]> {
     const q = query(collection(db, 'studios'), where('ownerId', '==', ownerId));
@@ -967,7 +984,7 @@ export const firestoreService = {
   },
 
   /** Fetch all Studios by location prefix or area */
-  async fetchStudiosByLocation(location: string): Promise<YogaStudio[]> {
+  async fetchStudiosByLocation(_location: string): Promise<YogaStudio[]> {
     try {
       const q = query(collection(db, 'studios'));
       const snapshot = await getDocs(q);
@@ -1274,82 +1291,17 @@ export const firestoreService = {
     await deleteDoc(doc(db, 'stagingInvites', inviteId));
   },
 
-  /** Fetch classes scheduled for a studio on a given date string */
-  async fetchStudioClasses(studioId: string, dateString: string): Promise<StudioClass[]> {
+  /** Fetch classes scheduled for a studio on a given date string (or all classes if omitted) */
+  async fetchStudioClasses(studioId: string, dateString?: string): Promise<StudioClass[]> {
     try {
-      const q = query(
-        collection(db, 'studios', studioId, 'classes'),
-        where('dateString', '==', dateString)
-      );
+      const classesRef = collection(db, 'studios', studioId, 'classes');
+      const q = dateString ? query(classesRef, where('dateString', '==', dateString)) : query(classesRef);
       const snap = await getDocs(q);
-      if (!snap.empty) {
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as StudioClass));
-      }
+      return snap.docs.map(d => ({ id: d.id, ...d.data() } as StudioClass));
     } catch (e) {
-      console.warn(`Firestore class fetch fallback for studio ${studioId}:`, e);
+      console.warn(`Firestore class fetch error for studio ${studioId}:`, e);
+      return [];
     }
-
-    // Default Deterministic Seed Fallback Classes
-    return [
-      {
-        id: `class_${studioId}_1`,
-        studioId,
-        className: 'Vinyasa Flow',
-        styleName: 'Dynamic Vinyasa',
-        classTypeDescription: 'A fluid, breath-synchronized sequence designed to build core strength and endurance while calming the mind.',
-        teacherId: 'user_maryia',
-        teacherName: 'Maryia Sharma',
-        dayOfWeek: 1,
-        dateString,
-        startTime: '10:00 AM',
-        endTime: '11:00 AM',
-        capacity: 24,
-        bookedCount: 10,
-        waitlist: [],
-        roomClimate: 'natural_ambient',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Yoga Mat & Towel',
-      },
-      {
-        id: `class_${studioId}_2`,
-        studioId,
-        className: 'Hot Ashtanga Primary',
-        styleName: 'Ashtanga Primary Series',
-        classTypeDescription: 'Structured, traditional Ashtanga primary series in a warm studio environment for deep flexibility and detox.',
-        teacherId: 'user_elena',
-        teacherName: 'Elena Rostova',
-        dayOfWeek: 1,
-        dateString,
-        startTime: '05:30 PM',
-        endTime: '06:30 PM',
-        capacity: 20,
-        bookedCount: 20,
-        waitlist: ['user_waitlist_1', 'user_waitlist_2'],
-        roomClimate: 'hot_studio',
-        temperatureCelsius: 35,
-        skillLevel: 'Intermediate / Advanced',
-        equipmentNeeded: 'Yoga Mat, Sweat Towel & Water',
-      },
-      {
-        id: `class_${studioId}_3`,
-        studioId,
-        className: 'Yin & Sound Bath',
-        styleName: 'Restorative Yin',
-        classTypeDescription: 'Gentle, long-held floor postures accompanied by Tibetan singing bowls for deep relaxation.',
-        teacherId: 'user_maryia',
-        teacherName: 'Maryia Sharma',
-        dayOfWeek: 1,
-        dateString,
-        startTime: '07:00 PM',
-        endTime: '08:00 PM',
-        capacity: 15,
-        bookedCount: 8,
-        waitlist: [],
-        roomClimate: 'air_conditioned',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Yoga Mat & Warm Socks',
-      },
-    ];
   },
 
   /** Book or waitlist a studio class */
@@ -1432,21 +1384,11 @@ export const firestoreService = {
     try {
       const q = query(collection(db, 'studios', studioId, 'members'), limit(50));
       const snap = await getDocs(q);
-      if (!snap.empty) {
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as StudioMember));
-      }
+      return snap.docs.map(d => ({ id: d.id, ...d.data() } as StudioMember));
     } catch (e) {
-      console.warn(`Firestore studio members fallback for ${studioId}:`, e);
+      console.warn(`Firestore studio members query error for ${studioId}:`, e);
+      return [];
     }
-
-    // Default Seed Members with explicit privacy settings
-    return [
-      { id: 'user_maryia', displayName: 'Maryia Sharma', isProfilePublic: true, joinedAt: '2026-01-15T10:00:00Z' },
-      { id: 'user_elena', displayName: 'Elena Rostova', isProfilePublic: true, joinedAt: '2026-02-01T14:30:00Z' },
-      { id: 'user_private_1', displayName: 'Anonymous Yogi #42', isProfilePublic: false, joinedAt: '2026-02-10T09:15:00Z' },
-      { id: 'user_private_2', displayName: 'Zen Practitioner', isProfilePublic: false, joinedAt: '2026-02-20T16:45:00Z' },
-      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-03-01T11:20:00Z' },
-    ];
   },
 
   /** Cascading Join: Joins Studio Branch Community AND Parent Brand Community in a single action */
@@ -1484,5 +1426,235 @@ export const firestoreService = {
       ...user,
       joinedCommunities: updatedCommunities,
     };
+  },
+
+  // --- Section 5.20: Brand Currency Catalog, Studio Acceptance Policies & User Pass Wallet ---
+
+  /** Create a new Company / Brand Currency or Studio Custom Override */
+  async createCompanyCurrency(input: Omit<CompanyCurrency, 'id' | 'createdAt' | 'updatedAt'>): Promise<CompanyCurrency> {
+    const now = new Date().toISOString();
+    const currencyRef = doc(collection(db, 'company_currencies'));
+    const currencyData: CompanyCurrency = {
+      ...input,
+      id: currencyRef.id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const cleanedData = Object.fromEntries(
+      Object.entries(currencyData).filter(([, val]) => val !== undefined)
+    );
+    await setDoc(currencyRef, cleanedData);
+    return currencyData;
+  },
+
+  /** Fetch all currencies for a parent company brand, aggregating studio custom overrides */
+  async fetchCompanyCurrencies(companyId: string): Promise<CompanyCurrency[]> {
+    if (!companyId) return [];
+    try {
+      const q = query(
+        collection(db, 'company_currencies'),
+        where('companyId', '==', companyId)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((docSnap) => docSnap.data() as CompanyCurrency);
+    } catch {
+      return [];
+    }
+  },
+
+  /** Update an existing currency definition */
+  async updateCompanyCurrency(id: string, updates: Partial<CompanyCurrency>): Promise<void> {
+    const currencyRef = doc(db, 'company_currencies', id);
+    await updateDoc(currencyRef, {
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+
+  /** Fetch studio branch currency acceptance policy */
+  async fetchStudioCurrencyPolicy(studioId: string): Promise<StudioCurrencyPolicy | null> {
+    if (!studioId) return null;
+    try {
+      const policyRef = doc(db, 'studio_currency_policies', studioId);
+      const snap = await getDoc(policyRef);
+      if (snap.exists()) {
+        return snap.data() as StudioCurrencyPolicy;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  },
+
+  /** Save or update studio branch currency acceptance policy */
+  async saveStudioCurrencyPolicy(policy: StudioCurrencyPolicy): Promise<void> {
+    const policyRef = doc(db, 'studio_currency_policies', policy.studioId);
+    await setDoc(policyRef, {
+      ...policy,
+      updatedAt: new Date().toISOString(),
+    }, { merge: true });
+  },
+
+  /** Grant a pass/credit to a user (Admin POS / Staging / Dev execution) */
+  async grantUserPass(input: Omit<UserPass, 'id' | 'purchasedAt' | 'expiresAt' | 'status'>): Promise<UserPass> {
+    const now = new Date();
+    const expires = new Date();
+    expires.setDate(now.getDate() + (input.validityDays || 30));
+
+    const passRef = doc(collection(db, 'user_passes'));
+    const passData: UserPass = {
+      ...input,
+      id: passRef.id,
+      purchasedAt: now.toISOString(),
+      expiresAt: expires.toISOString(),
+      status: 'active',
+      creditsRemaining: input.tierType === 'unlimited' ? undefined : (input.creditsRemaining ?? input.totalCredits ?? 1),
+    };
+    await setDoc(passRef, passData);
+    return passData;
+  },
+
+  /** Fetch user pass wallet for a user */
+  async fetchUserPasses(userId: string): Promise<UserPass[]> {
+    if (!userId) return [];
+    try {
+      const q = query(
+        collection(db, 'user_passes'),
+        where('userId', '==', userId)
+      );
+      const snapshot = await getDocs(q);
+      const now = new Date();
+      return snapshot.docs.map((docSnap) => {
+        const pass = docSnap.data() as UserPass;
+        // Check for expiration
+        if (pass.status === 'active' && new Date(pass.expiresAt) < now) {
+          return { ...pass, status: 'expired' as const };
+        }
+        return pass;
+      });
+    } catch {
+      return [];
+    }
+  },
+
+  /** Book class with selected pass redemption */
+  async bookClassWithPass(
+    classId: string, 
+    studioId: string, 
+    userId: string, 
+    userDisplayName: string, 
+    passId?: string
+  ): Promise<{ bookingId: string; status: 'confirmed' | 'waitlisted' }> {
+    const classRef = doc(db, 'studio_classes', classId);
+    const classSnap = await getDoc(classRef);
+    if (!classSnap.exists()) {
+      throw new Error(`Class not found: ${classId}`);
+    }
+    const classData = classSnap.data() as StudioClass;
+    const isWaitlisted = classData.bookedCount >= classData.capacity;
+    const bookingStatus = isWaitlisted ? 'waitlisted' : 'confirmed';
+
+    let creditsRedeemed = 0;
+    if (passId && !isWaitlisted) {
+      const passRef = doc(db, 'user_passes', passId);
+      const passSnap = await getDoc(passRef);
+      if (passSnap.exists()) {
+        const passData = passSnap.data() as UserPass;
+        if (passData.tierType !== 'unlimited' && passData.creditsRemaining && passData.creditsRemaining > 0) {
+          creditsRedeemed = 1;
+          const newCredits = passData.creditsRemaining - 1;
+          await updateDoc(passRef, {
+            creditsRemaining: newCredits,
+            status: newCredits === 0 ? 'exhausted' : 'active',
+          });
+        }
+      }
+    }
+
+    const bookingRef = doc(collection(db, 'class_bookings'));
+    const now = new Date().toISOString();
+    const bookingData: ClassBooking = {
+      id: bookingRef.id,
+      classId,
+      studioId,
+      userId,
+      userDisplayName,
+      bookedAt: now,
+      status: bookingStatus,
+      passIdUsed: passId,
+      creditsRedeemed,
+    };
+    await setDoc(bookingRef, bookingData);
+
+    // Update class bookedCount
+    if (!isWaitlisted) {
+      await updateDoc(classRef, {
+        bookedCount: classData.bookedCount + 1,
+      });
+    } else {
+      const waitlist = classData.waitlist || [];
+      await updateDoc(classRef, {
+        waitlist: [...waitlist, userId],
+      });
+    }
+
+    return { bookingId: bookingRef.id, status: bookingStatus };
+  },
+
+  /** Cancel booking with transaction reversal refund (credits restored if >= 12h prior) */
+  async cancelClassBooking(
+    bookingId: string, 
+    classId: string, 
+    userId: string, 
+    classDateISO: string
+  ): Promise<{ refunded: boolean; creditsRestored?: number }> {
+    const bookingRef = doc(db, 'class_bookings', bookingId);
+    const bookingSnap = await getDoc(bookingRef);
+    
+    let creditsRestored = 0;
+    let refunded = false;
+
+    if (bookingSnap.exists()) {
+      const booking = bookingSnap.data() as ClassBooking;
+      if (booking.userId && booking.userId !== userId) {
+        throw new Error('Unauthorized cancellation attempt');
+      }
+      
+      // Calculate 12-hour deadline check
+      const now = new Date();
+      const classDate = new Date(classDateISO);
+      const hoursUntilClass = (classDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+      if (hoursUntilClass >= 12 && booking.passIdUsed && booking.creditsRedeemed && booking.creditsRedeemed > 0) {
+        const passRef = doc(db, 'user_passes', booking.passIdUsed);
+        const passSnap = await getDoc(passRef);
+        if (passSnap.exists()) {
+          const passData = passSnap.data() as UserPass;
+          creditsRestored = booking.creditsRedeemed;
+          const restoredCredits = (passData.creditsRemaining || 0) + creditsRestored;
+          await updateDoc(passRef, {
+            creditsRemaining: restoredCredits,
+            status: 'active',
+          });
+          refunded = true;
+        }
+      }
+
+      await deleteDoc(bookingRef);
+
+      // Decrement class bookedCount
+      const classRef = doc(db, 'studio_classes', classId);
+      const classSnap = await getDoc(classRef);
+      if (classSnap.exists()) {
+        const classData = classSnap.data() as StudioClass;
+        if (booking.status === 'confirmed' && classData.bookedCount > 0) {
+          await updateDoc(classRef, {
+            bookedCount: classData.bookedCount - 1,
+          });
+        }
+      }
+    }
+
+    return { refunded, creditsRestored };
   },
 };
