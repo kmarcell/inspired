@@ -1468,6 +1468,21 @@ export const firestoreService = {
     }
   },
 
+  /** Fetch custom currencies created specifically for an independent studio branch */
+  async fetchStudioCurrencies(studioId: string): Promise<CompanyCurrency[]> {
+    if (!studioId) return [];
+    try {
+      const q = query(
+        collection(db, 'company_currencies'),
+        where('studioId', '==', studioId)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((docSnap) => docSnap.data() as CompanyCurrency);
+    } catch {
+      return [];
+    }
+  },
+
   /** Update an existing currency definition */
   async updateCompanyCurrency(id: string, updates: Partial<CompanyCurrency>): Promise<void> {
     const currencyRef = doc(db, 'company_currencies', id);
@@ -1495,10 +1510,14 @@ export const firestoreService = {
   /** Save or update studio branch currency acceptance policy */
   async saveStudioCurrencyPolicy(policy: StudioCurrencyPolicy): Promise<void> {
     const policyRef = doc(db, 'studio_currency_policies', policy.studioId);
-    await setDoc(policyRef, {
-      ...policy,
-      updatedAt: new Date().toISOString(),
-    }, { merge: true });
+    const cleanedData: Record<string, unknown> = {};
+    Object.entries(policy).forEach(([key, val]) => {
+      if (val !== undefined) {
+        cleanedData[key] = val;
+      }
+    });
+    cleanedData.updatedAt = new Date().toISOString();
+    await setDoc(policyRef, cleanedData, { merge: true });
   },
 
   /** Grant a pass/credit to a user (Admin POS / Staging / Dev execution) */
@@ -1516,7 +1535,10 @@ export const firestoreService = {
       status: 'active',
       creditsRemaining: input.tierType === 'unlimited' ? undefined : (input.creditsRemaining ?? input.totalCredits ?? 1),
     };
-    await setDoc(passRef, passData);
+    const cleanedData = Object.fromEntries(
+      Object.entries(passData).filter(([, val]) => val !== undefined)
+    );
+    await setDoc(passRef, cleanedData);
     return passData;
   },
 

@@ -85,13 +85,24 @@ service cloud.firestore {
     // 8. Brand & Studio Currencies (Section 5.20)
     match /company_currencies/{currencyId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if request.auth != null && 
+                    (
+                      ('companyId' in request.resource.data && request.resource.data.companyId != null && exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId)) && get(/databases/$(database)/documents/companies/$(request.resource.data.companyId)).data.ownerId == request.auth.uid) ||
+                      ('studioId' in request.resource.data && request.resource.data.studioId != null && exists(/databases/$(database)/documents/studios/$(request.resource.data.studioId)) && get(/databases/$(database)/documents/studios/$(request.resource.data.studioId)).data.ownerId == request.auth.uid)
+                    );
+      allow update, delete: if request.auth != null && 
+                            (
+                              ('companyId' in resource.data && resource.data.companyId != null && exists(/databases/$(database)/documents/companies/$(resource.data.companyId)) && get(/databases/$(database)/documents/companies/$(resource.data.companyId)).data.ownerId == request.auth.uid) ||
+                              ('studioId' in resource.data && resource.data.studioId != null && exists(/databases/$(database)/documents/studios/$(resource.data.studioId)) && get(/databases/$(database)/documents/studios/$(resource.data.studioId)).data.ownerId == request.auth.uid)
+                            );
     }
 
     // 9. Studio Currency Policy Overrides
     match /studio_currency_policies/{policyId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && 
+                      exists(/databases/$(database)/documents/studios/$(policyId)) &&
+                      get(/databases/$(database)/documents/studios/$(policyId)).data.ownerId == request.auth.uid;
     }
 
     // 10. User Pass Digital Wallet

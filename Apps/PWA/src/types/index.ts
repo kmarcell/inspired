@@ -201,8 +201,8 @@ export interface PromoOffer {
 
 export interface CompanyCurrency {
   id: string;
-  companyId: string;           // Parent Brand ID
-  studioId?: string;           // Present if created by a specific studio branch as a custom override
+  companyId?: string;          // Parent Brand ID (optional for independent studios)
+  studioId?: string;           // Present if created by a specific studio branch as a custom override or independent studio
   title: string;               // e.g. "5-Class Pack (Summer Special)"
   description: string;         // e.g. "Valid for 5 Hot Yoga classes across all brand studios"
   tierType: CurrencyTierType;

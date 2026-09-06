@@ -6,6 +6,7 @@ import { firestoreService } from '../../services/firestoreService';
 vi.mock('../../services/firestoreService', () => ({
   firestoreService: {
     grantUserPass: vi.fn(),
+    fetchUserProfile: vi.fn(),
   },
 }));
 
@@ -15,14 +16,23 @@ describe('AdminGrantPassModalView Component', () => {
   });
 
   it('renders credit quantity stepper and executes grant', async () => {
+    vi.mocked(firestoreService.fetchUserProfile).mockResolvedValue({
+      id: 'elena@inspiredyoga.app',
+      username: 'elena_rostova',
+      joinedCommunities: [],
+      privacySettings: { isProfilePublic: true, avatarPrivacy: 'public', showJoinedGroups: 'members-only' },
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    });
+
     vi.mocked(firestoreService.grantUserPass).mockResolvedValue({
       id: 'pass_granted_123',
       userId: 'elena@inspiredyoga.app',
       currencyId: 'custom_credit_grant',
-      currencyTitle: 'Custom 2-Credit Grant',
+      currencyTitle: 'Custom 1-Credit Grant',
       tierType: 'credit_pack',
-      totalCredits: 2,
-      creditsRemaining: 2,
+      totalCredits: 1,
+      creditsRemaining: 1,
       validityDays: 60,
       purchasedAt: '2026-09-03T10:00:00Z',
       expiresAt: '2026-11-03T10:00:00Z',
@@ -48,18 +58,22 @@ describe('AdminGrantPassModalView Component', () => {
     const input = screen.getByPlaceholderText(/elena@inspiredyoga.app/i);
     fireEvent.change(input, { target: { value: 'elena@inspiredyoga.app' } });
 
-    const grantBtn = screen.getByRole('button', { name: /Grant 2 Credit\(s\) & Deposit/i });
+    const grantBtn = screen.getByRole('button', { name: /Grant 1 Credit\(s\) & Deposit/i });
     fireEvent.click(grantBtn);
 
     await waitFor(() => {
       expect(firestoreService.grantUserPass).toHaveBeenCalledWith(
         expect.objectContaining({
           userId: 'elena@inspiredyoga.app',
-          totalCredits: 2,
+          totalCredits: 1,
           studioId: 'studio_askew_001',
         })
       );
-      expect(handleSuccess).toHaveBeenCalled();
+      expect(screen.getByText('Pass Granted & Deposited!')).toBeInTheDocument();
     });
+
+    const doneBtn = screen.getByRole('button', { name: /Done/i });
+    fireEvent.click(doneBtn);
+    expect(handleSuccess).toHaveBeenCalled();
   });
 });

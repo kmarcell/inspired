@@ -191,4 +191,121 @@ describe('MyStudiosView Component', () => {
       });
     });
   });
+
+  it('allows creating custom location currencies inside Studio Subpage Pricing tab for an independent studio', async () => {
+    (firestoreService.fetchStudioCurrencies as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (firestoreService.createCompanyCurrency as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'curr_chiswick_01',
+      studioId: 'studio_chiswick_02',
+      title: '10-Class Independent Pack',
+      description: 'Valid for 10 classes',
+      tierType: 'credit_pack',
+      creditCount: 10,
+      basePriceAmount: 120,
+      currencySymbol: '£',
+      validityDays: 60,
+      allowedStudioIds: ['studio_chiswick_02'],
+      createdAt: '2026-09-04T10:00:00Z',
+      updatedAt: '2026-09-04T10:00:00Z',
+    });
+
+    render(<MyStudiosView onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('manage-studio-studio_chiswick_02')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('manage-studio-studio_chiswick_02'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('studio-tab-pricing')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('studio-tab-pricing'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Create Currency')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('Create Currency'));
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/Pass Title/i)).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByPlaceholderText(/Pass Title/i), {
+      target: { value: '10-Class Independent Pack' },
+    });
+
+    fireEvent.click(screen.getByText('✓ Save Currency Changes'));
+
+    await waitFor(() => {
+      expect(firestoreService.createCompanyCurrency).toHaveBeenCalledWith(
+        expect.objectContaining({
+          studioId: 'studio_chiswick_02',
+          title: '10-Class Independent Pack',
+          allowedStudioIds: ['studio_chiswick_02'],
+        })
+      );
+    });
+  });
+
+  it('allows editing an existing currency package when Edit button is clicked', async () => {
+    const mockCurrency = {
+      id: 'curr_chiswick_dropin',
+      studioId: 'studio_chiswick_02',
+      title: 'Single Drop-In',
+      description: '1 Hot Yoga Class',
+      tierType: 'drop_in' as const,
+      creditCount: 1,
+      basePriceAmount: 18,
+      currencySymbol: '£',
+      validityDays: 14,
+      allowedStudioIds: ['studio_chiswick_02'],
+      createdAt: '2026-09-04T10:00:00Z',
+      updatedAt: '2026-09-04T10:00:00Z',
+    };
+
+    (firestoreService.fetchStudioCurrencies as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([mockCurrency]);
+    (firestoreService.updateCompanyCurrency as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+    render(<MyStudiosView onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('manage-studio-studio_chiswick_02')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('manage-studio-studio_chiswick_02'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('studio-tab-pricing')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('studio-tab-pricing'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('edit-currency-curr_chiswick_dropin')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('edit-currency-curr_chiswick_dropin'));
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Pass Title')).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Pass Title'), {
+      target: { value: 'Updated Peak Drop-In' },
+    });
+
+    fireEvent.click(screen.getByText('✓ Save Currency Changes'));
+
+    await waitFor(() => {
+      expect(firestoreService.updateCompanyCurrency).toHaveBeenCalledWith(
+        'curr_chiswick_dropin',
+        expect.objectContaining({
+          title: 'Updated Peak Drop-In',
+        })
+      );
+    });
+  });
 });

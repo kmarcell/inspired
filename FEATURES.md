@@ -668,8 +668,8 @@ To ensure a rich experience during development, the search engine (Cloud Functio
    - **Company Brand Reassignment:** Independent studios can be reassigned to any of the owner's Company Brands (or returned to Independent status) inside the Manage Studio drawer.
 7. **Studio Operating Status & Soft Closure System:**
    - Three-tier operating status: `active` (Open & Active 🟢), `temp_closed` (Temporarily Closed ⏸️), and `closed` (Permanently Closed 🔴).
-   - **Temporary Closure:** Supports custom reopening note (`statusNote` e.g., *"Closed for summer refurbishment until Sept 15"*). Renders **`⏸️ Temporarily Closed`** badge in search and studio lists.
-   - **Soft Closure (Permanent Deletion):** Closing a studio marks `isClosed: true` and `status: 'closed'` rather than hard deleting the Firestore document, ensuring existing subscribed members still see historical studio context marked **`🔴 Permanently Closed`**. Includes a 1-tap **`🔄 Reopen Studio`** action.
+   - **Temporary Closure:** Supports custom reopening note (`statusNote` e.g., *"Closed for summer refurbishment until Sept 15"*). Renders **`⏸️ Temporarily Closed`** badge in search and studio lists. Studio tiles retain an active **`→`** navigation arrow so users can view the profile page.
+   - **Soft Closure (Permanent Deletion):** Closing a studio marks `isClosed: true` and `status: 'closed'` rather than hard deleting the Firestore document, rendering **`🔴 Permanently Closed`**. Studio tiles retain an active **`→`** navigation arrow so users can view the profile page. Includes a 1-tap **`🔄 Reopen Studio`** action.
 8. **Real-Time Integration:** Claimed/created studio profiles immediately appear in search results (`searchEntities`) and community feed filters.
 9. **Website URL Update & Admin Re-Verification Policy:**
    - Changing the official website URL of a verified studio or company brand (`isClaimed: true`) automatically flags the profile for Admin Re-Verification.
@@ -722,7 +722,7 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 
 **Key Requirements:**
 1. **Studio Profile Header & Overview:**
-   - Displays studio banner image, logo avatar, studio name, location address, postcode prefix (`location_prefix` e.g. `W12`), contact links (phone, email, website, social handles), and operating status badge (🟢 Open, ⏸️ Temp Closed, 🔴 Closed).
+   - Displays studio banner image, logo avatar, studio name, location address, postcode prefix (`location_prefix` e.g. `W12`), contact links (phone, email, website, social handles), operating status badge (🟢 Open, ⏸️ Temp Closed, 🔴 Closed), and a prominent Closure Notice Banner displaying the studio manager's status message (`statusNote` e.g., *"Closed for summer refurbishment until Oct 1st. See you soon!"*).
 2. **Active Members Counter & Privacy Guarded Subpage (`StudioMembersView.tsx`):**
    - Displays total members count (e.g. `👥 148 Members ➔`).
    - Tapping opens the Studio Members subpage listing enrolled members.
