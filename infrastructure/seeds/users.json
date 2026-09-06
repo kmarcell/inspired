@@ -7,7 +7,7 @@
     "bio": "Yogi practitioner exploring studios across London.",
     "lastSearchArea": "Askew",
     "location_prefix": "W12",
-    "joinedCommunities": ["area_askew", "comm_area_W12"],
+    "joinedCommunities": ["area_askew", "comm_area_W12", "comm_studio_studio_askew_001"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
     "privacySettings": {
@@ -45,7 +45,7 @@
     "bio": "Lead Hot Yoga Instructor specializing in 35°C Hot Ashtanga.",
     "lastSearchArea": "Askew",
     "location_prefix": "W12",
-    "joinedCommunities": ["area_askew", "comm_studio_studio_askew_001"],
+    "joinedCommunities": ["area_askew", "comm_studio_studio_askew_001", "comm_studio_studio_chiswick_002"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
     "privacySettings": {

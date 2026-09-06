@@ -457,7 +457,11 @@ async function run() {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           }, { merge: true });
-          console.log(`🛡️ Granted Admin permissions & created full profile for: ${cleanAdminEmail} (${authUser.uid})`);
+          // Explicitly assign Affordable London Yoga brand network and Askew Road Zen Den studio to Admin user
+          await db.collection('companies').doc('company_affordable_london').set({ ownerId: authUser.uid }, { merge: true });
+          await db.collection('studios').doc('studio_askew_001').set({ ownerId: authUser.uid }, { merge: true });
+
+          console.log(`🛡️ Granted Admin permissions & assigned brand/studio ownership to: ${cleanAdminEmail} (${authUser.uid})`);
         }
       } catch (e) {
         // User not registered yet in Auth; invite created in /stagingInvites
