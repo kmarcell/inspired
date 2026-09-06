@@ -136,6 +136,34 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
         <div className="w-12" /> {/* Spacer */}
       </div>
 
+      {/* Closure Notice Banner (if Temporarily Closed or Permanently Closed) */}
+      {(studio.status === 'temp_closed' || studio.status === 'closed' || studio.isClosed) && (
+        <div
+          data-testid="studio-closure-banner"
+          className={`p-4.5 rounded-2xl border flex items-start space-x-3.5 shadow-md ${
+            studio.status === 'temp_closed'
+              ? 'bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-200'
+              : 'bg-rose-500/10 border-rose-500/30 text-rose-900 dark:text-rose-200'
+          }`}
+        >
+          <span className="text-2xl mt-0.5">
+            {studio.status === 'temp_closed' ? '🟡' : '🔴'}
+          </span>
+          <div className="space-y-1">
+            <h4 className="text-sm font-extrabold">
+              {studio.status === 'temp_closed' ? 'Temporarily Closed' : 'Permanently Closed'}
+            </h4>
+            <p className="text-xs font-medium opacity-90 leading-relaxed">
+              {studio.statusNote
+                ? studio.statusNote
+                : studio.status === 'temp_closed'
+                ? 'This studio location is temporarily closed. Please check back soon for schedule updates and reopening announcements.'
+                : 'This studio location is permanently closed.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Hero Cover Banner & Logo */}
       <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl transition-colors">
         {/* Cover Banner */}
@@ -348,6 +376,8 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
           studioId={studio.id}
           studioName={studio.name}
           isJoined={isJoined}
+          isClosed={studio.isClosed || studio.status === 'closed'}
+          isTempClosed={studio.status === 'temp_closed'}
           currentUser={currentUser}
           onSelectTeacher={onSelectTeacher}
           onRequestJoin={handleJoinToggle}

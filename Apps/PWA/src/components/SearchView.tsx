@@ -220,37 +220,35 @@ export const SearchView: React.FC<SearchViewProps> = ({
                     ) : (
                       <div className="flex items-center space-x-2 shrink-0">
                         {result.studioData?.status === 'temp_closed' ? (
-                          <span className="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold flex items-center space-x-1" title={result.studioData.statusNote}>
+                          <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-bold flex items-center space-x-1" title={result.studioData.statusNote}>
                             <span>⏸️</span>
-                            <span>Temporarily Closed</span>
+                            <span>Temp Closed</span>
                           </span>
                         ) : result.studioData?.isClosed || result.studioData?.status === 'closed' ? (
-                          <span className="px-3 py-1.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold flex items-center space-x-1">
+                          <span className="px-2.5 py-1 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-[11px] font-bold flex items-center space-x-1">
                             <span>🔴</span>
-                            <span>Permanently Closed</span>
+                            <span>Closed</span>
                           </span>
-                        ) : (
-                          <>
-                            {result.studioData?.isClaimed === false && onClaimStudio && (
-                              <button
-                                type="button"
-                                onClick={() => onClaimStudio(result.id)}
-                                data-testid={`claim-studio-btn-${result.id}`}
-                                className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold transition-all active:scale-95"
-                              >
-                                Claim Studio 🏢
-                              </button>
-                            )}
+                        ) : result.studioData?.isClaimed === false && onClaimStudio ? (
+                          <button
+                            type="button"
+                            onClick={() => onClaimStudio(result.id)}
+                            data-testid={`claim-studio-btn-${result.id}`}
+                            className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold transition-all active:scale-95"
+                          >
+                            Claim Studio 🏢
+                          </button>
+                        ) : null}
 
-                            <button
-                              type="button"
-                              onClick={() => result.studioData && onSelectStudio?.(result.studioData)}
-                              data-testid={`view-studio-btn-${result.id}`}
-                              className="px-3.5 py-1.5 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-semibold transition-all active:scale-95"
-                            >
-                              View Studio ➔
-                            </button>
-                          </>
+                        {result.studioData && onSelectStudio && (
+                          <button
+                            type="button"
+                            onClick={() => onSelectStudio(result.studioData!)}
+                            data-testid={`view-studio-btn-${result.id}`}
+                            className="px-3.5 py-1.5 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 text-xs font-semibold transition-all active:scale-95"
+                          >
+                            View Studio ➔
+                          </button>
                         )}
                       </div>
                     )}

@@ -304,20 +304,23 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
                 💬 Feed
               </button>
 
-              <button
-                onClick={() => setActiveTab('studios_classes')}
-                className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${
-                  activeTab === 'studios_classes'
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                }`}
-              >
-                {profileData.variant === 'brand'
-                  ? '🏢 Studios'
-                  : profileData.variant === 'area'
-                  ? '🧘 Studios & Teachers'
-                  : '🧘 Classes'}
-              </button>
+              {/* Only show Studios/Classes tab for brands, studios, areas, or verified teacher profiles */}
+              {(profileData.variant !== 'user' || profileData.isTeacher) && (
+                <button
+                  onClick={() => setActiveTab('studios_classes')}
+                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${
+                    activeTab === 'studios_classes'
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  }`}
+                >
+                  {profileData.variant === 'brand'
+                    ? '🏢 Studios'
+                    : profileData.variant === 'area'
+                    ? '🧘 Studios & Teachers'
+                    : '🧘 Classes'}
+                </button>
+              )}
 
               <button
                 onClick={() => setActiveTab('about')}

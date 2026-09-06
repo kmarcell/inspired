@@ -10,6 +10,8 @@ interface StudioScheduleViewProps {
   studioId: string;
   studioName?: string;
   isJoined?: boolean;
+  isClosed?: boolean;
+  isTempClosed?: boolean;
   currentUser: UserProfile | null;
   onSelectTeacher?: (teacherId: string) => void;
   onRequestJoin?: () => void;
@@ -19,6 +21,8 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
   studioId,
   studioName,
   isJoined = true,
+  isClosed = false,
+  isTempClosed = false,
   currentUser,
   onSelectTeacher,
   onRequestJoin,
@@ -294,7 +298,23 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                   </button>
 
                   {/* Book / Waitlist Button */}
-                  {isBooked ? (
+                  {isTempClosed ? (
+                    <button
+                      disabled
+                      className="flex flex-col items-center justify-center px-3.5 py-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-extrabold text-xs opacity-80 cursor-not-allowed"
+                    >
+                      <span>⏸️ Paused</span>
+                      <span className="text-[9px] font-normal">Bookings Paused</span>
+                    </button>
+                  ) : isClosed ? (
+                    <button
+                      disabled
+                      className="flex flex-col items-center justify-center px-3.5 py-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-extrabold text-xs opacity-80 cursor-not-allowed"
+                    >
+                      <span>🔴 Closed</span>
+                      <span className="text-[9px] font-normal">Bookings Closed</span>
+                    </button>
+                  ) : isBooked ? (
                     <button
                       onClick={() => handleCancelBooking(cls.id)}
                       disabled={cancelingClassId === cls.id}
