@@ -3,8 +3,7 @@ import {
   YogaStudio, 
   BrandClassTemplate, 
   RecurrenceFrequency, 
-  DayOfWeekPill, 
-  RecurrenceEndCondition 
+  DayOfWeekPill 
 } from '../types';
 import { firestoreService } from '../services/firestoreService';
 
@@ -38,7 +37,6 @@ export const CreateClassFromTemplateModal: React.FC<CreateClassFromTemplateModal
       ];
 
   const [teacherId, setTeacherId] = useState(studioTeachers[0]?.id || '');
-  const [teacherName, setTeacherName] = useState(studioTeachers[0]?.displayName || 'Elena Rostova');
 
   // Schedule Inputs
   const todayIso = new Date().toISOString().split('T')[0];
@@ -48,9 +46,6 @@ export const CreateClassFromTemplateModal: React.FC<CreateClassFromTemplateModal
   // Recurrence
   const [frequency, setFrequency] = useState<RecurrenceFrequency>('weekly');
   const [selectedDays, setSelectedDays] = useState<DayOfWeekPill[]>(['Mon', 'Wed', 'Fri']);
-  const [endCondition, setEndCondition] = useState<RecurrenceEndCondition>('never');
-  const [endAfterOccurrences, setEndAfterOccurrences] = useState(12);
-  const [endDate, setEndDate] = useState('');
 
   const [isPublishing, setIsPublishing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -95,7 +90,7 @@ export const CreateClassFromTemplateModal: React.FC<CreateClassFromTemplateModal
     setErrorMsg(null);
     try {
       const selectedTeacherObj = studioTeachers.find((t) => t.id === teacherId);
-      const finalTeacherName = selectedTeacherObj ? selectedTeacherObj.displayName : teacherName;
+      const finalTeacherName = selectedTeacherObj ? selectedTeacherObj.displayName : (studioTeachers[0]?.displayName || 'Elena Rostova');
 
       const endTime = calculateEndTime(startTime, template.durationMinutes);
       await firestoreService.publishStudioClass({
@@ -121,9 +116,7 @@ export const CreateClassFromTemplateModal: React.FC<CreateClassFromTemplateModal
         recurrence: {
           frequency,
           daysOfWeek: selectedDays,
-          endCondition,
-          endAfterOccurrences: endCondition === 'occurrences' ? endAfterOccurrences : undefined,
-          endDate: endCondition === 'date' ? endDate : undefined,
+          endCondition: 'never',
         },
       });
 

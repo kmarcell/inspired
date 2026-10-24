@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../firebase';
-import { UserProfile, Post, Community, YogaStudio, Company, SearchResult, StudioClass, ClassBooking, StudioMember, StagingInvite, CompanyCurrency, StudioCurrencyPolicy, UserPass, BrandClassTemplate, RecurrenceRule } from '../types';
+import { UserProfile, Post, Community, YogaStudio, Company, SearchResult, StudioClass, ClassBooking, StudioMember, StagingInvite, CompanyCurrency, StudioCurrencyPolicy, UserPass, BrandClassTemplate, RecurrenceRule, CreateStudioClassInput, DayOfWeekPill } from '../types';
 
 export class ProfileNotFoundError extends Error {
   constructor(userId: string) {
@@ -1827,7 +1827,7 @@ export const firestoreService = {
       datesToSchedule.push(classData.dateString);
     } else if (recurrence.frequency === 'weekly') {
       const daysMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
-      const targetDays = (recurrence.daysOfWeek || []).map(d => daysMap[d]).filter(d => d !== undefined);
+      const targetDays = (recurrence.daysOfWeek || []).map((d: DayOfWeekPill) => daysMap[d]).filter((d: number | undefined) => d !== undefined);
       
       let maxCount = recurrence.endCondition === 'occurrences' ? (recurrence.endAfterOccurrences || 12) : 12;
       let currDate = new Date(startDate);
