@@ -969,6 +969,11 @@ To ensure a rich experience during development, the search engine (Cloud Functio
   - Desktop: `UI/Mockups/5.20_BrandCurrencyManagerView_Desktop.svg`
   - Mobile List: `UI/Mockups/5.20_BrandCurrencyManagerView_Mobile.svg`
   - Mobile Push/Pop Detail Editor: `UI/Mockups/5.20_CurrencyEditorDetailView_Mobile.svg`
+- **Studio Management Subpage & Unified 3-Tab Bar:**
+  - Desktop (Pricing Tab Active): `UI/Mockups/5.20_StudioManagementSubpageView_Desktop.svg`
+  - Mobile (Pricing Tab Active): `UI/Mockups/5.20_StudioManagementSubpageView_Mobile.svg`
+  - Desktop (Schedule & Templates Tab Active): `UI/Mockups/5.20_StudioManagementScheduleTab_Desktop.svg`
+  - Mobile (Schedule & Templates Tab Active): `UI/Mockups/5.20_StudioManagementScheduleTab_Mobile.svg`
 - **Standalone Studio Currency Manager:**
   - Desktop: `UI/Mockups/5.20_StandaloneStudioCurrencyManagerView_Desktop.svg`
   - Mobile: `UI/Mockups/5.20_StandaloneStudioCurrencyManagerView_Mobile.svg`

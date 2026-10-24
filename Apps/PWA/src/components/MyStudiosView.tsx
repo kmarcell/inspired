@@ -37,8 +37,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
   // Subpage Active Tab States
   const [brandActiveTab, setBrandActiveTab] = useState<'studios' | 'currencies' | 'settings'>('studios');
-  const [studioActiveTab, setStudioActiveTab] = useState<'general' | 'pricing'>('general');
-  const [isManagingClassSchedule, setIsManagingClassSchedule] = useState<boolean>(false);
+  const [studioActiveTab, setStudioActiveTab] = useState<'general' | 'pricing' | 'schedule'>('general');
 
 
 
@@ -294,17 +293,6 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
   // --- SUBPAGE 2: STUDIO LOCATION MANAGEMENT SUBPAGE ---
   if (managingStudio) {
-    if (isManagingClassSchedule) {
-      return (
-        <StudioClassManagerView
-          studio={managingStudio}
-          availableStudios={studios}
-          companyCurrencies={companyCurrencies}
-          onBack={() => setIsManagingClassSchedule(false)}
-        />
-      );
-    }
-
     const parentCompany = managingStudio.companyId
       ? (companies.find((c) => c.id === managingStudio.companyId) || (managingCompany?.id === managingStudio.companyId ? managingCompany : undefined))
       : undefined;
@@ -313,22 +301,22 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
     return (
       <div className="flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6 text-slate-900 dark:text-slate-100 animate-fadeIn">
         {/* Push / Pop Subpage Navigation Bar */}
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-4 gap-2">
           <button
             type="button"
             onClick={() => setManagingStudio(null)}
             data-testid="studio-back-button"
-            className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95"
+            className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-all shadow-sm active:scale-95 max-w-[55%] sm:max-w-none"
           >
             <span>←</span>
-            <span>{backButtonText}</span>
+            <span className="truncate">{backButtonText}</span>
           </button>
           <button
             type="button"
             onClick={() => setIsGrantingPass(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md transition"
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs shadow-md transition shrink-0"
           >
-            🎁 Grant Pass to Member
+            🎁 Grant Pass<span className="hidden sm:inline"> to Member</span>
           </button>
         </div>
 
@@ -358,13 +346,13 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
           <p className="text-xs text-slate-500 dark:text-slate-400">{managingStudio.address}</p>
         </div>
 
-        {/* Tab Navigation Selector */}
-        <div className={`flex flex-wrap items-center gap-2 ${colorTokens.borders.dividerBottom} pb-2`}>
+        {/* Tab Navigation Selector - Horizontally scrollable on mobile, spacious inline on desktop */}
+        <div className={`flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap ${colorTokens.borders.dividerBottom} pb-2 -mx-4 px-4 sm:mx-0 sm:px-0`}>
           <button
             type="button"
             onClick={() => setStudioActiveTab('general')}
             data-testid="studio-tab-general"
-            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all ${
+            className={`shrink-0 py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all min-h-[44px] sm:min-h-0 ${
               studioActiveTab === 'general'
                 ? colorTokens.tabs.activeIndigo
                 : colorTokens.tabs.inactivePill
@@ -376,7 +364,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
             type="button"
             onClick={() => setStudioActiveTab('pricing')}
             data-testid="studio-tab-pricing"
-            className={`py-2 px-4 rounded-xl text-xs font-extrabold transition-all ${
+            className={`shrink-0 py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all min-h-[44px] sm:min-h-0 ${
               studioActiveTab === 'pricing'
                 ? colorTokens.tabs.activeIndigo
                 : colorTokens.tabs.inactivePill
@@ -386,11 +374,15 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
           </button>
           <button
             type="button"
-            onClick={() => setIsManagingClassSchedule(true)}
+            onClick={() => setStudioActiveTab('schedule')}
             data-testid="studio-tab-schedule"
-            className={colorTokens.buttons.navActionSchedule}
+            className={`shrink-0 py-2.5 px-4 rounded-xl text-xs font-extrabold transition-all min-h-[44px] sm:min-h-0 ${
+              studioActiveTab === 'schedule'
+                ? colorTokens.tabs.activeIndigo
+                : colorTokens.tabs.inactivePill
+            }`}
           >
-            <span>📅 Schedule &amp; Class Templates ➔</span>
+            📅 Schedule &amp; Class Templates
           </button>
         </div>
 
@@ -1049,6 +1041,17 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
           </div>
         );
       })()}
+
+        {/* TAB 3: SCHEDULE & CLASS TEMPLATES */}
+        {studioActiveTab === 'schedule' && (
+          <StudioClassManagerView
+            studio={managingStudio}
+            availableStudios={studios}
+            companyCurrencies={companyCurrencies}
+            onBack={() => setStudioActiveTab('general')}
+            isEmbedded={true}
+          />
+        )}
 
         {/* Admin Pass Granting Modal */}
         {isGrantingPass && user && (

@@ -123,6 +123,31 @@ describe('MyStudiosView Component', () => {
       expect(screen.getByTestId('studio-back-button')).toBeInTheDocument();
       expect(screen.getByTestId('studio-tab-general')).toBeInTheDocument();
       expect(screen.getByTestId('studio-tab-pricing')).toBeInTheDocument();
+      expect(screen.getByTestId('studio-tab-schedule')).toBeInTheDocument();
+    });
+  });
+
+  it('switches to Schedule & Class Templates tab and embeds StudioClassManagerView in-place', async () => {
+    (firestoreService.fetchBrandClassTemplates as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (firestoreService.fetchStudioDrafts as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+
+    render(<MyStudiosView onBack={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('manage-studio-studio_chiswick_02')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('manage-studio-studio_chiswick_02'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('studio-tab-schedule')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId('studio-tab-schedule'));
+
+    await waitFor(() => {
+      expect(screen.getByText('📅 Class Templates & Drafts')).toBeInTheDocument();
+      expect(screen.getByText('＋ Create New Class / Template')).toBeInTheDocument();
     });
   });
 

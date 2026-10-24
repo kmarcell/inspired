@@ -11,6 +11,7 @@ interface StudioClassManagerViewProps {
   companyCurrencies?: CompanyCurrency[];
   onBack: () => void;
   onScheduleUpdated?: () => void;
+  isEmbedded?: boolean;
 }
 
 export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
@@ -19,6 +20,7 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
   companyCurrencies = [],
   onBack,
   onScheduleUpdated,
+  isEmbedded = false,
 }) => {
   const [activeTab, setActiveTab] = useState<'templates' | 'drafts'>('templates');
 
@@ -145,33 +147,53 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
   }
 
   return (
-    <div className={`max-w-5xl mx-auto px-4 py-6 ${colorTokens.surfaces.page} space-y-6`}>
+    <div className={isEmbedded ? `space-y-6 ${colorTokens.surfaces.page}` : `max-w-5xl mx-auto px-4 py-6 ${colorTokens.surfaces.page} space-y-6`}>
       {/* Header Bar */}
-      <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 ${colorTokens.borders.dividerBottom}`}>
-        <div className="flex items-center space-x-3">
+      {!isEmbedded ? (
+        <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 ${colorTokens.borders.dividerBottom}`}>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={onBack}
+              className={colorTokens.buttons.secondary}
+            >
+              ← Back
+            </button>
+            <div>
+              <h1 className={`text-2xl font-bold ${colorTokens.text.primary} flex items-center gap-2`}>
+                <span>📅 Class Templates & Drafts Manager</span>
+              </h1>
+              <p className={`text-xs ${colorTokens.text.subtle}`}>
+                {studio.name} ({studio.location_prefix}) {studio.parentBrandName ? `• ${studio.parentBrandName}` : ''}
+              </p>
+            </div>
+          </div>
+
           <button
-            onClick={onBack}
-            className={colorTokens.buttons.secondary}
+            onClick={() => setIsCreatorOpen(true)}
+            className={colorTokens.buttons.primaryGradient}
           >
-            ← Back
+            <span>＋ Create New Class / Template</span>
           </button>
+        </div>
+      ) : (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2">
           <div>
-            <h1 className={`text-2xl font-bold ${colorTokens.text.primary} flex items-center gap-2`}>
-              <span>📅 Class Templates & Drafts Manager</span>
-            </h1>
+            <h2 className={`text-lg font-bold ${colorTokens.text.primary} flex items-center gap-2`}>
+              <span>📅 Class Templates &amp; Drafts</span>
+            </h2>
             <p className={`text-xs ${colorTokens.text.subtle}`}>
-              {studio.name} ({studio.location_prefix}) {studio.parentBrandName ? `• ${studio.parentBrandName}` : ''}
+              Manage brand-wide blueprints and saved location drafts for {studio.name}.
             </p>
           </div>
-        </div>
 
-        <button
-          onClick={() => setIsCreatorOpen(true)}
-          className={colorTokens.buttons.primaryGradient}
-        >
-          <span>＋ Create New Class / Template</span>
-        </button>
-      </div>
+          <button
+            onClick={() => setIsCreatorOpen(true)}
+            className={colorTokens.buttons.primaryGradient}
+          >
+            <span>＋ Create New Class / Template</span>
+          </button>
+        </div>
+      )}
 
       {/* Notifications */}
       {successToast && (
