@@ -796,21 +796,64 @@ To ensure a rich experience during development, the search engine (Cloud Functio
 
 ---
 
-### 5.16 Studio Class Creation, Schedule Management & Brand/Branch Pricing Suite (TBD)
+### 5.16 Studio Class Creation, Outlook Recurrence Engine & Currency Acceptance Suite
 
 > [!NOTE]
-> **Status:** Tracked Idea / TBD Requirement [2026-09-01T12:02:51+01:00]  
-> **Goal:** Allow studio admins and teachers to create classes, set recurring weekly schedules, and configure flexible brand-level vs studio-level pass pricing.
+> **Status:** Approved Specification & Mockups Generated [2026-09-06T12:11:19+01:00]  
+> **Goal:** Provide studio owners and authorized teachers with a comprehensive Class Schedule Creator supporting complete class information inputs, 3 save status actions (Draft, Template, Live), an Outlook Calendar-style recurrence engine, and granular currency/pass acceptance policies.
 
-**Core Requirements & Design Principles (TBD):**
-1. **Class Creation & Recurrent Schedule Management (`CreateClassView.tsx`):**
-   - Studio owners and authorized teachers can create single or recurring weekly class sessions.
-   - Form fields: Class Title, Style/Category, Assigned Teacher, Day of Week, Start/End Time, Capacity Limit, Equipment Requirements, and Room Climate Preset (including custom temperature in °C for Hot Studio classes).
-2. **Brand-Level vs Studio-Level Pricing & Pass Tier Configuration (`PricingTierConfigView.tsx`):**
-   - **Brand Level Default:** Parent Studio Brands (e.g. *Affordable London Yoga*) can define default credit prices and multi-class pass packages valid across all standard studio branches.
-   - **Studio Branch Override:** Individual Studio Branches (e.g. flagship locations, hot yoga sanctuaries, or premium central London branches) can override default pricing or specify branch-custom passes/rates.
-3. **Mockups & Detailed Feature Specifications (TBD):**
-   - SVG mockups and step-by-step UI plans to be designed prior to implementation.
+#### **Visual Mockups & Interface Designs**
+- 🖥️ **Desktop Creator:** [`UI/Mockups/5.16_ClassScheduleCreatorView_Desktop.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_ClassScheduleCreatorView_Desktop.svg)
+- 📱 **Mobile Creator:** [`UI/Mockups/5.16_ClassScheduleCreatorView_Mobile.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_ClassScheduleCreatorView_Mobile.svg)
+- 🖥️ **Desktop Studio Profile Schedule (Custom Currency Badges):** [`UI/Mockups/5.16_StudioProfileCustomCurrencyScheduleView_Desktop.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_StudioProfileCustomCurrencyScheduleView_Desktop.svg)
+- 📱 **Mobile Studio Profile Schedule (Custom Currency Badges):** [`UI/Mockups/5.16_StudioProfileCustomCurrencyScheduleView_Mobile.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_StudioProfileCustomCurrencyScheduleView_Mobile.svg)
+- 🖥️ **Desktop Brand Class Templates Manager:** [`UI/Mockups/5.16_BrandClassTemplatesView_Desktop.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_BrandClassTemplatesView_Desktop.svg)
+- 📱 **Mobile Brand Class Templates Manager:** [`UI/Mockups/5.16_BrandClassTemplatesView_Mobile.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_BrandClassTemplatesView_Mobile.svg)
+- 🖥️ **Desktop Create Class from Template Modal:** [`UI/Mockups/5.16_CreateClassFromTemplateModal_Desktop.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_CreateClassFromTemplateModal_Desktop.svg)
+- 📱 **Mobile Create Class from Template Modal:** [`UI/Mockups/5.16_CreateClassFromTemplateModal_Mobile.svg`](file:///home/marcellkresz/developer/inspired/UI/Mockups/5.16_CreateClassFromTemplateModal_Mobile.svg)
+
+---
+
+#### **Core Architectural Features & Data Models**
+
+##### 1. Class Information Inputs & Room Climate Controls
+- **Class Title & Category:** Class title, yoga style/category dropdown (`Ashtanga`, `Vinyasa`, `Yin`, `Hot Yoga`, `Breathwork`, `Sound Bath`, `Hatha`).
+- **Teacher Assignment:** Dropdown selecting assigned studio teacher (`Elena Rostova`, `Maryia Vane`, `David Kim`) or custom guest instructor.
+- **Room Climate & Temperature:** Room climate preset selector (`Standard Ambient`, `Heated Studio`, `Infrared Warm`) with numeric temperature input in °C (e.g. `35°C` for Hot Ashtanga Primary Series).
+- **Duration, Capacity & Difficulty:** Start time (`07:30 AM`), Duration in minutes (`45m`, `60m`, `75m`, `90m`), Max Attendees capacity (`20 Yogis`), and Difficulty Level (`All Levels`, `Beginner`, `Intermediate`, `Advanced`).
+
+##### 2. 3 Class Status Save Actions (`status`)
+- 📝 **Save as Draft (`status: 'draft'`):** Saves class configuration to `/studios/{studioId}/classes` as a draft. Visible only to studio admins in management portal; not published to public studio schedule.
+- 📋 **Save as Template (`status: 'template'`):** Saves class configuration to `/company_class_templates` as a reusable blueprint for rapid schedule generation across the parent brand network.
+- 🚀 **Publish Live Class (`status: 'published'`):** Publishes the class immediately to the public live studio schedule.
+
+##### 3. Outlook Calendar-Style Recurrence Engine
+- **Frequency Selector:** `none` (Single session), `daily` (Every N days), `weekly` (Weekly), `monthly` (Monthly).
+- **Days of Week Selector (Weekly):** Mon, Tue, Wed, Thu, Fri, Sat, Sun multi-select pill buttons (`daysOfWeek: ['Mon', 'Wed', 'Fri']`).
+- **Recurrence Range & End Conditions:**
+  - `Ends Never` (Ongoing schedule).
+  - `Ends After [ N ] Occurrences` (`endAfterOccurrences: 12`).
+  - `Ends On Specific Date` (`endDate: '2026-12-31'`).
+
+##### 4. Currency & Pass Acceptance Selector (`currencyAcceptancePolicy`)
+- **Default Mode (`acceptAll`):** `[x] Accept All Studio Currencies & Passes` (Default mode — any valid studio credit or pass held by the user can book this class).
+- **Custom Restricted Mode (`customSelected`):** `[ ] Select Specific Accepted Currencies / Passes` -> Displays multi-select checklist of available studio/brand currency IDs (`acceptedCurrencyIds: ['curr_drop_in_15', 'curr_5_pack_65']`).
+
+##### 5. Studio Profile Schedule Display Integration
+- **Custom Currency Badges:** On the studio profile schedule tab, classes with customized currency rules display an explicit badge (`💳 Accepts: Drop-in & 5-Pack Only`).
+- **Filtered Pass Redemption:** When a yogi clicks **Book**, the Pass Selection modal automatically filters and only presents active passes matching the class's `acceptedCurrencyIds`. Ineligible passes are labeled with a clear explanation badge (`⚠️ Restricted by Studio Custom Policy`).
+
+##### 6. Brand-Wide Template Sharing & Teacher-Agnostic Blueprint Rule
+- **Cross-Studio Reusability:** Class templates stored in `company_class_templates` are assigned a `companyId` (e.g. *Affordable London Yoga*). Any studio branch belonging to the parent brand network can access and schedule classes using these templates.
+- **Teacher-Agnostic Rule:** `teacherId` is intentionally **omitted / left unassigned** in class template blueprints. Because different teachers teach at different studio branch locations (e.g., Elena at Askew Road vs David Kim at Chiswick Park), teacher assignment is performed dynamically when instantiating a live schedule from a template.
+
+##### 7. Template-to-Schedule Creation Workflow (`CreateClassFromTemplateModal.tsx`)
+- Clicking **Use Template to Schedule ➔** opens a pre-filled wizard carrying over Title, Category, Climate/°C, Duration, Capacity, Level, Description, and Currency Acceptance Policy.
+- The admin selects:
+  1. **Target Studio Branch** (defaults to active studio).
+  2. **Assigned Location Teacher** (filtered to assigned teachers at target studio).
+  3. **First Session Date & Outlook Recurrence Pattern**.
+- Clicking **Publish Live 🚀** immediately writes recurring class sessions to the live studio schedule.
 
 ---
 

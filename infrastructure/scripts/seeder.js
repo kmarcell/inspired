@@ -170,7 +170,20 @@ async function seedAuth(users) {
       console.log(`✅ Created Auth user: ${user.id} (${email})`);
     } catch (error) {
       if (error.code === 'auth/uid-already-exists' || error.code === 'auth/email-already-exists') {
-        console.log(`ℹ️ Auth user already exists: ${user.id}`);
+        try {
+          await admin.auth().updateUser(user.id, {
+            password: password,
+            email: `${user.id}@inspired.test`,
+            displayName: user.displayName
+          });
+          if (user.isAdmin) {
+            await admin.auth().setCustomUserClaims(user.id, { isAdmin: true });
+            console.log(`🛡️ Set custom claim isAdmin: true for ${user.id}`);
+          }
+          console.log(`🔄 Synchronized existing Auth user password: ${user.id}`);
+        } catch (updateErr) {
+          console.warn(`⚠️ Failed to update Auth user ${user.id}:`, updateErr.message);
+        }
       } else {
         console.warn(`⚠️ Failed to create Auth user ${user.id}:`, error.message);
       }
@@ -188,6 +201,10 @@ async function run() {
     await seedCollection('studios', 'studios.json');
     await seedCollection('communities', 'communities.json');
     await seedCollection('posts', 'posts.json');
+    await seedCollection('company_currencies', 'company_currencies.json');
+    await seedCollection('studio_currency_policies', 'studio_currency_policies.json');
+    await seedCollection('user_passes', 'user_passes.json');
+    await seedCollection('company_class_templates', 'company_class_templates.json');
 
     // Seed studio class schedule & member subcollections
     console.log('🧘 Seeding studio classes & members subcollections...');
@@ -416,6 +433,33 @@ async function run() {
 
     for (const m of chiswickMembersSeed) {
       await db.collection('studios').doc('studio_chiswick_002').collection('members').doc(m.id).set(m);
+    }
+
+    const ravenscourtMembersSeed = [
+      { id: 'user_david_kim', displayName: 'David Kim', isProfilePublic: true, joinedAt: '2026-01-05T09:00:00Z' },
+      { id: 'user_teacher_001', displayName: 'Maya Sharma', isProfilePublic: true, joinedAt: '2026-01-12T10:00:00Z' },
+      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-02-15T14:00:00Z' },
+    ];
+
+    for (const m of ravenscourtMembersSeed) {
+      await db.collection('studios').doc('studio_ravenscourt_003').collection('members').doc(m.id).set(m);
+    }
+
+    const chelseaMembersSeed = [
+      { id: 'user_sophia_vane', displayName: 'Sophia Vane', isProfilePublic: true, joinedAt: '2026-01-02T10:00:00Z' },
+      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-02-28T16:00:00Z' },
+    ];
+
+    for (const m of chelseaMembersSeed) {
+      await db.collection('studios').doc('studio_chelsea_004').collection('members').doc(m.id).set(m);
+    }
+
+    const fulhamMembersSeed = [
+      { id: 'user_brand_founder', displayName: 'Marcus Vance', isProfilePublic: true, joinedAt: '2026-03-01T10:00:00Z' },
+    ];
+
+    for (const m of fulhamMembersSeed) {
+      await db.collection('studios').doc('studio_fulham_005').collection('members').doc(m.id).set(m);
     }
 
     // Check for dynamic ADMIN_EMAIL environment variable or --admin-email flag

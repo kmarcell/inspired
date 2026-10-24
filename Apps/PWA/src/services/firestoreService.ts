@@ -16,7 +16,7 @@ import {
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, app } from '../firebase';
-import { UserProfile, Post, Community, YogaStudio, Company, SearchResult, StudioClass, ClassBooking, StudioMember, StagingInvite, CompanyCurrency, StudioCurrencyPolicy, UserPass } from '../types';
+import { UserProfile, Post, Community, YogaStudio, Company, SearchResult, StudioClass, ClassBooking, StudioMember, StagingInvite, CompanyCurrency, StudioCurrencyPolicy, UserPass, BrandClassTemplate, RecurrenceRule } from '../types';
 
 export class ProfileNotFoundError extends Error {
   constructor(userId: string) {
@@ -1685,4 +1685,235 @@ export const firestoreService = {
 
     return { refunded, creditsRestored };
   },
+
+  // --- Step 16: Studio Class Creation, Drafts, Templates & Outlook Recurrence Engine ---
+
+  /** Save or update a class draft in /studios/{studioId}/classes (status: 'draft') */
+  async saveStudioClassDraft(draft: Partial<StudioClass> & { studioId: string; className: string }): Promise<StudioClass> {
+    const now = new Date().toISOString();
+    const classId = draft.id || doc(collection(db, 'studios', draft.studioId, 'classes')).id;
+    const classRef = doc(db, 'studios', draft.studioId, 'classes', classId);
+
+    const draftData: StudioClass = {
+      id: classId,
+      studioId: draft.studioId,
+      className: draft.className,
+      title: draft.title || draft.className,
+      classTypeDescription: draft.classTypeDescription || 'Draft class configuration.',
+      teacherId: draft.teacherId || '',
+      teacherName: draft.teacherName || 'TBD',
+      dayOfWeek: draft.dayOfWeek ?? 1,
+      dateString: draft.dateString || now.split('T')[0],
+      startTime: draft.startTime || '09:00 AM',
+      endTime: draft.endTime || '10:00 AM',
+      capacity: draft.capacity || 20,
+      bookedCount: draft.bookedCount || 0,
+      waitlist: draft.waitlist || [],
+      roomClimate: draft.roomClimate || 'natural_ambient',
+      temperatureCelsius: draft.temperatureCelsius,
+      equipmentNeeded: draft.equipmentNeeded,
+      skillLevel: draft.skillLevel || 'All Levels Welcome',
+      styleName: draft.styleName || draft.className,
+      status: 'draft',
+      companyId: draft.companyId,
+      recurrence: draft.recurrence,
+      currencyAcceptancePolicyMode: draft.currencyAcceptancePolicyMode || 'acceptAll',
+      acceptedCurrencyIds: draft.acceptedCurrencyIds || [],
+      durationMinutes: draft.durationMinutes || 60,
+      description: draft.description || '',
+      createdAt: draft.createdAt || now,
+      updatedAt: now,
+    };
+
+    const cleanedData = Object.fromEntries(
+      Object.entries(draftData).filter(([, val]) => val !== undefined)
+    );
+    await setDoc(classRef, cleanedData, { merge: true });
+    return draftData;
+  },
+
+  /** Fetch saved drafts for a studio */
+  async fetchStudioDrafts(studioId: string): Promise<StudioClass[]> {
+    if (!studioId) return [];
+    try {
+      const q = query(
+        collection(db, 'studios', studioId, 'classes'),
+        where('status', '==', 'draft')
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map((docSnap) => docSnap.data() as StudioClass);
+    } catch (e) {
+      console.warn(`Firestore draft fetch error for studio ${studioId}:`, e);
+      return [];
+    }
+  },
+
+  /** Delete a draft from /studios/{studioId}/classes */
+  async deleteStudioClassDraft(studioId: string, classId: string): Promise<void> {
+    const classRef = doc(db, 'studios', studioId, 'classes', classId);
+    await deleteDoc(classRef);
+  },
+
+  /** Save or update a class template blueprint in /company_class_templates (Teacher-Agnostic) */
+  async saveBrandClassTemplate(templateInput: Partial<BrandClassTemplate> & { className: string }): Promise<BrandClassTemplate> {
+    const now = new Date().toISOString();
+    const templateId = templateInput.id || doc(collection(db, 'company_class_templates')).id;
+    const templateRef = doc(db, 'company_class_templates', templateId);
+
+    const templateData: BrandClassTemplate = {
+      id: templateId,
+      companyId: templateInput.companyId,
+      studioId: templateInput.studioId,
+      className: templateInput.className,
+      classTypeDescription: templateInput.classTypeDescription || 'Brand class blueprint template.',
+      durationMinutes: templateInput.durationMinutes || 60,
+      capacity: templateInput.capacity || 20,
+      roomClimate: templateInput.roomClimate || 'natural_ambient',
+      temperatureCelsius: templateInput.temperatureCelsius,
+      skillLevel: templateInput.skillLevel || 'All Levels Welcome',
+      equipmentNeeded: templateInput.equipmentNeeded || '',
+      styleName: templateInput.styleName || templateInput.className,
+      currencyAcceptancePolicyMode: templateInput.currencyAcceptancePolicyMode || 'acceptAll',
+      acceptedCurrencyIds: templateInput.acceptedCurrencyIds || [],
+      description: templateInput.description || '',
+      createdAt: templateInput.createdAt || now,
+      updatedAt: now,
+    };
+
+    const cleanedData = Object.fromEntries(
+      Object.entries(templateData).filter(([, val]) => val !== undefined)
+    );
+    await setDoc(templateRef, cleanedData, { merge: true });
+    return templateData;
+  },
+
+  /** Fetch brand class templates from /company_class_templates for a parent company or studio */
+  async fetchBrandClassTemplates(companyId?: string, studioId?: string): Promise<BrandClassTemplate[]> {
+    try {
+      const colRef = collection(db, 'company_class_templates');
+      let q;
+      if (companyId) {
+        q = query(colRef, where('companyId', '==', companyId));
+      } else if (studioId) {
+        q = query(colRef, where('studioId', '==', studioId));
+      } else {
+        q = query(colRef);
+      }
+      const snap = await getDocs(q);
+      return snap.docs.map((docSnap) => docSnap.data() as BrandClassTemplate);
+    } catch (e) {
+      console.warn('Firestore fetchBrandClassTemplates error:', e);
+      return [];
+    }
+  },
+
+  /** Delete a brand class template blueprint */
+  async deleteBrandClassTemplate(templateId: string): Promise<void> {
+    const templateRef = doc(db, 'company_class_templates', templateId);
+    await deleteDoc(templateRef);
+  },
+
+  /** Publish single or recurring live class instances to /studios/{studioId}/classes */
+  async publishStudioClass(classData: CreateStudioClassInput & { recurrence?: RecurrenceRule; durationMinutes?: number; description?: string }): Promise<StudioClass[]> {
+    const now = new Date().toISOString();
+    const recurrence = classData.recurrence || { frequency: 'none', endCondition: 'never' };
+    const datesToSchedule: string[] = [];
+
+    // Calculate dates based on recurrence rule
+    const startDate = new Date(classData.dateString);
+    if (isNaN(startDate.getTime())) {
+      datesToSchedule.push(classData.dateString);
+    } else if (recurrence.frequency === 'none') {
+      datesToSchedule.push(classData.dateString);
+    } else if (recurrence.frequency === 'weekly') {
+      const daysMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      const targetDays = (recurrence.daysOfWeek || []).map(d => daysMap[d]).filter(d => d !== undefined);
+      
+      let maxCount = recurrence.endCondition === 'occurrences' ? (recurrence.endAfterOccurrences || 12) : 12;
+      let currDate = new Date(startDate);
+      let found = 0;
+      let safetyCounter = 0;
+
+      while (found < maxCount && safetyCounter < 180) {
+        safetyCounter++;
+        const dayIdx = currDate.getDay();
+        if (targetDays.length === 0 || targetDays.includes(dayIdx)) {
+          datesToSchedule.push(currDate.toISOString().split('T')[0]);
+          found++;
+        }
+        if (recurrence.endCondition === 'date' && recurrence.endDate) {
+          if (currDate.toISOString().split('T')[0] >= recurrence.endDate) break;
+        }
+        currDate.setDate(currDate.getDate() + 1);
+      }
+    } else if (recurrence.frequency === 'daily') {
+      let maxCount = recurrence.endCondition === 'occurrences' ? (recurrence.endAfterOccurrences || 14) : 14;
+      let currDate = new Date(startDate);
+      for (let i = 0; i < maxCount; i++) {
+        if (recurrence.endCondition === 'date' && recurrence.endDate) {
+          if (currDate.toISOString().split('T')[0] > recurrence.endDate) break;
+        }
+        datesToSchedule.push(currDate.toISOString().split('T')[0]);
+        currDate.setDate(currDate.getDate() + 1);
+      }
+    } else if (recurrence.frequency === 'monthly') {
+      let maxCount = recurrence.endCondition === 'occurrences' ? (recurrence.endAfterOccurrences || 6) : 6;
+      let currDate = new Date(startDate);
+      for (let i = 0; i < maxCount; i++) {
+        if (recurrence.endCondition === 'date' && recurrence.endDate) {
+          if (currDate.toISOString().split('T')[0] > recurrence.endDate) break;
+        }
+        datesToSchedule.push(currDate.toISOString().split('T')[0]);
+        currDate.setMonth(currDate.getMonth() + 1);
+      }
+    }
+
+    const createdClasses: StudioClass[] = [];
+
+    for (const dStr of datesToSchedule) {
+      const dObj = new Date(dStr);
+      const dayOfWeek = isNaN(dObj.getTime()) ? 1 : dObj.getDay();
+      const classRef = doc(collection(db, 'studios', classData.studioId, 'classes'));
+
+      const instance: StudioClass = {
+        id: classRef.id,
+        studioId: classData.studioId,
+        className: classData.className,
+        title: classData.className,
+        classTypeDescription: classData.classTypeDescription,
+        teacherId: classData.teacherId,
+        teacherName: classData.teacherName,
+        dayOfWeek,
+        dateString: dStr,
+        startTime: classData.startTime,
+        endTime: classData.endTime,
+        capacity: classData.capacity,
+        bookedCount: 0,
+        waitlist: [],
+        roomClimate: classData.roomClimate,
+        temperatureCelsius: classData.temperatureCelsius,
+        equipmentNeeded: classData.equipmentNeeded,
+        skillLevel: classData.skillLevel || 'All Levels Welcome',
+        styleName: classData.styleName || classData.className,
+        status: 'published',
+        companyId: classData.companyId,
+        recurrence,
+        currencyAcceptancePolicyMode: classData.currencyAcceptancePolicyMode || 'acceptAll',
+        acceptedCurrencyIds: classData.acceptedCurrencyIds || [],
+        durationMinutes: classData.durationMinutes || 60,
+        description: classData.description || '',
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      const cleanedData = Object.fromEntries(
+        Object.entries(instance).filter(([, val]) => val !== undefined)
+      );
+      await setDoc(classRef, cleanedData);
+      createdClasses.push(instance);
+    }
+
+    return createdClasses;
+  },
 };
+

@@ -29,6 +29,7 @@
     "assignedTeachers": [
       { "id": "user_maryia", "displayName": "Maryia Sharma", "specialty": "Vinyasa & Yin", "isPublic": true },
       { "id": "user_elena", "displayName": "Elena Rostova", "specialty": "Hot Ashtanga Lead", "isPublic": true },
+      { "id": "user_teacher_001", "displayName": "Maya Sharma", "specialty": "Vinyasa Flow", "isPublic": true },
       { "id": "user_sarah", "displayName": "Sarah Jenkins", "specialty": "Restorative & Breathwork", "isPublic": true }
     ]
   },
@@ -123,6 +124,37 @@
     },
     "assignedTeachers": [
       { "id": "user_sophia_vane", "displayName": "Sophia Vane", "specialty": "Kundalini & Sound Healing", "isPublic": true }
+    ]
+  },
+  {
+    "id": "studio_fulham_005",
+    "name": "Fulham Flow Studio",
+    "address": "210 Fulham Palace Road, London SW6 6NR",
+    "about": "A modern boutique sanctuary in Fulham for mindfulness and energizing flows.",
+    "rating": 5.0,
+    "isClaimed": true,
+    "status": "active",
+    "ownerId": "user_brand_founder",
+    "companyId": "company_zen_collective",
+    "parentBrandName": "The Zen Collective",
+    "parentBrandCommunityId": null,
+    "reviewCount": 12,
+    "membersCount": 35,
+    "location_prefix": "SW6",
+    "engagementScore": 450,
+    "contactEmail": "hello@fulhamflow.co.uk",
+    "contactPhone": "+44 20 7385 4100",
+    "websiteUrl": "https://fulhamflow.co.uk",
+    "moderationSettings": {
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": true
+    },
+    "location": {
+      "lat": 51.4820,
+      "lng": -0.2135
+    },
+    "assignedTeachers": [
+      { "id": "user_brand_founder", "displayName": "Marcus Vance", "specialty": "Vinyasa & Yin", "isPublic": true }
     ]
   }
 ]

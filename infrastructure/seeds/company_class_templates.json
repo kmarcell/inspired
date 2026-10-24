@@ -1,0 +1,31 @@
+[
+  {
+    "id": "tpl_vinyasa_flow",
+    "companyId": "company_affordable_london",
+    "className": "Vinyasa Flow Blueprint",
+    "styleName": "Dynamic Vinyasa",
+    "classTypeDescription": "A fluid, breath-synchronized sequence designed to build core strength and endurance.",
+    "durationMinutes": 60,
+    "capacity": 24,
+    "roomClimate": "natural_ambient",
+    "skillLevel": "All Levels Welcome",
+    "equipmentNeeded": "Yoga Mat & Towel",
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "tpl_hot_ashtanga",
+    "companyId": "company_affordable_london",
+    "className": "Hot Ashtanga Blueprint",
+    "styleName": "Ashtanga Primary Series",
+    "classTypeDescription": "Structured traditional Ashtanga in a 35°C heated studio environment.",
+    "durationMinutes": 60,
+    "capacity": 20,
+    "roomClimate": "hot_studio",
+    "temperatureCelsius": 35,
+    "skillLevel": "Intermediate / Advanced",
+    "equipmentNeeded": "Yoga Mat, Sweat Towel & Water",
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  }
+]

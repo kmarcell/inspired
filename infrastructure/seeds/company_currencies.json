@@ -1,0 +1,72 @@
+[
+  {
+    "id": "curr_brand_dropin",
+    "companyId": "company_affordable_london",
+    "title": "Single Class Drop-in",
+    "description": "Valid for 1 yoga class across all Affordable London Yoga studios.",
+    "tierType": "dropin",
+    "creditCount": 1,
+    "basePriceAmount": 15,
+    "currencySymbol": "£",
+    "validityDays": 30,
+    "allowedStudioIds": "all",
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "curr_brand_5pack",
+    "companyId": "company_affordable_london",
+    "title": "5-Class Pack",
+    "description": "5 flexible credits valid at Askew Road Zen Den & Chiswick Hot Yoga.",
+    "tierType": "credit_pack",
+    "creditCount": 5,
+    "basePriceAmount": 65,
+    "currencySymbol": "£",
+    "validityDays": 60,
+    "allowedStudioIds": "all",
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "curr_brand_unlimited",
+    "companyId": "company_affordable_london",
+    "title": "Monthly Unlimited Membership",
+    "description": "Unlimited access to all classes at all brand branch studios.",
+    "tierType": "unlimited",
+    "basePriceAmount": 120,
+    "currencySymbol": "£",
+    "validityDays": 30,
+    "unlimitedPeriod": "monthly",
+    "allowedStudioIds": "all",
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "curr_chelsea_dropin",
+    "studioId": "studio_chelsea_004",
+    "title": "Sanctuary Drop-in",
+    "description": "Access to 1 Sound Bath, Kundalini, or Reformer class at Chelsea Sanctuary.",
+    "tierType": "dropin",
+    "creditCount": 1,
+    "basePriceAmount": 22,
+    "currencySymbol": "£",
+    "validityDays": 30,
+    "allowedStudioIds": ["studio_chelsea_004"],
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "curr_chelsea_10pack",
+    "studioId": "studio_chelsea_004",
+    "title": "10-Class Sound Healing & Yoga Pack",
+    "description": "10 luxury sanctuary sessions including sound healing and reformer flow.",
+    "tierType": "credit_pack",
+    "creditCount": 10,
+    "basePriceAmount": 190,
+    "currencySymbol": "£",
+    "validityDays": 90,
+    "allowedStudioIds": ["studio_chelsea_004"],
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  }
+]

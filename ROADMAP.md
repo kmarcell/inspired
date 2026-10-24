@@ -3,12 +3,12 @@
 This document outlines the strategic plan for the "Inspired Yoga Platform," identifying current gaps and establishing the sequence of execution.
 
 > [!IMPORTANT]
-> **MILESTONE ACHIEVED:** Yoga Studio Profile Page & Class Booking Calendar (Step 14 100% Completed)  
-> **NEXT UP (Planned Step 15 & 16 TBD):**  
-> • Step 15: Studio Credits, Class Passes & My Bookings Management (`MyBookingsView.tsx`, `StudioCreditsView.tsx`)  
-> • Step 16: Studio Class Creation, Schedule Management & Brand/Branch Pricing Suite (`CreateClassView.tsx`, `PricingTierConfigView.tsx`)  
-> **Plan References:** [`FEATURES.md`](file:///home/marcellkresz/developer/inspired/FEATURES.md#516-studio-class-creation-schedule-management--brandbranch-pricing-suite-tbd) & [`TODO.md`](file:///home/marcellkresz/developer/inspired/TODO.md)  
-> **Status:** Step 14 Validated (16/16 Test Files & 65/65 Tests Passing) | Steps 15 & 16 Tracked [2026-09-01]
+> [!IMPORTANT]
+> **MILESTONES ACHIEVED:** Steps 1-14, 19, 20, 21 & 22 100% Completed (Pass Pricing, Digital Wallet & Automated E2E Regression Suite)  
+> **NEXT UP (Step 16 Approved):**  
+> • Step 16: Studio Class Creation, Outlook Recurrence Engine & Currency Acceptance Suite (`CreateClassView.tsx`) [Approved: 2026-09-06T12:11:19+01:00]  
+> **Plan References:** [`FEATURES.md`](file:///home/marcellkresz/developer/inspired/FEATURES.md#516-studio-class-creation-schedule-management--currency-acceptance-suite) & [`TODO.md`](file:///home/marcellkresz/developer/inspired/TODO.md)  
+> **Status:** Step 16 Approved & Mockups Generated [2026-09-06]
 
 ---
 
@@ -210,6 +210,33 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [x] **Push/Pop Subpage Navigation & Tabbed Layout Refactoring (`MyStudiosView.tsx`):** Full-page navigation subpages (`← Back to My Brands` & `← Back to My Studios`) replacing inline popup modals, with tabbed organization (**Studios**, **Brand Currencies**, **Brand Info & Settings** for Brands; **General Settings** and **Pricing & Currency Policy** for Studios) and polished dark mode styling.
 - [x] **Cancellation Booking Transaction Reversal Engine:** Credit refund logic reversing the transaction and restoring the exact number of redeemed credits back to the user's pass balance when cancelling >= 12h prior to class start.
 - [ ] **Pass Auto-Renewal Toggle [TBD / ON HOLD]:** Optional `isAutoRenewable?: boolean` currency toggle to auto-renew passes on expiration date (pinned for future payment gateway recurring subscription setup).
+
+### Phase 10: Studio Class Creation, Outlook Recurrence Engine, Brand Templates & Studio Drafts Manager (Completed)
+- [x] **SVG Mockups (Desktop `*_Desktop.svg` & Mobile `*_Mobile.svg` Viewports):** Created high-fidelity visual mockups for Class Schedule Creator, Studio Schedule Custom Currency Badges, Brand Class Templates Manager, and Schedule Class from Template Modal.
+- [x] **Feature Specification (`FEATURES.md` Section 5.16):** Codified Class Information Inputs, 3 Save Status Actions (Draft, Template, Published), Outlook Recurrence Engine, Currency Acceptance Policies, and Teacher-Agnostic Blueprint Rule.
+- [x] **Class Schedule Creator Component (`CreateClassView.tsx`):** Admin form supporting Title, Style/Category, Teacher Assignment, Room Climate & Temp in °C, Capacity, Duration, Level, Description, Outlook Recurrence Engine, Currency Acceptance Selector, and 3 Save Actions (Save Draft, Save Template, Publish Live).
+- [x] **Brand Class Templates & Studio Drafts Manager View (`StudioClassManagerView.tsx`):** Management dashboard with Tab 1 Brand Class Templates (shared across parent brand network with Teacher-Agnostic Blueprint Rule) and Tab 2 Studio Saved Drafts (allowing edit, delete, publish live).
+- [x] **Schedule Class from Template Modal (`CreateClassFromTemplateModal.tsx`):** Pre-filled wizard allowing studio admins to instantiate live recurring class schedules from brand template blueprints with target location teacher assignment.
+- [x] **Studio Schedule Custom Currency Integration (`StudioScheduleView.tsx`, `BookingPassSelectionModalView.tsx`):** Displays `💳 Accepts Custom Passes` badges on class schedule rows and filters active wallet passes based on `acceptedCurrencyIds`.
+- [x] **Automated Testing (`CreateClassView.test.tsx`, `StudioClassManagerView.test.tsx`):** 100% passing Vitest test suite (23 test files & 84 tests passing).
+
+### Phase 11: Design System Color Scheme, Studio Tab Harmonization & Comprehensive E2E Testing Suite (Planned)
+- [ ] **Step 11.1: Immediate Readability & Contrast Fix:** Remove hardcoded dark utility classes (`text-white`, `text-slate-100`) from `StudioClassManagerView.tsx`, `CreateClassView.tsx`, and `CreateClassFromTemplateModal.tsx` to ensure high contrast in Light Mode. De-emphasize the 3rd studio button to resolve active tab confusion.
+- [ ] **Step 11.2: Centralized Color Scheme & Design System Tokens (`Apps/PWA/src/theme/colorTokens.ts`):** Establish shared theme tokens for surfaces, typography, borders, and semantic WCAG AA badges across both Light and Dark themes.
+- [ ] **Step 11.3: Studio Management 3-Tab SVG Mockups & Documentation:** Update `5.20_StudioManagementSubpageView_Desktop.svg` and create mobile counterpart with a unified 3-tab bar (`General Settings`, `Pricing & Currency Policy`, `Class Schedule & Templates`). Update `FEATURES.md` Section 5.20.
+- [ ] **Step 11.4: Interactive Puppeteer E2E Creation Suite:** Extend `run_ui_regression_suite.js` to perform full browser form submissions for brand creation, studio creation, currency creation, template creation, and draft saving.
+
+### Phase 12: Live Studio Schedule Management & Class Modification Suite (Upcoming Feature)
+- [ ] **Feature Specification & SVG Mockups:** Create high-fidelity mockups for Live Studio Timetable tab in Studio Manager, Class Cancellation Modal, and Single vs Recurring Class Editor.
+- [ ] **Firestore Service Operations:** Implement `cancelStudioClass(studioId, classId)`, `updateStudioClass(studioId, classId, updates)`, and `updateRecurringStudioSeries(studioId, seriesId, updates)`.
+- [ ] **Live Timetable Sub-tab in Studio Manager:** Calendar day switcher, active class roster, single-instance editor, cancellation button with attendee alerts.
+
+### Phase 13: Studio Teacher Onboarding & Staff Management Suite (Upcoming Requirement)
+> [!NOTE]
+> **Current Seeding State:** Assigned teachers (e.g., `studio.assignedTeachers` in `studios.json`) are currently populated via database seed scripts (`seeder.js`), enabling immediate teacher selection in `CreateClassView.tsx`.
+- [ ] **Teacher Invitation & Assignment Flow:** Define specification and UI for studio owners to search, invite, and assign registered teachers (`isTeacher: true`) to a studio branch via handle/email.
+- [ ] **Teacher Acceptance & Roster Tab:** Studio "Teachers & Staff" management sub-tab, invitation response state machine (pending/accepted/declined), and teacher permissions.
+- [ ] **SVG Mockups & Specification:** High-fidelity mockups for Studio Staff Management and Teacher Invitation Modal.
 
 ---
 

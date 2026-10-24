@@ -133,6 +133,42 @@ export interface StudioMember {
   joinedAt: string;
 }
 
+export type ClassSaveStatus = 'draft' | 'template' | 'published';
+export type RecurrenceFrequency = 'none' | 'daily' | 'weekly' | 'monthly';
+export type DayOfWeekPill = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
+export type RecurrenceEndCondition = 'never' | 'occurrences' | 'date';
+
+export interface RecurrenceRule {
+  frequency: RecurrenceFrequency;
+  daysOfWeek?: DayOfWeekPill[];
+  endCondition: RecurrenceEndCondition;
+  endAfterOccurrences?: number;
+  endDate?: string;
+}
+
+export type CurrencyAcceptancePolicyMode = 'acceptAll' | 'customSelected';
+
+export interface BrandClassTemplate {
+  id: string;
+  companyId?: string;
+  studioId?: string;
+  className: string;
+  classTypeDescription: string;
+  durationMinutes: number;
+  capacity: number;
+  roomClimate: RoomClimateType;
+  temperatureCelsius?: number;
+  skillLevel?: string;
+  equipmentNeeded?: string;
+  styleName?: string;
+  currencyAcceptancePolicyMode?: CurrencyAcceptancePolicyMode;
+  acceptedCurrencyIds?: string[];
+  description?: string;
+  // Note: teacherId is intentionally omitted in template blueprints per Teacher-Agnostic Blueprint Rule
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface StudioClass {
   id: string;
   studioId: string;
@@ -155,6 +191,16 @@ export interface StudioClass {
   equipmentNeeded?: string;    // e.g. "Yoga Mat & Towel"
   skillLevel?: string;         // e.g. "All Levels Welcome"
   styleName?: string;          // e.g. "Dynamic Vinyasa"
+  // Step 16 Properties
+  status?: ClassSaveStatus;
+  companyId?: string;
+  recurrence?: RecurrenceRule;
+  currencyAcceptancePolicyMode?: CurrencyAcceptancePolicyMode;
+  acceptedCurrencyIds?: string[];
+  durationMinutes?: number;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateStudioClassInput {
@@ -172,6 +218,14 @@ export interface CreateStudioClassInput {
   equipmentNeeded?: string;
   skillLevel?: string;
   styleName?: string;
+  // Step 16 Properties
+  status?: ClassSaveStatus;
+  companyId?: string;
+  recurrence?: RecurrenceRule;
+  currencyAcceptancePolicyMode?: CurrencyAcceptancePolicyMode;
+  acceptedCurrencyIds?: string[];
+  durationMinutes?: number;
+  description?: string;
 }
 
 export interface ClassBooking {

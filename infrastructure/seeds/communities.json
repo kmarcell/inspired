@@ -167,5 +167,44 @@
       "isPublic": false,
       "membersCanPost": false
     }
+  },
+  {
+    "id": "area_fulham",
+    "name": "Fulham",
+    "description": "Automatic local area community for Fulham (SW6) yogis.",
+    "location_prefix": "SW6",
+    "communityType": "area",
+    "linkedStudioId": null,
+    "engagementScore": 700,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_studio_studio_chelsea_004",
+    "name": "Chelsea Sanctuary Studio Official",
+    "description": "Automatic studio branch community for Chelsea Sanctuary Studio (SW3).",
+    "location_prefix": "SW3",
+    "communityType": "studio",
+    "linkedStudioId": "studio_chelsea_004",
+    "engagementScore": 880,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
+    "id": "comm_studio_studio_fulham_005",
+    "name": "Fulham Flow Studio Official",
+    "description": "Automatic studio branch community for Fulham Flow Studio (SW6).",
+    "location_prefix": "SW6",
+    "communityType": "studio",
+    "linkedStudioId": "studio_fulham_005",
+    "engagementScore": 600,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
   }
 ]

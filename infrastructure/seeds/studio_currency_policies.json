@@ -1,0 +1,25 @@
+[
+  {
+    "id": "studio_askew_001",
+    "studioId": "studio_askew_001",
+    "companyId": "company_affordable_london",
+    "policyMode": "follow_brand",
+    "acceptedCurrencyIds": ["curr_brand_dropin", "curr_brand_5pack", "curr_brand_unlimited"],
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "studio_chiswick_002",
+    "studioId": "studio_chiswick_002",
+    "companyId": "company_affordable_london",
+    "policyMode": "follow_brand",
+    "acceptedCurrencyIds": ["curr_brand_dropin", "curr_brand_5pack", "curr_brand_unlimited"],
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "studio_chelsea_004",
+    "studioId": "studio_chelsea_004",
+    "policyMode": "custom_override",
+    "acceptedCurrencyIds": ["curr_chelsea_dropin", "curr_chelsea_10pack"],
+    "updatedAt": "2026-01-01T10:00:00Z"
+  }
+]

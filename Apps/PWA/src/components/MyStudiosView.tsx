@@ -4,6 +4,7 @@ import { firestoreService } from '../services/firestoreService';
 import { Company, YogaStudio, CompanyCurrency, StudioCurrencyPolicy, CurrencyTierType } from '../types';
 import { CreateStudioView } from './CreateStudioView';
 import { AdminGrantPassModalView } from './AdminGrantPassModalView';
+import { StudioClassManagerView } from './StudioClassManagerView';
 
 interface MyStudiosViewProps {
   onBack?: () => void;
@@ -36,6 +37,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
   // Subpage Active Tab States
   const [brandActiveTab, setBrandActiveTab] = useState<'studios' | 'currencies' | 'settings'>('studios');
   const [studioActiveTab, setStudioActiveTab] = useState<'general' | 'pricing'>('general');
+  const [isManagingClassSchedule, setIsManagingClassSchedule] = useState<boolean>(false);
 
 
 
@@ -291,6 +293,17 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
   // --- SUBPAGE 2: STUDIO LOCATION MANAGEMENT SUBPAGE ---
   if (managingStudio) {
+    if (isManagingClassSchedule) {
+      return (
+        <StudioClassManagerView
+          studio={managingStudio}
+          availableStudios={studios}
+          companyCurrencies={companyCurrencies}
+          onBack={() => setIsManagingClassSchedule(false)}
+        />
+      );
+    }
+
     const parentCompany = managingStudio.companyId
       ? (companies.find((c) => c.id === managingStudio.companyId) || (managingCompany?.id === managingStudio.companyId ? managingCompany : undefined))
       : undefined;
@@ -345,7 +358,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
         </div>
 
         {/* Tab Navigation Selector */}
-        <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
           <button
             type="button"
             onClick={() => setStudioActiveTab('general')}
@@ -369,6 +382,14 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
             }`}
           >
             💳 Pricing &amp; Currency Policy
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsManagingClassSchedule(true)}
+            data-testid="studio-tab-schedule"
+            className="py-2 px-4 rounded-xl text-xs font-extrabold transition-all bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 shadow-sm flex items-center gap-1.5"
+          >
+            <span>📅 Schedule &amp; Class Templates ➔</span>
           </button>
         </div>
 

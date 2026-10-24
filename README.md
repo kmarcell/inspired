@@ -80,7 +80,7 @@ We store our Terraform state in a **private Google Cloud Storage (GCS) bucket** 
 *   **Option A: CLI (Requires [Google Cloud SDK](https://cloud.google.com/sdk/docs/install))**
     ```bash
     # Replace 'your-project-id' with your actual staging project ID
-    gsutil mb -p your-project-id -l europe-west1 gs://your-project-id-tfstate/
+    gcloud storage buckets create gs://your-project-id-tfstate --project=your-project-id --location=europe-west1
     ```
 *   **Option B: Manual (GCP Console)**
     1.  Go to the [GCP Storage Browser](https://console.cloud.google.com/storage/browser).

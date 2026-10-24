@@ -6,6 +6,8 @@ interface BookingPassSelectionModalViewProps {
   studioName: string;
   classDateString: string;
   startTime: string;
+  acceptedCurrencyIds?: string[];
+  currencyAcceptancePolicyMode?: string;
   userPasses: UserPass[];
   onConfirmBook: (selectedPassId: string) => void;
   onClose: () => void;
@@ -16,16 +18,26 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
   studioName,
   classDateString,
   startTime,
+  acceptedCurrencyIds = [],
+  currencyAcceptancePolicyMode = 'acceptAll',
   userPasses,
   onConfirmBook,
   onClose,
 }) => {
-  const activeValidPasses = userPasses.filter(
-    (p) => p.status === 'active' && (p.tierType === 'unlimited' || (p.creditsRemaining && p.creditsRemaining > 0))
-  );
+  const isCustomRestricted = currencyAcceptancePolicyMode === 'customSelected' && acceptedCurrencyIds.length > 0;
+
+  const activeValidPasses = userPasses.filter((p) => {
+    if (p.status !== 'active') return false;
+    if (p.tierType !== 'unlimited' && (!p.creditsRemaining || p.creditsRemaining <= 0)) return false;
+    return true;
+  });
+
+  const eligiblePasses = isCustomRestricted
+    ? activeValidPasses.filter((p) => acceptedCurrencyIds.includes(p.currencyId))
+    : activeValidPasses;
 
   const [selectedPassId, setSelectedPassId] = useState<string>(
-    activeValidPasses[0]?.id || ''
+    eligiblePasses[0]?.id || activeValidPasses[0]?.id || ''
   );
 
   return (
@@ -54,27 +66,43 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
         <div className="space-y-3 mb-6">
           <label className="text-xs font-bold text-slate-300 block">Available Passes in Wallet</label>
           {activeValidPasses.map((pass) => {
+            const isEligible = !isCustomRestricted || acceptedCurrencyIds.includes(pass.currencyId);
             const isSelected = selectedPassId === pass.id;
             return (
               <div
                 key={pass.id}
-                onClick={() => setSelectedPassId(pass.id)}
-                className={`p-3 rounded-xl border cursor-pointer transition flex items-center justify-between ${
-                  isSelected
-                    ? 'bg-indigo-950/40 stroke-indigo-500 border-indigo-500 ring-1 ring-indigo-500/50'
-                    : 'bg-slate-800/60 border-slate-700 hover:border-slate-600'
+                onClick={() => {
+                  if (isEligible) setSelectedPassId(pass.id);
+                }}
+                className={`p-3 rounded-xl border transition flex items-center justify-between ${
+                  !isEligible
+                    ? 'opacity-50 bg-slate-900 border-slate-800 cursor-not-allowed'
+                    : isSelected
+                    ? 'bg-indigo-950/40 stroke-indigo-500 border-indigo-500 ring-1 ring-indigo-500/50 cursor-pointer'
+                    : 'bg-slate-800/60 border-slate-700 hover:border-slate-600 cursor-pointer'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      isSelected ? 'border-indigo-400 bg-indigo-600' : 'border-slate-500 bg-slate-900'
+                      !isEligible
+                        ? 'border-slate-700 bg-slate-900'
+                        : isSelected
+                        ? 'border-indigo-400 bg-indigo-600'
+                        : 'border-slate-500 bg-slate-900'
                     }`}
                   >
-                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    {isSelected && isEligible && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
                   <div>
-                    <p className="text-xs font-extrabold text-white">{pass.currencyTitle}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-extrabold text-white">{pass.currencyTitle}</p>
+                      {!isEligible && (
+                        <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[9px] font-bold">
+                          ⚠️ Ineligible for this class
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[11px] text-slate-400">
                       {pass.tierType === 'unlimited'
                         ? 'Unlimited Pass'

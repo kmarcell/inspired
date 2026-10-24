@@ -14,12 +14,14 @@ const TEST_PASSWORD = process.env.TEST_USER_PASSWORD || 'local_secure_password_1
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:5173';
 
 const TEST_ACCOUNTS = [
-  { id: 'user_sarah', email: 'user_sarah@inspired.test', name: 'Sarah Jenkins', role: 'Student & Studio Admin (Askew Road Studio)' },
-  { id: 'user_maryia', email: 'user_maryia@inspired.test', name: 'Maryia Vane', role: 'Teacher & Brand Admin (Affordable London Yoga)' },
-  { id: 'user_elena', email: 'user_elena@inspired.test', name: 'Elena Rostova', role: 'Teacher & Studio Admin (Chiswick Park Studio)' },
-  { id: 'user_david_kim', email: 'user_david_kim@inspired.test', name: 'David Kim', role: 'Teacher' },
-  { id: 'user_sophia_vane', email: 'user_sophia_vane@inspired.test', name: 'Sophia Vane', role: 'Student' },
-  { id: 'user_newbie', email: 'user_newbie@inspired.test', name: 'Newbie Yogi', role: 'Student (Clean Slate)' },
+  { id: 'user_sarah', email: 'user_sarah@inspired.test', name: 'Sarah Jenkins', role: 'Active Yogi / Student (Active Pass Wallet)' },
+  { id: 'user_newbie', email: 'user_newbie@inspired.test', name: 'Yoga Newbie', role: 'Clean Slate Yogi (Zero State)' },
+  { id: 'user_teacher_001', email: 'user_teacher_001@inspired.test', name: 'Maya Sharma', role: 'Freelance Teacher (No Studio)' },
+  { id: 'user_david_kim', email: 'user_david_kim@inspired.test', name: 'David Kim', role: 'Independent Studio Owner (No Currencies Setup)' },
+  { id: 'user_sophia_vane', email: 'user_sophia_vane@inspired.test', name: 'Sophia Vane', role: 'Independent Studio Owner (Custom Currencies Setup)' },
+  { id: 'user_elena', email: 'user_elena@inspired.test', name: 'Elena Rostova', role: 'Teacher + Brand Branch Studio Owner (Follow Brand Policy)' },
+  { id: 'user_brand_founder', email: 'user_brand_founder@inspired.test', name: 'Marcus Vance', role: 'Brand Founder (Brand + Studio, Zero State)' },
+  { id: 'user_maryia', email: 'user_maryia@inspired.test', name: 'Maryia Sharma', role: 'Feature-Complete Brand Founder & Studio Owner (Full Currencies, Schedule & Templates)' },
 ];
 
 const suiteResults = {

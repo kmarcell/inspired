@@ -280,6 +280,13 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                       {cls.teacherName}
                     </button>
                   </p>
+                  {cls.currencyAcceptancePolicyMode === 'customSelected' && (
+                    <div className="pt-0.5">
+                      <span className="px-2 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-300 text-[10px] font-extrabold border border-purple-500/20 inline-flex items-center gap-1">
+                        <span>💳</span> Accepts Custom Passes
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Action Column */}
@@ -422,6 +429,8 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
           studioName={studioName || 'Studio'}
           classDateString={bookingPassTargetClass.dateString}
           startTime={bookingPassTargetClass.startTime}
+          acceptedCurrencyIds={bookingPassTargetClass.acceptedCurrencyIds}
+          currencyAcceptancePolicyMode={bookingPassTargetClass.currencyAcceptancePolicyMode}
           userPasses={userWalletPasses}
           onConfirmBook={executeConfirmBookWithPass}
           onClose={() => setBookingPassTargetClass(null)}
