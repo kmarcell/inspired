@@ -410,7 +410,10 @@ async function run() {
     ];
 
     for (const cls of classesSeed) {
-      await db.collection('studios').doc(cls.studioId).collection('classes').doc(cls.id).set(cls);
+      await db.collection('studios').doc(cls.studioId).collection('classes').doc(cls.id).set({
+        ...cls,
+        status: cls.status || 'published',
+      });
     }
 
     const askewMembersSeed = [

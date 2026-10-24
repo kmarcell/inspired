@@ -140,4 +140,27 @@ describe('StudioClassManagerView Component', () => {
       );
     });
   });
+
+  it('renders empty state messages when no templates or drafts exist', async () => {
+    (firestoreService.fetchBrandClassTemplates as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (firestoreService.fetchStudioDrafts as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+
+    render(
+      <StudioClassManagerView
+        studio={mockStudio}
+        onBack={vi.fn()}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('No Class Templates Saved')).toBeInTheDocument();
+    });
+
+    // Switch to drafts
+    fireEvent.click(screen.getByText('📝 Saved Studio Drafts'));
+
+    await waitFor(() => {
+      expect(screen.getByText('No Saved Drafts')).toBeInTheDocument();
+    });
+  });
 });

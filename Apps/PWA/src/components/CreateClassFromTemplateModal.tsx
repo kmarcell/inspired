@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   YogaStudio, 
   BrandClassTemplate, 
@@ -28,15 +28,20 @@ export const CreateClassFromTemplateModal: React.FC<CreateClassFromTemplateModal
 
   // Find target studio object
   const currentTargetStudio = availableStudios.find((s) => s.id === selectedStudioId) || activeStudio;
-  const studioTeachers = currentTargetStudio.assignedTeachers && currentTargetStudio.assignedTeachers.length > 0
+  const studioTeachers = (currentTargetStudio.assignedTeachers && currentTargetStudio.assignedTeachers.length > 0)
     ? currentTargetStudio.assignedTeachers
-    : [
-        { id: 'teacher_elena', displayName: 'Elena Rostova', specialty: 'Hot Ashtanga' },
-        { id: 'teacher_maryia', displayName: 'Maryia Vane', specialty: 'Vinyasa Flow' },
-        { id: 'teacher_david', displayName: 'David Kim', specialty: 'Yin & Restorative' },
-      ];
+    : [{ id: currentTargetStudio.ownerId || 'studio_staff', displayName: `${currentTargetStudio.name} Staff`, specialty: 'Resident Teacher' }];
 
   const [teacherId, setTeacherId] = useState(studioTeachers[0]?.id || '');
+
+  // Synchronize teacher selection when target studio branch changes
+  useEffect(() => {
+    const target = availableStudios.find((s) => s.id === selectedStudioId) || activeStudio;
+    const teachers = (target.assignedTeachers && target.assignedTeachers.length > 0)
+      ? target.assignedTeachers
+      : [{ id: target.ownerId || 'studio_staff', displayName: `${target.name} Staff`, specialty: 'Resident Teacher' }];
+    setTeacherId(teachers[0]?.id || '');
+  }, [selectedStudioId, availableStudios, activeStudio]);
 
   // Schedule Inputs
   const todayIso = new Date().toISOString().split('T')[0];
@@ -90,7 +95,7 @@ export const CreateClassFromTemplateModal: React.FC<CreateClassFromTemplateModal
     setErrorMsg(null);
     try {
       const selectedTeacherObj = studioTeachers.find((t) => t.id === teacherId);
-      const finalTeacherName = selectedTeacherObj ? selectedTeacherObj.displayName : (studioTeachers[0]?.displayName || 'Elena Rostova');
+      const finalTeacherName = selectedTeacherObj ? selectedTeacherObj.displayName : (studioTeachers[0]?.displayName || `${currentTargetStudio.name} Staff`);
 
       const endTime = calculateEndTime(startTime, template.durationMinutes);
       await firestoreService.publishStudioClass({

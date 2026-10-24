@@ -55,16 +55,12 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
   const [description, setDescription] = useState(initialDraft?.description || initialTemplate?.description || '');
   
   // Teacher Assignment
-  const studioTeachers = studio.assignedTeachers && studio.assignedTeachers.length > 0
+  const studioTeachers = (studio.assignedTeachers && studio.assignedTeachers.length > 0)
     ? studio.assignedTeachers
-    : [
-        { id: 'teacher_elena', displayName: 'Elena Rostova', specialty: 'Hot Ashtanga' },
-        { id: 'teacher_maryia', displayName: 'Maryia Vane', specialty: 'Vinyasa Flow' },
-        { id: 'teacher_david', displayName: 'David Kim', specialty: 'Yin & Restorative' },
-      ];
+    : [{ id: studio.ownerId || 'studio_staff', displayName: `${studio.name} Staff`, specialty: 'Resident Teacher' }];
 
   const [teacherId, setTeacherId] = useState(initialDraft?.teacherId || studioTeachers[0]?.id || '');
-  const [teacherName, setTeacherName] = useState(initialDraft?.teacherName || studioTeachers[0]?.displayName || 'Elena Rostova');
+  const [teacherName, setTeacherName] = useState(initialDraft?.teacherName || studioTeachers[0]?.displayName || `${studio.name} Staff`);
 
   // Schedule Details
   const todayIso = new Date().toISOString().split('T')[0];
@@ -344,10 +340,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="class-title-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 Class Title <span className="text-red-500">*</span>
               </label>
               <input
+                id="class-title-input"
                 type="text"
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
@@ -357,10 +354,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="class-style-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 Yoga Category / Style
               </label>
               <select
+                id="class-style-select"
                 value={styleName}
                 onChange={(e) => setStyleName(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors"
@@ -375,10 +373,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label htmlFor="teacher-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               Assigned Teacher <span className="text-red-500">*</span>
             </label>
             <select
+              id="teacher-select"
               value={teacherId}
               onChange={(e) => setTeacherId(e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors"
@@ -392,10 +391,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label htmlFor="class-subtitle-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               Class Subtitle / Summary
             </label>
             <input
+              id="class-subtitle-input"
               type="text"
               value={classTypeDescription}
               onChange={(e) => setClassTypeDescription(e.target.value)}
@@ -405,10 +405,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label htmlFor="class-description-textarea" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
               Full Class Description & Philosophy
             </label>
             <textarea
+              id="class-description-textarea"
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -578,10 +579,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="first-session-date" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 First Session Date
               </label>
               <input
+                id="first-session-date"
                 type="date"
                 value={dateString}
                 onChange={(e) => setDateString(e.target.value)}
@@ -590,10 +592,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="start-time-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 Start Time
               </label>
               <input
+                id="start-time-input"
                 type="text"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
@@ -667,6 +670,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                     <button
                       key={day}
                       type="button"
+                      aria-pressed={isSelected}
                       onClick={() => toggleDayPill(day)}
                       className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
                         isSelected

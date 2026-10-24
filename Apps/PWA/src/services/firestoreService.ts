@@ -7,11 +7,12 @@ import {
   collection, 
   query, 
   where, 
-  documentId,
+  documentId, 
   orderBy, 
   limit, 
-  getDocs,
-  deleteDoc,
+  getDocs, 
+  deleteDoc, 
+  writeBatch,
   Timestamp 
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -1297,13 +1298,15 @@ export const firestoreService = {
     await deleteDoc(doc(db, 'stagingInvites', inviteId));
   },
 
-  /** Fetch classes scheduled for a studio on a given date string (or all classes if omitted) */
+  /** Fetch classes scheduled for a studio on a given date string (or all classes if omitted, excluding drafts) */
   async fetchStudioClasses(studioId: string, dateString?: string): Promise<StudioClass[]> {
     try {
       const classesRef = collection(db, 'studios', studioId, 'classes');
       const q = dateString ? query(classesRef, where('dateString', '==', dateString)) : query(classesRef);
       const snap = await getDocs(q);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as StudioClass));
+      return snap.docs
+        .map(d => ({ id: d.id, ...d.data() } as StudioClass))
+        .filter(c => c.status !== 'draft');
     } catch (e) {
       console.warn(`Firestore class fetch error for studio ${studioId}:`, e);
       return [];
@@ -1573,7 +1576,7 @@ export const firestoreService = {
     userDisplayName: string, 
     passId?: string
   ): Promise<{ bookingId: string; status: 'confirmed' | 'waitlisted' }> {
-    const classRef = doc(db, 'studio_classes', classId);
+    const classRef = doc(db, 'studios', studioId, 'classes', classId);
     const classSnap = await getDoc(classRef);
     if (!classSnap.exists()) {
       throw new Error(`Class not found: ${classId}`);
@@ -1588,6 +1591,14 @@ export const firestoreService = {
       const passSnap = await getDoc(passRef);
       if (passSnap.exists()) {
         const passData = passSnap.data() as UserPass;
+
+        // Server-side currency validation
+        if (classData.currencyAcceptancePolicyMode === 'customSelected' && classData.acceptedCurrencyIds && classData.acceptedCurrencyIds.length > 0) {
+          if (!passData.currencyId || !classData.acceptedCurrencyIds.includes(passData.currencyId)) {
+            throw new Error('This pass is not accepted for this studio class.');
+          }
+        }
+
         if (passData.tierType !== 'unlimited' && passData.creditsRemaining && passData.creditsRemaining > 0) {
           creditsRedeemed = 1;
           const newCredits = passData.creditsRemaining - 1;
@@ -1671,14 +1682,17 @@ export const firestoreService = {
       await deleteDoc(bookingRef);
 
       // Decrement class bookedCount
-      const classRef = doc(db, 'studio_classes', classId);
-      const classSnap = await getDoc(classRef);
-      if (classSnap.exists()) {
-        const classData = classSnap.data() as StudioClass;
-        if (booking.status === 'confirmed' && classData.bookedCount > 0) {
-          await updateDoc(classRef, {
-            bookedCount: classData.bookedCount - 1,
-          });
+      const effectiveStudioId = booking.studioId;
+      if (effectiveStudioId) {
+        const classRef = doc(db, 'studios', effectiveStudioId, 'classes', classId);
+        const classSnap = await getDoc(classRef);
+        if (classSnap.exists()) {
+          const classData = classSnap.data() as StudioClass;
+          if (booking.status === 'confirmed' && classData.bookedCount > 0) {
+            await updateDoc(classRef, {
+              bookedCount: classData.bookedCount - 1,
+            });
+          }
         }
       }
     }
@@ -1819,51 +1833,78 @@ export const firestoreService = {
     const recurrence = classData.recurrence || { frequency: 'none', endCondition: 'never' };
     const datesToSchedule: string[] = [];
 
+    const formatLocalYYYYMMDD = (d: Date): string => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
     // Calculate dates based on recurrence rule
-    const startDate = new Date(classData.dateString);
+    const dateParts = classData.dateString.split('-').map(Number);
+    // Setting to 12:00:00 (noon) local time prevents UTC midnight offset shifting or DST 1h changes
+    const startDate = (dateParts.length === 3 && !isNaN(dateParts[0]))
+      ? new Date(dateParts[0], dateParts[1] - 1, dateParts[2], 12, 0, 0)
+      : new Date(classData.dateString);
+
     if (isNaN(startDate.getTime())) {
       datesToSchedule.push(classData.dateString);
     } else if (recurrence.frequency === 'none') {
-      datesToSchedule.push(classData.dateString);
+      datesToSchedule.push(formatLocalYYYYMMDD(startDate));
+    } else if (recurrence.endCondition === 'date' && recurrence.endDate && recurrence.endDate < classData.dateString) {
+      // Inverted date boundary: return empty array if cutoff is before start
+      return [];
     } else if (recurrence.frequency === 'weekly') {
       const daysMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
       const targetDays = (recurrence.daysOfWeek || []).map((d: DayOfWeekPill) => daysMap[d]).filter((d: number | undefined) => d !== undefined);
       
-      let maxCount = recurrence.endCondition === 'occurrences' ? (recurrence.endAfterOccurrences || 12) : 12;
-      let currDate = new Date(startDate);
+      const maxCount = recurrence.endCondition === 'occurrences' 
+        ? (recurrence.endAfterOccurrences || 12) 
+        : (recurrence.endCondition === 'date' ? 104 : 12); // Up to 2 years for date-bounded, 12 weeks for 'never'
+      
+      const currDate = new Date(startDate);
       let found = 0;
       let safetyCounter = 0;
 
-      while (found < maxCount && safetyCounter < 180) {
+      while (found < maxCount && safetyCounter < 366) {
         safetyCounter++;
+        const currDateStr = formatLocalYYYYMMDD(currDate);
+        if (recurrence.endCondition === 'date' && recurrence.endDate && currDateStr > recurrence.endDate) {
+          break;
+        }
         const dayIdx = currDate.getDay();
         if (targetDays.length === 0 || targetDays.includes(dayIdx)) {
-          datesToSchedule.push(currDate.toISOString().split('T')[0]);
+          datesToSchedule.push(currDateStr);
           found++;
-        }
-        if (recurrence.endCondition === 'date' && recurrence.endDate) {
-          if (currDate.toISOString().split('T')[0] >= recurrence.endDate) break;
         }
         currDate.setDate(currDate.getDate() + 1);
       }
     } else if (recurrence.frequency === 'daily') {
-      let maxCount = recurrence.endCondition === 'occurrences' ? (recurrence.endAfterOccurrences || 14) : 14;
-      let currDate = new Date(startDate);
+      const maxCount = recurrence.endCondition === 'occurrences' 
+        ? (recurrence.endAfterOccurrences || 14) 
+        : (recurrence.endCondition === 'date' ? 366 : 14); // Up to 1 year for date-bounded, 14 days for 'never'
+      
+      const currDate = new Date(startDate);
       for (let i = 0; i < maxCount; i++) {
-        if (recurrence.endCondition === 'date' && recurrence.endDate) {
-          if (currDate.toISOString().split('T')[0] > recurrence.endDate) break;
+        const currDateStr = formatLocalYYYYMMDD(currDate);
+        if (recurrence.endCondition === 'date' && recurrence.endDate && currDateStr > recurrence.endDate) {
+          break;
         }
-        datesToSchedule.push(currDate.toISOString().split('T')[0]);
+        datesToSchedule.push(currDateStr);
         currDate.setDate(currDate.getDate() + 1);
       }
     } else if (recurrence.frequency === 'monthly') {
-      let maxCount = recurrence.endCondition === 'occurrences' ? (recurrence.endAfterOccurrences || 6) : 6;
-      let currDate = new Date(startDate);
+      const maxCount = recurrence.endCondition === 'occurrences' 
+        ? (recurrence.endAfterOccurrences || 6) 
+        : (recurrence.endCondition === 'date' ? 24 : 6); // Up to 2 years for date-bounded, 6 months for 'never'
+      
+      const currDate = new Date(startDate);
       for (let i = 0; i < maxCount; i++) {
-        if (recurrence.endCondition === 'date' && recurrence.endDate) {
-          if (currDate.toISOString().split('T')[0] > recurrence.endDate) break;
+        const currDateStr = formatLocalYYYYMMDD(currDate);
+        if (recurrence.endCondition === 'date' && recurrence.endDate && currDateStr > recurrence.endDate) {
+          break;
         }
-        datesToSchedule.push(currDate.toISOString().split('T')[0]);
+        datesToSchedule.push(currDateStr);
         currDate.setMonth(currDate.getMonth() + 1);
       }
     }
@@ -1871,7 +1912,8 @@ export const firestoreService = {
     const createdClasses: StudioClass[] = [];
 
     for (const dStr of datesToSchedule) {
-      const dObj = new Date(dStr);
+      const parts = dStr.split('-').map(Number);
+      const dObj = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
       const dayOfWeek = isNaN(dObj.getTime()) ? 1 : dObj.getDay();
       const classRef = doc(collection(db, 'studios', classData.studioId, 'classes'));
 
@@ -1906,11 +1948,22 @@ export const firestoreService = {
         updatedAt: now,
       };
 
-      const cleanedData = Object.fromEntries(
-        Object.entries(instance).filter(([, val]) => val !== undefined)
-      );
-      await setDoc(classRef, cleanedData);
       createdClasses.push(instance);
+    }
+
+    // Atomically persist classes in batches of 400 (Firestore limit is 500)
+    const BATCH_CHUNK_SIZE = 400;
+    for (let i = 0; i < createdClasses.length; i += BATCH_CHUNK_SIZE) {
+      const chunk = createdClasses.slice(i, i + BATCH_CHUNK_SIZE);
+      const batch = writeBatch(db);
+      for (const inst of chunk) {
+        const cRef = doc(db, 'studios', inst.studioId, 'classes', inst.id);
+        const cleanedData = Object.fromEntries(
+          Object.entries(inst).filter(([, val]) => val !== undefined)
+        );
+        batch.set(cRef, cleanedData);
+      }
+      await batch.commit();
     }
 
     return createdClasses;

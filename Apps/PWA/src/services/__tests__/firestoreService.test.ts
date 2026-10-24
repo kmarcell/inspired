@@ -13,6 +13,10 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
   limit: vi.fn(),
   getDocs: vi.fn().mockResolvedValue({ docs: [] }),
+  writeBatch: vi.fn().mockReturnValue({
+    set: vi.fn(),
+    commit: vi.fn().mockResolvedValue(undefined),
+  }),
   Timestamp: {
     now: () => ({ toISOString: () => '2026-08-28T10:00:00.000Z' }),
     fromDate: (date: Date) => date,
@@ -141,6 +145,130 @@ describe('firestoreService & Utilities', () => {
       expect(result.creditsRemaining).toBe(5);
       expect(result.status).toBe('active');
       expect(result.grantNote).toBe('Cash Payment Recorded (£20)');
+    });
+  });
+
+  describe('Section 5.16 Class Schedule Creator & Recurrence Engine', () => {
+    it('publishes a single session correctly when frequency is none', async () => {
+      const classes = await firestoreService.publishStudioClass({
+        studioId: 'studio_chiswick_01',
+        className: 'Power Flow',
+        classTypeDescription: 'Dynamic strong flow in heated studio',
+        dateString: '2026-10-26',
+        startTime: '08:00 AM',
+        endTime: '09:00 AM',
+        capacity: 20,
+        roomClimate: 'hot_studio',
+        teacherId: 'teacher_elena',
+        teacherName: 'Elena Rostova',
+        recurrence: { frequency: 'none', endCondition: 'never' },
+      });
+
+      expect(classes.length).toBe(1);
+      expect(classes[0].dateString).toBe('2026-10-26');
+      expect(classes[0].status).toBe('published');
+    });
+
+    it('generates multi-week recurrence without being truncated by a 12-session cap when endCondition is date', async () => {
+      // 16 weeks of Mondays: from 2026-01-05 to 2026-04-20
+      const classes = await firestoreService.publishStudioClass({
+        studioId: 'studio_chiswick_01',
+        className: 'Monday Ashtanga',
+        classTypeDescription: 'Traditional 90m primary series',
+        dateString: '2026-01-05',
+        startTime: '07:00 AM',
+        endTime: '08:30 AM',
+        capacity: 20,
+        roomClimate: 'hot_studio',
+        teacherId: 'teacher_elena',
+        teacherName: 'Elena Rostova',
+        recurrence: {
+          frequency: 'weekly',
+          daysOfWeek: ['Mon'],
+          endCondition: 'date',
+          endDate: '2026-04-20',
+        },
+      });
+
+      expect(classes.length).toBe(16);
+      expect(classes[0].dateString).toBe('2026-01-05');
+      expect(classes[classes.length - 1].dateString).toBe('2026-04-20');
+    });
+
+    it('returns empty array when end date is before start date', async () => {
+      const classes = await firestoreService.publishStudioClass({
+        studioId: 'studio_chiswick_01',
+        className: 'Invalid Date Series',
+        classTypeDescription: 'Invalid series with inverted dates',
+        dateString: '2026-06-01',
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        capacity: 15,
+        roomClimate: 'natural_ambient',
+        teacherId: 'teacher_david',
+        teacherName: 'David Kim',
+        recurrence: {
+          frequency: 'weekly',
+          daysOfWeek: ['Mon'],
+          endCondition: 'date',
+          endDate: '2026-05-01', // cutoff is in the past
+        },
+      });
+
+      expect(classes).toEqual([]);
+    });
+
+    it('enforces server-side pass currency validation when currencyAcceptancePolicyMode is customSelected', async () => {
+      const { getDoc } = await import('firebase/firestore');
+      
+      // Mock class requiring curr_pack_vip
+      (getDoc as unknown as ReturnType<typeof vi.fn>)
+        .mockResolvedValueOnce({
+          exists: () => true,
+          data: () => ({
+            id: 'class_vip_01',
+            studioId: 'studio_chiswick_01',
+            capacity: 20,
+            bookedCount: 5,
+            currencyAcceptancePolicyMode: 'customSelected',
+            acceptedCurrencyIds: ['curr_pack_vip'],
+          }),
+        })
+        .mockResolvedValueOnce({
+          // Mock user pass with standard currency
+          exists: () => true,
+          data: () => ({
+            id: 'pass_standard_01',
+            currencyId: 'curr_standard',
+            tierType: 'credit_pack',
+            creditsRemaining: 3,
+          }),
+        });
+
+      await expect(
+        firestoreService.bookClassWithPass(
+          'class_vip_01',
+          'studio_chiswick_01',
+          'user_sarah',
+          'Sarah Jenkins',
+          'pass_standard_01'
+        )
+      ).rejects.toThrow('This pass is not accepted for this studio class.');
+    });
+
+    it('filters out draft classes in fetchStudioClasses', async () => {
+      const { getDocs } = await import('firebase/firestore');
+      (getDocs as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        docs: [
+          { id: 'cls_published_1', data: () => ({ className: 'Flow 1', status: 'published' }) },
+          { id: 'cls_draft_1', data: () => ({ className: 'Draft Flow', status: 'draft' }) },
+          { id: 'cls_legacy_1', data: () => ({ className: 'Legacy Flow' }) },
+        ],
+      });
+
+      const classes = await firestoreService.fetchStudioClasses('studio_chiswick_01');
+      expect(classes.length).toBe(2);
+      expect(classes.map(c => c.id)).toEqual(['cls_published_1', 'cls_legacy_1']);
     });
   });
 });

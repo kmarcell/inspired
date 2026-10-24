@@ -42,8 +42,37 @@ describe('BookingPassSelectionModalView Component', () => {
 
     const bookBtn = screen.getByRole('button', { name: 'Book' });
     expect(bookBtn).toBeInTheDocument();
+    expect(bookBtn).not.toBeDisabled();
 
     fireEvent.click(bookBtn);
     expect(handleConfirm).toHaveBeenCalledWith('pass_001');
+  });
+
+  it('disables Book button and displays warning when wallet passes do not match accepted currencies', () => {
+    const handleConfirm = vi.fn();
+    const handleClose = vi.fn();
+
+    render(
+      <BookingPassSelectionModalView
+        classNameTitle="Premium Mysore Ashtanga"
+        studioName="Askew Road Zen Den"
+        classDateString="2026-09-10"
+        startTime="06:30 AM"
+        currencyAcceptancePolicyMode="customSelected"
+        acceptedCurrencyIds={['curr_premium_only']}
+        userPasses={mockPasses}
+        onConfirmBook={handleConfirm}
+        onClose={handleClose}
+      />
+    );
+
+    expect(screen.getByText(/None of your active passes are accepted for this class/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ineligible for this class/i)).toBeInTheDocument();
+
+    const bookBtn = screen.getByRole('button', { name: 'Book' });
+    expect(bookBtn).toBeDisabled();
+
+    fireEvent.click(bookBtn);
+    expect(handleConfirm).not.toHaveBeenCalled();
   });
 });
