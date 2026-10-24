@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { UserPass } from '../types';
+import { colorTokens } from '../theme/colorTokens';
 
 interface BookingPassSelectionModalViewProps {
   classNameTitle: string;
@@ -43,12 +44,12 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
   const isSelectedPassEligible = eligiblePasses.some((p) => p.id === selectedPassId);
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className={colorTokens.surfaces.backdrop}>
       <div 
         role="dialog"
         aria-modal="true"
         aria-labelledby="redeem-pass-modal-title"
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl text-slate-900 dark:text-slate-100 relative"
+        className={`${colorTokens.surfaces.modal} max-w-md w-full p-6 relative`}
       >
         <button
           onClick={onClose}
@@ -58,27 +59,27 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
           ✕
         </button>
 
-        <h3 id="redeem-pass-modal-title" className="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2 mb-1">
+        <h3 id="redeem-pass-modal-title" className={`text-lg font-extrabold ${colorTokens.text.primary} flex items-center gap-2 mb-1`}>
           <span>🎟️</span> Redeem Pass &amp; Book
         </h3>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+        <p className={`text-xs ${colorTokens.text.muted} mb-4`}>
           Select an active pass from your wallet to redeem 1 credit for this session.
         </p>
 
         {isCustomRestricted && eligiblePasses.length === 0 && (
-          <div className="p-3 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-200 text-xs">
+          <div className={`p-3 mb-4 rounded-xl ${colorTokens.surfaces.amberNotice} text-xs`}>
             ⚠️ <strong>Restricted Class Passes:</strong> None of your active passes are accepted for this class. Studio policy requires a specific pass tier. Please purchase an accepted pass or book via drop-in.
           </div>
         )}
 
-        <div className="bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl p-3 mb-4 text-xs space-y-1">
+        <div className={`${colorTokens.surfaces.insetRounded} p-3 mb-4 text-xs space-y-1`}>
           <p className="font-extrabold text-indigo-700 dark:text-indigo-300">{classNameTitle}</p>
-          <p className="text-slate-600 dark:text-slate-400">{studioName}</p>
-          <p className="text-slate-500 font-medium">{classDateString} • {startTime}</p>
+          <p className={colorTokens.text.muted}>{studioName}</p>
+          <p className={`${colorTokens.text.subtle} font-medium`}>{classDateString} • {startTime}</p>
         </div>
 
         <div className="space-y-3 mb-6" role="radiogroup" aria-label="Available Passes in Wallet">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">Available Passes in Wallet</label>
+          <label className={colorTokens.inputs.label}>Available Passes in Wallet</label>
           {activeValidPasses.map((pass) => {
             const isEligible = !isCustomRestricted || acceptedCurrencyIds.includes(pass.currencyId);
             const isSelected = selectedPassId === pass.id;
@@ -119,21 +120,21 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-xs font-extrabold text-slate-900 dark:text-white">{pass.currencyTitle}</p>
+                      <p className={`text-xs font-extrabold ${colorTokens.text.primary}`}>{pass.currencyTitle}</p>
                       {!isEligible && (
-                        <span className="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-500/20 dark:text-rose-300 dark:border-transparent text-[9px] font-bold">
+                        <span className={`px-1.5 py-0.5 rounded ${colorTokens.badges.rose} text-[9px] font-bold`}>
                           ⚠️ Ineligible for this class
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                    <p className={`text-[11px] ${colorTokens.text.muted}`}>
                       {pass.tierType === 'unlimited'
                         ? 'Unlimited Pass'
                         : `${pass.creditsRemaining} credit(s) remaining`}
                     </p>
                   </div>
                 </div>
-                <span className="text-[10px] text-slate-500 font-bold">
+                <span className={`text-[10px] ${colorTokens.text.subtle} font-bold`}>
                   Exp: {new Date(pass.expiresAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                 </span>
               </div>
@@ -141,10 +142,10 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
           })}
         </div>
 
-        <div className="flex gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <div className={`flex gap-3 pt-2 ${colorTokens.borders.dividerTop}`}>
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl transition"
+            className={`flex-1 py-2.5 ${colorTokens.buttons.secondaryText} font-bold text-xs rounded-xl transition`}
           >
             Cancel
           </button>

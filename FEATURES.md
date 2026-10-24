@@ -855,6 +855,12 @@ To ensure a rich experience during development, the search engine (Cloud Functio
   3. **First Session Date & Outlook Recurrence Pattern**.
 - Clicking **Publish Live 🚀** immediately writes recurring class sessions to the live studio schedule.
 
+##### 8. Centralized Theme Color Tokens & Design System Integration
+- **Specification Document:** [`docs/design_system.md`](file:///home/marcellkresz/developer/inspired/docs/design_system.md)
+- **Code Catalog:** [`Apps/PWA/src/theme/colorTokens.ts`](file:///home/marcellkresz/developer/inspired/Apps/PWA/src/theme/colorTokens.ts)
+- **Accessibility Standards:** Strict compliance with **WCAG 2.1 AA** contrast ratios across both Light Mode and Dark Mode for surfaces, text, inputs, tabs, and semantic badges (`amber`, `emerald`, `rose`, `purple`, `cyan`, `neutral`).
+- **Tailwind Scanner Invariant:** Complete, static string literals are utilized exclusively to guarantee zero CSS class purging during Vite production bundling.
+
 ---
 
 ### 5.17 Studio Membership Access Control & Approval Workflow (TBD)

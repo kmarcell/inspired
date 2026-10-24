@@ -11,6 +11,7 @@ import {
   CurrencyAcceptancePolicyMode 
 } from '../types';
 import { firestoreService } from '../services/firestoreService';
+import { colorTokens } from '../theme/colorTokens';
 
 interface CreateClassViewProps {
   studio: YogaStudio;
@@ -296,34 +297,34 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 text-slate-900 dark:text-slate-100">
+    <div className={`max-w-4xl mx-auto px-4 py-6 ${colorTokens.surfaces.page}`}>
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-200 dark:border-slate-800">
+      <div className={`flex items-center justify-between pb-4 mb-6 ${colorTokens.borders.dividerBottom}`}>
         <div className="flex items-center space-x-3">
           <button
             onClick={onBack}
-            className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800/80 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+            className={colorTokens.buttons.secondary}
           >
             ← Back
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h1 className={`text-2xl font-bold ${colorTokens.text.primary} flex items-center gap-2`}>
               <span>🧘 Class Schedule Creator</span>
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className={`text-xs ${colorTokens.text.subtle}`}>
               {studio.name} ({studio.location_prefix}) {studio.parentBrandName ? `• ${studio.parentBrandName}` : ''}
             </p>
           </div>
         </div>
         <div className="hidden sm:flex items-center gap-2">
-          <span className="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 font-semibold dark:border-emerald-500/30">
+          <span className={`px-3 py-1 text-xs rounded-full ${colorTokens.badges.emerald} font-semibold`}>
             Studio Creator Mode
           </span>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-300 text-red-900 dark:bg-red-950/60 dark:border-red-800 dark:text-red-200 text-sm flex items-center justify-between">
+        <div className={`mb-6 p-4 rounded-xl ${colorTokens.surfaces.roseNotice} text-sm flex items-center justify-between`}>
           <span>⚠️ {errorMsg}</span>
           <button onClick={() => setErrorMsg(null)} className="text-red-700 dark:text-red-400 hover:opacity-80">✕</button>
         </div>
@@ -333,14 +334,14 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
       <div className="space-y-6">
 
         {/* Section 1: Basic Class Information */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-xl space-y-4">
-          <h2 className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+        <div className={`${colorTokens.surfaces.card} p-6 space-y-4`}>
+          <h2 className={`text-lg font-semibold ${colorTokens.text.accentEmerald} flex items-center gap-2`}>
             <span>📝 Class Overview & Information</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="class-title-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="class-title-input" className={colorTokens.inputs.label}>
                 Class Title <span className="text-red-500">*</span>
               </label>
               <input
@@ -349,19 +350,19 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
                 placeholder="e.g. Hot Ashtanga Primary Series"
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className={colorTokens.inputs.base}
               />
             </div>
 
             <div>
-              <label htmlFor="class-style-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="class-style-select" className={colorTokens.inputs.label}>
                 Yoga Category / Style
               </label>
               <select
                 id="class-style-select"
                 value={styleName}
                 onChange={(e) => setStyleName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                className={colorTokens.inputs.select}
               >
                 {CATEGORY_OPTIONS.map((cat) => (
                   <option key={cat} value={cat}>
@@ -373,14 +374,14 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           </div>
 
           <div>
-            <label htmlFor="teacher-select" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label htmlFor="teacher-select" className={colorTokens.inputs.label}>
               Assigned Teacher <span className="text-red-500">*</span>
             </label>
             <select
               id="teacher-select"
               value={teacherId}
               onChange={(e) => setTeacherId(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors"
+              className={colorTokens.inputs.select}
             >
               {studioTeachers.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -391,7 +392,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           </div>
 
           <div>
-            <label htmlFor="class-subtitle-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label htmlFor="class-subtitle-input" className={colorTokens.inputs.label}>
               Class Subtitle / Summary
             </label>
             <input
@@ -400,12 +401,12 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               value={classTypeDescription}
               onChange={(e) => setClassTypeDescription(e.target.value)}
               placeholder="e.g. Traditional 90-min primary series in 35°C heat."
-              className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+              className={colorTokens.inputs.base}
             />
           </div>
 
           <div>
-            <label htmlFor="class-description-textarea" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label htmlFor="class-description-textarea" className={colorTokens.inputs.label}>
               Full Class Description & Philosophy
             </label>
             <textarea
@@ -414,19 +415,19 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe what yogis should expect, posture focus, energy level, and recommendations..."
-              className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors text-sm"
+              className={colorTokens.inputs.base}
             />
           </div>
         </div>
 
         {/* Section 2: Room Climate & Spec Controls */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-xl space-y-4">
+        <div className={`${colorTokens.surfaces.card} p-6 space-y-4`}>
           <h2 className="text-lg font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-2">
             <span>🌡️ Room Climate & Studio Environment</span>
           </h2>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
+            <label className={colorTokens.inputs.label}>
               Room Climate Preset
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -435,8 +436,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setRoomClimate('hot_studio')}
                 className={`px-3 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   roomClimate === 'hot_studio'
-                    ? 'bg-rose-100 border-rose-300 text-rose-900 dark:bg-rose-500/20 dark:border-rose-500 dark:text-rose-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.badges.rose
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 🔥 Hot Studio
@@ -446,8 +447,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setRoomClimate('heated_room')}
                 className={`px-3 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   roomClimate === 'heated_room'
-                    ? 'bg-amber-100 border-amber-300 text-amber-900 dark:bg-amber-500/20 dark:border-amber-500 dark:text-amber-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.badges.amber
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 🌡️ Heated Room
@@ -457,8 +458,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setRoomClimate('air_conditioned')}
                 className={`px-3 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   roomClimate === 'air_conditioned'
-                    ? 'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.badges.cyan
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 ❄️ Air Conned
@@ -468,8 +469,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setRoomClimate('natural_ambient')}
                 className={`px-3 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   roomClimate === 'natural_ambient'
-                    ? 'bg-emerald-100 border-emerald-300 text-emerald-900 dark:bg-emerald-500/20 dark:border-emerald-500 dark:text-emerald-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.badges.emerald
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 🍃 Ambient
@@ -480,7 +481,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 className={`px-3 py-2.5 rounded-xl border text-xs font-medium transition-all ${
                   roomClimate === 'outdoor'
                     ? 'bg-sky-100 border-sky-300 text-sky-900 dark:bg-sky-500/20 dark:border-sky-500 dark:text-sky-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 ☀️ Outdoor
@@ -490,7 +491,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
 
           {(roomClimate === 'hot_studio' || roomClimate === 'heated_room') && (
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className={colorTokens.inputs.label}>
                 Target Temperature (°C)
               </label>
               <div className="flex items-center gap-3">
@@ -500,22 +501,22 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                   max="45"
                   value={temperatureCelsius}
                   onChange={(e) => setTemperatureCelsius(parseInt(e.target.value, 10) || 35)}
-                  className="w-32 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
+                  className={`w-32 ${colorTokens.inputs.selectAmberFocus}`}
                 />
-                <span className="text-sm text-amber-700 dark:text-amber-400 font-semibold">°C (Celsius)</span>
+                <span className={`text-sm ${colorTokens.text.accentAmber} font-semibold`}>°C (Celsius)</span>
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className={colorTokens.inputs.label}>
                 Duration (Minutes)
               </label>
               <select
                 value={durationMinutes}
                 onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10))}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                className={colorTokens.inputs.select}
               >
                 {DURATION_OPTIONS.map((dur) => (
                   <option key={dur} value={dur}>
@@ -526,7 +527,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className={colorTokens.inputs.label}>
                 Max Capacity (Yogis)
               </label>
               <input
@@ -535,18 +536,18 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 max="100"
                 value={capacity}
                 onChange={(e) => setCapacity(parseInt(e.target.value, 10) || 20)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                className={colorTokens.inputs.base}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className={colorTokens.inputs.label}>
                 Skill Level
               </label>
               <select
                 value={skillLevel}
                 onChange={(e) => setSkillLevel(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                className={colorTokens.inputs.select}
               >
                 {LEVEL_OPTIONS.map((lvl) => (
                   <option key={lvl} value={lvl}>
@@ -558,7 +559,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label className={colorTokens.inputs.label}>
               Equipment / What to Bring
             </label>
             <input
@@ -566,20 +567,20 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               value={equipmentNeeded}
               onChange={(e) => setEquipmentNeeded(e.target.value)}
               placeholder="e.g. Yoga Mat, Large Water Bottle & Sweat Towel"
-              className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm"
+              className={colorTokens.inputs.base}
             />
           </div>
         </div>
 
         {/* Section 3: Outlook Calendar Recurrence Engine */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-xl space-y-4">
+        <div className={`${colorTokens.surfaces.card} p-6 space-y-4`}>
           <h2 className="text-lg font-semibold text-cyan-600 dark:text-cyan-400 flex items-center gap-2">
             <span>📅 Outlook Calendar Recurrence Engine</span>
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="first-session-date" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="first-session-date" className={colorTokens.inputs.label}>
                 First Session Date
               </label>
               <input
@@ -587,12 +588,12 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 type="date"
                 value={dateString}
                 onChange={(e) => setDateString(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500"
+                className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500`}
               />
             </div>
 
             <div>
-              <label htmlFor="start-time-input" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label htmlFor="start-time-input" className={colorTokens.inputs.label}>
                 Start Time
               </label>
               <input
@@ -601,13 +602,13 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 placeholder="e.g. 07:30 AM"
-                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500"
+                className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500`}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            <label className={colorTokens.inputs.label}>
               Recurrence Frequency
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -616,8 +617,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setFrequency('none')}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
                   frequency === 'none'
-                    ? 'bg-slate-200 border-slate-400 text-slate-900 dark:bg-slate-700 dark:border-slate-500 dark:text-white'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.tabs.activeSlate
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 1️⃣ Single Session
@@ -627,8 +628,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setFrequency('weekly')}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
                   frequency === 'weekly'
-                    ? 'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.badges.cyan
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 📅 Weekly Recurring
@@ -638,8 +639,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setFrequency('daily')}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
                   frequency === 'daily'
-                    ? 'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.badges.cyan
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 ☀️ Daily Recurring
@@ -649,8 +650,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 onClick={() => setFrequency('monthly')}
                 className={`py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all ${
                   frequency === 'monthly'
-                    ? 'bg-cyan-100 border-cyan-300 text-cyan-900 dark:bg-cyan-500/20 dark:border-cyan-500 dark:text-cyan-300 shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? colorTokens.badges.cyan
+                    : colorTokens.tabs.inactivePill
                 }`}
               >
                 🗓️ Monthly
@@ -660,7 +661,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
 
           {frequency === 'weekly' && (
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className={colorTokens.inputs.label}>
                 Repeat On Days of Week
               </label>
               <div className="flex flex-wrap gap-2">
@@ -675,7 +676,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                       className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
                         isSelected
                           ? 'bg-cyan-500 border-cyan-400 text-slate-950 shadow-sm'
-                          : 'bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                          : colorTokens.tabs.inactivePill
                       }`}
                     >
                       {day}
@@ -688,11 +689,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
 
           {frequency !== 'none' && (
             <div className="pt-2">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              <label className={colorTokens.inputs.label}>
                 Recurrence End Condition
               </label>
               <div className="space-y-2">
-                <label className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                <label className={`flex items-center gap-3 text-sm ${colorTokens.text.secondary} cursor-pointer`}>
                   <input
                     type="radio"
                     name="endCond"
@@ -703,7 +704,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                   <span>Never (Ongoing schedule)</span>
                 </label>
 
-                <label className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                <label className={`flex items-center gap-3 text-sm ${colorTokens.text.secondary} cursor-pointer`}>
                   <input
                     type="radio"
                     name="endCond"
@@ -719,12 +720,12 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                       max="52"
                       value={endAfterOccurrences}
                       onChange={(e) => setEndAfterOccurrences(parseInt(e.target.value, 10) || 12)}
-                      className="w-20 px-3 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500"
+                      className={`w-20 px-3 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500`}
                     />
                   )}
                 </label>
 
-                <label className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                <label className={`flex items-center gap-3 text-sm ${colorTokens.text.secondary} cursor-pointer`}>
                   <input
                     type="radio"
                     name="endCond"
@@ -738,7 +739,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="px-3 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500"
+                      className={`px-3 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500`}
                     />
                   )}
                 </label>
@@ -748,13 +749,13 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
         </div>
 
         {/* Section 4: Currency Acceptance Policy Selector */}
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-xl space-y-4">
+        <div className={`${colorTokens.surfaces.card} p-6 space-y-4`}>
           <h2 className="text-lg font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-2">
             <span>💳 Class Currency & Pass Acceptance Selector</span>
           </h2>
 
           <div className="space-y-3">
-            <label className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+            <label className={`flex items-start gap-3 p-4 rounded-xl ${colorTokens.surfaces.inset} cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}>
               <input
                 type="radio"
                 name="currencyPolicy"
@@ -763,14 +764,14 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 className="mt-1 accent-purple-500"
               />
               <div>
-                <span className="text-sm font-semibold text-slate-900 dark:text-white">Accept All Studio Currencies & Passes</span>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                <span className={`text-sm font-semibold ${colorTokens.text.primary}`}>Accept All Studio Currencies & Passes</span>
+                <p className={`text-xs ${colorTokens.text.muted} mt-1`}>
                   Default mode: Yogis can book this class using any valid credit pack, drop-in rate, or unlimited pass accepted by this studio branch.
                 </p>
               </div>
             </label>
 
-            <label className="flex items-start gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+            <label className={`flex items-start gap-3 p-4 rounded-xl ${colorTokens.surfaces.inset} cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors`}>
               <input
                 type="radio"
                 name="currencyPolicy"
@@ -779,8 +780,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                 className="mt-1 accent-purple-500"
               />
               <div>
-                <span className="text-sm font-semibold text-slate-900 dark:text-white">Custom Selected Currencies & Passes</span>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                <span className={`text-sm font-semibold ${colorTokens.text.primary}`}>Custom Selected Currencies & Passes</span>
+                <p className={`text-xs ${colorTokens.text.muted} mt-1`}>
                   Restrict booking for this class exclusively to specific credit packs or drop-in tiers.
                 </p>
               </div>
@@ -803,7 +804,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                     return (
                       <label
                         key={curr.id}
-                        className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:border-purple-500/50"
+                        className={`flex items-center justify-between p-3 rounded-lg bg-white dark:bg-slate-950 ${colorTokens.borders.default} text-xs text-slate-800 dark:text-slate-200 cursor-pointer hover:border-purple-500/50`}
                       >
                         <div className="flex items-center gap-2">
                           <input
@@ -812,13 +813,13 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                             onChange={() => toggleCurrencyId(curr.id)}
                             className="accent-purple-500"
                           />
-                          <span className="font-semibold text-slate-900 dark:text-white">{curr.title}</span>
-                          <span className="text-slate-500 dark:text-slate-400">
+                          <span className={`font-semibold ${colorTokens.text.primary}`}>{curr.title}</span>
+                          <span className={colorTokens.text.subtle}>
                             ({curr.creditCount ? `${curr.creditCount} Credits` : 'Unlimited'} • {curr.currencySymbol}{curr.basePriceAmount.toFixed(2)})
                           </span>
                         </div>
                         {curr.studioId && (
-                          <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-500/20 dark:text-purple-300 text-[10px]">
+                          <span className={`px-2 py-0.5 rounded ${colorTokens.badges.purple} text-[10px]`}>
                             Studio Override
                           </span>
                         )}
@@ -832,11 +833,11 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
         </div>
 
         {/* Section 5: 3 Save Action Buttons Bar */}
-        <div className="bg-white/95 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-4 backdrop-blur-md">
+        <div className={`bg-white/95 dark:bg-slate-900/90 ${colorTokens.borders.default} rounded-2xl p-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 sticky bottom-4 backdrop-blur-md`}>
           <button
             type="button"
             onClick={onBack}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 text-sm font-semibold transition-colors border border-slate-200 dark:border-slate-700"
+            className={`w-full sm:w-auto px-5 py-3 rounded-xl ${colorTokens.buttons.secondaryText} text-sm font-semibold`}
           >
             Cancel
           </button>
@@ -846,7 +847,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={handleSaveDraft}
-              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700 dark:text-slate-200 text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+              className={`w-full sm:w-auto px-5 py-3 rounded-xl ${colorTokens.badges.neutral} text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2`}
             >
               <span>📝 Save Draft</span>
             </button>
@@ -855,7 +856,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={handleSaveTemplate}
-              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 dark:border-amber-500/40 dark:text-amber-300 text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+              className={`w-full sm:w-auto px-5 py-3 rounded-xl ${colorTokens.badges.amber} hover:bg-amber-200 dark:hover:bg-amber-500/30 text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2`}
             >
               <span>📋 Save as Template</span>
             </button>
@@ -864,7 +865,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               type="button"
               disabled={isSubmitting}
               onClick={handlePublishLive}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-sm font-bold shadow-lg shadow-emerald-950/20 transition-all hover:scale-[1.03] flex items-center justify-center gap-2"
+              className={`w-full sm:w-auto px-6 py-3 ${colorTokens.buttons.primaryGradient} text-sm font-bold`}
             >
               {isSubmitting ? (
                 <span>Publishing...</span>

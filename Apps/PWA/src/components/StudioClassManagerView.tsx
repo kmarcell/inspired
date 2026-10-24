@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { YogaStudio, StudioClass, BrandClassTemplate, CompanyCurrency } from '../types';
 import { firestoreService } from '../services/firestoreService';
+import { colorTokens } from '../theme/colorTokens';
 import { CreateClassView } from './CreateClassView';
 import { CreateClassFromTemplateModal } from './CreateClassFromTemplateModal';
 
@@ -144,21 +145,21 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 text-slate-900 dark:text-slate-100 space-y-6">
+    <div className={`max-w-5xl mx-auto px-4 py-6 ${colorTokens.surfaces.page} space-y-6`}>
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 ${colorTokens.borders.dividerBottom}`}>
         <div className="flex items-center space-x-3">
           <button
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+            className={colorTokens.buttons.secondary}
           >
             ← Back
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <h1 className={`text-2xl font-bold ${colorTokens.text.primary} flex items-center gap-2`}>
               <span>📅 Class Templates & Drafts Manager</span>
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className={`text-xs ${colorTokens.text.subtle}`}>
               {studio.name} ({studio.location_prefix}) {studio.parentBrandName ? `• ${studio.parentBrandName}` : ''}
             </p>
           </div>
@@ -166,7 +167,7 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
 
         <button
           onClick={() => setIsCreatorOpen(true)}
-          className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 text-xs font-bold shadow-lg shadow-emerald-950/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+          className={colorTokens.buttons.primaryGradient}
         >
           <span>＋ Create New Class / Template</span>
         </button>
@@ -174,27 +175,27 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
 
       {/* Notifications */}
       {successToast && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 dark:bg-emerald-950/70 dark:border-emerald-800 dark:text-emerald-200 text-sm flex items-center justify-between animate-in fade-in">
+        <div className={`p-4 rounded-xl ${colorTokens.surfaces.emeraldNotice} text-sm flex items-center justify-between animate-in fade-in`}>
           <span>✅ {successToast}</span>
           <button onClick={() => setSuccessToast(null)} className="text-emerald-700 dark:text-emerald-400 hover:opacity-80">✕</button>
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-300 text-red-900 dark:bg-red-950/60 dark:border-red-800 dark:text-red-200 text-sm flex items-center justify-between">
+        <div className={`p-4 rounded-xl ${colorTokens.surfaces.roseNotice} text-sm flex items-center justify-between`}>
           <span>⚠️ {errorMsg}</span>
           <button onClick={() => setErrorMsg(null)} className="text-red-700 dark:text-red-400 hover:opacity-80">✕</button>
         </div>
       )}
 
       {/* Tab Selector */}
-      <div className="flex items-center space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+      <div className={`flex items-center space-x-2 ${colorTokens.borders.dividerBottom} pb-2`}>
         <button
           onClick={() => setActiveTab('templates')}
           className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'templates'
-              ? 'bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/60'
+              ? colorTokens.tabs.activeAmber
+              : colorTokens.tabs.inactive
           }`}
         >
           <span>📋 Brand Class Templates</span>
@@ -207,8 +208,8 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
           onClick={() => setActiveTab('drafts')}
           className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'drafts'
-              ? 'bg-slate-200 text-slate-900 border border-slate-300 dark:bg-slate-700 dark:text-white dark:border-slate-600 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/60'
+              ? colorTokens.tabs.activeSlate
+              : colorTokens.tabs.inactive
           }`}
         >
           <span>📝 Saved Studio Drafts</span>
@@ -220,30 +221,30 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
 
       {/* Content */}
       {isLoading ? (
-        <div className="p-12 text-center text-slate-500 dark:text-slate-400">
+        <div className={`p-12 text-center ${colorTokens.text.subtle}`}>
           <div className="animate-spin inline-block w-8 h-8 border-2 border-current border-t-transparent text-emerald-600 dark:text-emerald-400 rounded-full mb-3" />
           <p className="text-xs">Loading class manager specs...</p>
         </div>
       ) : activeTab === 'templates' ? (
         /* Tab 1: Brand Class Templates */
         <div className="space-y-4">
-          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300 text-xs flex items-center justify-between">
+          <div className={`p-4 rounded-xl ${colorTokens.surfaces.amberNotice} text-xs flex items-center justify-between`}>
             <span>
               ℹ️ Templates are shared blueprints available across all studio branches in the <strong>{studio.parentBrandName || 'brand network'}</strong>.
             </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-transparent">Teacher-Agnostic</span>
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${colorTokens.badges.amber}`}>Teacher-Agnostic</span>
           </div>
 
           {templates.length === 0 ? (
-            <div className="p-12 text-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-3">
+            <div className={`p-12 text-center ${colorTokens.surfaces.card} space-y-3`}>
               <span className="text-4xl">📋</span>
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white">No Class Templates Saved</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+              <h3 className={`text-base font-semibold ${colorTokens.text.primary}`}>No Class Templates Saved</h3>
+              <p className={`text-xs ${colorTokens.text.muted} max-w-md mx-auto`}>
                 Create reusable class templates (e.g. <i>Hot Vinyasa 60m</i>, <i>Ashtanga Primary 90m</i>) to rapidly schedule classes across any branch.
               </p>
               <button
                 onClick={() => setIsCreatorOpen(true)}
-                className="px-4 py-2 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40 dark:hover:bg-amber-500/30 text-xs font-bold transition-colors"
+                className={colorTokens.buttons.amberAction}
               >
                 ＋ Create First Template
               </button>
@@ -253,47 +254,47 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
               {templates.map((tpl) => (
                 <div
                   key={tpl.id}
-                  className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/40 rounded-2xl p-5 shadow-sm dark:shadow-xl transition-all space-y-3 flex flex-col justify-between"
+                  className={`${colorTokens.surfaces.cardInteractive} p-5 space-y-3 flex flex-col justify-between`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-500/20 dark:text-amber-300 dark:border-transparent text-[10px] font-bold uppercase tracking-wider">
+                        <span className={`px-2.5 py-0.5 rounded-full ${colorTokens.badges.amber} text-[10px] font-bold uppercase tracking-wider`}>
                           {tpl.styleName || 'Yoga Class'}
                         </span>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1">{tpl.className}</h3>
+                        <h3 className={`text-base font-bold ${colorTokens.text.primary} mt-1`}>{tpl.className}</h3>
                       </div>
-                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <span className={`text-xs font-semibold ${colorTokens.text.subtle}`}>
                         {tpl.durationMinutes} min
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">
+                    <p className={`text-xs ${colorTokens.text.secondary} line-clamp-2`}>
                       {tpl.classTypeDescription}
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-slate-600 dark:text-slate-400">
-                      <span className="px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    <div className={`flex flex-wrap items-center gap-2 pt-1 text-[11px] ${colorTokens.text.muted}`}>
+                      <span className={`px-2 py-0.5 rounded ${colorTokens.surfaces.inset}`}>
                         👥 Capacity: {tpl.capacity} Yogis
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                      <span className={`px-2 py-0.5 rounded ${colorTokens.surfaces.inset}`}>
                         {tpl.roomClimate === 'hot_studio' ? `🔥 ${tpl.temperatureCelsius || 35}°C Hot` : tpl.roomClimate}
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                      <span className={`px-2 py-0.5 rounded ${colorTokens.surfaces.inset}`}>
                         🧘 {tpl.skillLevel || 'All Levels'}
                       </span>
                       {tpl.currencyAcceptancePolicyMode === 'customSelected' && (
-                        <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/30 font-semibold">
+                        <span className={`px-2 py-0.5 rounded ${colorTokens.badges.purple} font-semibold`}>
                           💳 Restricted Pricing
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                  <div className={`pt-3 ${colorTokens.borders.dividerTop} flex items-center justify-between gap-2`}>
                     <button
                       onClick={() => setSchedulingTemplate(tpl)}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 text-slate-950 text-xs font-bold shadow-md transition-all hover:scale-[1.02] flex items-center gap-1.5"
+                      className={colorTokens.buttons.primaryGradient}
                     >
                       <span>📅 Use Template to Schedule ➔</span>
                     </button>
@@ -301,14 +302,14 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => setEditingTemplate(tpl)}
-                        className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-transparent"
+                        className={colorTokens.buttons.secondary}
                         title="Edit Template Blueprint"
                       >
                         ✏️
                       </button>
                       <button
                         onClick={() => handleDeleteTemplate(tpl.id)}
-                        className="p-2 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 dark:bg-slate-800 dark:hover:bg-red-950 dark:text-slate-400 dark:hover:text-red-300 text-xs font-semibold border border-slate-200 dark:border-transparent"
+                        className={colorTokens.buttons.danger}
                         title="Delete Template Blueprint"
                       >
                         🗑️
@@ -324,15 +325,15 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
         /* Tab 2: Saved Studio Drafts */
         <div className="space-y-4">
           {drafts.length === 0 ? (
-            <div className="p-12 text-center bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-3">
+            <div className={`p-12 text-center ${colorTokens.surfaces.card} space-y-3`}>
               <span className="text-4xl">📝</span>
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white">No Saved Drafts</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+              <h3 className={`text-base font-semibold ${colorTokens.text.primary}`}>No Saved Drafts</h3>
+              <p className={`text-xs ${colorTokens.text.muted} max-w-md mx-auto`}>
                 Classes saved as drafts remain visible strictly to studio admins in this management portal until published live.
               </p>
               <button
                 onClick={() => setIsCreatorOpen(true)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 text-xs font-bold transition-colors"
+                className={colorTokens.buttons.secondaryText}
               >
                 ＋ Create Class Draft
               </button>
@@ -342,39 +343,39 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
               {drafts.map((dft) => (
                 <div
                   key={dft.id}
-                  className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl p-5 shadow-sm dark:shadow-xl transition-all space-y-3 flex flex-col justify-between"
+                  className={`${colorTokens.surfaces.card} p-5 space-y-3 flex flex-col justify-between`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider border border-slate-200 dark:border-slate-700">
+                        <span className={`px-2.5 py-0.5 rounded-full ${colorTokens.badges.neutral} text-[10px] font-bold uppercase tracking-wider`}>
                           📝 Draft
                         </span>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1">{dft.className}</h3>
+                        <h3 className={`text-base font-bold ${colorTokens.text.primary} mt-1`}>{dft.className}</h3>
                       </div>
-                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                      <span className={`text-xs font-semibold ${colorTokens.text.subtle}`}>
                         {dft.startTime || '07:30 AM'} ({dft.durationMinutes || 60}m)
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-600 dark:text-slate-300">
+                    <p className={`text-xs ${colorTokens.text.secondary}`}>
                       🧘 Teacher: <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{dft.teacherName || 'TBD'}</span>
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-slate-600 dark:text-slate-400">
-                      <span className="px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    <div className={`flex flex-wrap items-center gap-2 pt-1 text-[11px] ${colorTokens.text.muted}`}>
+                      <span className={`px-2 py-0.5 rounded ${colorTokens.surfaces.inset}`}>
                         📅 {dft.dateString || 'Today'}
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                      <span className={`px-2 py-0.5 rounded ${colorTokens.surfaces.inset}`}>
                         🔄 {dft.recurrence?.frequency ? `Recurrence: ${dft.recurrence.frequency}` : 'Single Session'}
                       </span>
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                  <div className={`pt-3 ${colorTokens.borders.dividerTop} flex items-center justify-between gap-2`}>
                     <button
                       onClick={() => handlePublishDraftDirectly(dft)}
-                      className="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:border-emerald-500/40 dark:hover:bg-emerald-500/30 dark:text-emerald-300 text-xs font-bold transition-all flex items-center gap-1.5"
+                      className={`px-4 py-2 rounded-xl ${colorTokens.badges.emerald} text-xs font-bold transition-all flex items-center gap-1.5 hover:opacity-90`}
                     >
                       <span>🚀 Publish Live</span>
                     </button>
@@ -382,13 +383,13 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setEditingDraft(dft)}
-                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 dark:border-transparent text-xs font-semibold"
+                        className={colorTokens.buttons.secondaryText}
                       >
                         ✏️ Resume Editing
                       </button>
                       <button
                         onClick={() => handleDeleteDraft(dft.id)}
-                        className="p-2 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 dark:bg-slate-800 dark:hover:bg-red-950 dark:text-slate-400 dark:hover:text-red-300 text-xs font-semibold border border-slate-200 dark:border-transparent"
+                        className={colorTokens.buttons.danger}
                         title="Delete Draft"
                       >
                         🗑️
