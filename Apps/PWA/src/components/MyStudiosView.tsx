@@ -1564,12 +1564,40 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
             </div>
           </div>
         )}
+
+        {/* Delete Company Modal Confirmation */}
+        {deletingCompany && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="w-full max-w-md p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 text-center shadow-2xl">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Delete Brand Network?</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Deleting <strong>{deletingCompany.name}</strong> will move assigned studios to Independent Studios.
+              </p>
+              <div className="flex space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setDeletingCompany(null)}
+                  className="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteCompany}
+                  className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow-md"
+                >
+                  🗑️ Confirm Delete Brand
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
   // --- ROOT VIEW: MY BRANDS & STUDIOS LIST ---
-  const standaloneStudios = studios.filter((s) => !s.companyId);
+  const standaloneStudios = studios.filter((s) => !s.companyId || !companies.some((c) => c.id === s.companyId));
 
   return (
     <div className="flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-8 text-slate-900 dark:text-slate-100 animate-fadeIn">

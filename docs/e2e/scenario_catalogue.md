@@ -64,7 +64,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None (auth failure rejected by emulator).
 - **Platforms:** both
-- **Automation status:** none (automated unit test in LoginView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-auth-dev-login-success — Yogi authenticates via Dev credentials and accesses application shell
 - **ID:** yogi-auth-dev-login-success
@@ -87,7 +87,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None (read-only authentication session).
 - **Platforms:** both
-- **Automation status:** e2e (Apps/PWA/src/test/e2e/regression_suite.spec.ts)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-book-class-no-pass-triggers-store — Yogi with 0 credits attempts booking and is redirected to Currency Store checkout modal
 - **ID:** yogi-book-class-no-pass-triggers-store
@@ -109,7 +109,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (NoPassAvailableModalView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-book-class-with-pass-success — Returning yogi books open class redeeming active pass credit
 - **ID:** yogi-book-class-with-pass-success
@@ -134,7 +134,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes booking and restores pass remainingCredits.
 - **Platforms:** both
-- **Automation status:** unit-only (firestoreService.test.ts, BookingPassSelectionModalView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-booking-pass-selector-filters-custom-currency — Pass selector modal filters out passes incompatible with studio custom currency policy
 - **ID:** yogi-booking-pass-selector-filters-custom-currency
@@ -156,7 +156,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** e2e (Apps/PWA/src/test/e2e/regression_suite.spec.ts)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-cancel-class-booking-refund — Yogi cancels class booking >= 12h before start and pass credit is refunded to wallet
 - **ID:** yogi-cancel-class-booking-refund
@@ -180,7 +180,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown restores test state.
 - **Platforms:** both
-- **Automation status:** unit-only (firestoreService.test.ts)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-cold-start-session-restore — Authenticated yogi reloads application and session is restored automatically
 - **ID:** yogi-cold-start-session-restore
@@ -202,7 +202,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** e2e (implicit in regression suite)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-feed-view-unified-stream — Yogi views chronological feed stream of joined communities and area posts
 - **ID:** yogi-feed-view-unified-stream
@@ -223,7 +223,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (CommunityFeedView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-joined-communities-view-list — Yogi views list of joined communities and navigates to community profile
 - **ID:** yogi-joined-communities-view-list
@@ -245,7 +245,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** e2e (Apps/PWA/src/test/e2e/regression_suite.spec.ts)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-logout-session-terminated — Yogi logs out cleanly and application returns to login view
 - **ID:** yogi-logout-session-terminated
@@ -267,7 +267,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** e2e (Apps/PWA/src/test/e2e/regression_suite.spec.ts)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-onboarding-complete-profile — First-time yogi completes onboarding, validates handle, and enters feed
 - **ID:** yogi-onboarding-complete-profile
@@ -291,7 +291,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes cloned /users/{uid} document and Auth account.
 - **Platforms:** both
-- **Automation status:** unit-only (OnboardingView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-schedule-unjoined-book-join-prompt — Unjoined yogi attempting to book class is prompted with Join Studio modal
 - **ID:** yogi-schedule-unjoined-book-join-prompt
@@ -313,7 +313,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown restores unjoined state.
 - **Platforms:** both
-- **Automation status:** none
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-schedule-view-7day-calendar — Yogi navigates 7-day studio timetable selector and views classes for selected date
 - **ID:** yogi-schedule-view-7day-calendar
@@ -335,7 +335,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (StudioScheduleView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-search-by-postcode-prefix — Yogi searches outward postcode prefix and sees local studios ranked first
 - **ID:** yogi-search-by-postcode-prefix
@@ -357,7 +357,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (SearchView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-search-discovery-initial-state — Yogi opens Search view and sees Discovery Mode suggestions with category badges
 - **ID:** yogi-search-discovery-initial-state
@@ -379,7 +379,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (SearchView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-studio-profile-cascading-join — Yogi joins studio branch executing atomic cascading join of parent brand network
 - **ID:** yogi-studio-profile-cascading-join
@@ -401,7 +401,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown restores unjoined state.
 - **Platforms:** both
-- **Automation status:** unit-only (StudioProfileView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-studio-profile-view-details — Yogi views studio profile header details, teachers carousel, and tabs
 - **ID:** yogi-studio-profile-view-details
@@ -424,7 +424,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (StudioProfileView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-view-public-teacher-profile — Yogi views public teacher profile credentials, rolling 7-day classes, and multi-studio schedule button
 - **ID:** yogi-view-public-teacher-profile
@@ -447,7 +447,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (UnifiedProfileView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### yogi-view-teacher-multi-studio-schedule-modal — Yogi opens Teacher Schedule Modal from teacher profile and filters by partner studio
 - **ID:** yogi-view-teacher-multi-studio-schedule-modal
@@ -469,7 +469,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (UnifiedProfileView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 
 #### visitor-magic-link-cooldown-throttled — Visitor requests magic link and 60-second cooldown timer throttles retries
 - **ID:** visitor-magic-link-cooldown-throttled
@@ -1230,7 +1230,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts)
 
 #### teacher-filter-schedule-modal-by-studio — Filtering TeacherScheduleModal by studio location updates schedule and excludes other studios
 - **ID:** teacher-filter-schedule-modal-by-studio
@@ -1252,7 +1252,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (TeacherScheduleModal.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts)
 
 #### teacher-open-multistudio-schedule-modal — Teacher opens TeacherScheduleModal calendar overlay across all partner studios
 - **ID:** teacher-open-multistudio-schedule-modal
@@ -1273,7 +1273,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (TeacherScheduleModal.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts)
 
 #### teacher-schedule-tile-link-opens-profile — Tapping underlined teacher link on studio schedule class row navigates to teacher profile
 - **ID:** teacher-schedule-tile-link-opens-profile
@@ -1294,7 +1294,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (StudioScheduleView.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts)
 
 #### teacher-verify-carousel-presence-at-studio — Teacher appears in Teachers at this Studio carousel at partner studios without owning them
 - **ID:** teacher-verify-carousel-presence-at-studio
@@ -1316,7 +1316,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (StudioProfileView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts)
 
 #### teacher-view-my-studios-non-owner-boundary — Freelance teacher accessing My Studios views zero ownership boundary without administrative controls
 - **ID:** teacher-view-my-studios-non-owner-boundary
@@ -1338,7 +1338,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** e2e (regression_suite.spec.ts verifies clean freelance shell)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts)
 
 #### teacher-view-own-profile-overview — Teacher views personal profile overview, verified checkmark, handle, and 2-metric bar
 - **ID:** teacher-view-own-profile-overview
@@ -1360,7 +1360,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (UnifiedProfileView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts)
 
 #### teacher-area-community-presence-and-navigation — Teacher appears in Teachers in this Area list on Area Community Profile
 - **ID:** teacher-area-community-presence-and-navigation
@@ -1663,7 +1663,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown restores brand and re-links studio.
 - **Platforms:** both
-- **Automation status:** unit-only (MyStudiosView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### non-teaching-owner-assigns-visiting-teacher — Non-teaching studio owner creates class and assigns visiting teacher with owner excluded from teacher selector
 - **ID:** non-teaching-owner-assigns-visiting-teacher
@@ -1686,7 +1686,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes class.
 - **Platforms:** both
-- **Automation status:** unit-only (CreateClassView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### platform-admin-approve-shadow-claim — Platform administrator reviews pending studio claim and approves ownership transfer
 - **ID:** platform-admin-approve-shadow-claim
@@ -1708,7 +1708,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown restores unassigned shadow studio state.
 - **Platforms:** both
-- **Automation status:** unit-only (AdminClaimsView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-claim-shadow-profile — Prospective studio owner claims unclaimed shadow studio and uploads verification proof
 - **ID:** studio-owner-claim-shadow-profile
@@ -1731,7 +1731,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes created claim.
 - **Platforms:** both
-- **Automation status:** unit-only (ClaimStudioView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-create-brand-and-studio — Studio owner creates new brand network and first branch studio in 2-step wizard
 - **ID:** studio-owner-create-brand-and-studio
@@ -1755,7 +1755,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes created company and studio documents.
 - **Platforms:** both
-- **Automation status:** unit-only (CreateStudioView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-create-brand-currency-catalog — Brand founder defines multi-branch currency pricing packages that propagate across branches
 - **ID:** studio-owner-create-brand-currency-catalog
@@ -1778,7 +1778,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes created currency.
 - **Platforms:** both
-- **Automation status:** unit-only (MyStudiosView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-create-independent-studio — User creates independent standalone studio defaulting to unverified pending claim
 - **ID:** studio-owner-create-independent-studio
@@ -1801,7 +1801,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes created studio.
 - **Platforms:** both
-- **Automation status:** unit-only (CreateStudioView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-create-standalone-currency-catalog — Independent studio owner establishes studio-specific class pricing catalog
 - **ID:** studio-owner-create-standalone-currency-catalog
@@ -1823,7 +1823,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes created currency.
 - **Platforms:** both
-- **Automation status:** unit-only (MyStudiosView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-grant-pass-walkin-stepper — Studio owner records in-person walk-in sale and deposits class credits into member wallet via stepper
 - **ID:** studio-owner-grant-pass-walkin-stepper
@@ -1846,7 +1846,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown removes granted pass.
 - **Platforms:** both
-- **Automation status:** unit-only (AdminGrantPassModalView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-manage-studio-3tabs-navigation — Studio owner navigates unified in-place 3-tab layout: General Settings, Pricing & Policies, Timetable
 - **ID:** studio-owner-manage-studio-3tabs-navigation
@@ -1868,7 +1868,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (MyStudiosView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-publish-weekly-recurring-class-with-climate — Studio owner publishes ongoing weekly recurring class with room climate preset and recurrence
 - **ID:** studio-owner-publish-weekly-recurring-class-with-climate
@@ -1892,7 +1892,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes created recurring classes.
 - **Platforms:** both
-- **Automation status:** unit-only (CreateClassView.test.tsx, firestoreService.test.ts)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-save-brand-class-template — Brand founder creates teacher-agnostic brand class template shared across all branches
 - **ID:** studio-owner-save-brand-class-template
@@ -1914,7 +1914,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes created template.
 - **Platforms:** both
-- **Automation status:** unit-only (CreateClassView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-schedule-class-from-brand-template-sync-teacher — Branch manager instantiates recurring schedule from template dynamically synchronizing target studio teachers
 - **ID:** studio-owner-schedule-class-from-brand-template-sync-teacher
@@ -1937,7 +1937,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown deletes scheduled class.
 - **Platforms:** both
-- **Automation status:** unit-only (CreateClassFromTemplateModal.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### studio-owner-switch-policy-follow-to-custom — Branch owner switches policy from follow_brand to custom_override with isolated custom rates
 - **ID:** studio-owner-switch-policy-follow-to-custom
@@ -1959,7 +1959,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown restores follow_brand policy.
 - **Platforms:** both
-- **Automation status:** unit-only (MyStudiosView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/studio_owner_smoke.spec.ts)
 
 #### platform-admin-reject-shadow-claim — Platform administrator rejects shadow claim with justification reason
 - **ID:** platform-admin-reject-shadow-claim

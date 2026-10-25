@@ -27,8 +27,10 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
   onSelectTeacher,
   onRequestJoin,
 }) => {
+  const todayDate = new Date();
+  const initialDayIndex = (todayDate.getDay() + 6) % 7;
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0);
-  const [selectedDateIndex, setSelectedDateIndex] = useState(0);
+  const [selectedDateIndex, setSelectedDateIndex] = useState(initialDayIndex);
   const [classes, setClasses] = useState<StudioClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [infoModalClass, setInfoModalClass] = useState<StudioClass | null>(null);
@@ -90,16 +92,29 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
     }
 
     try {
-      const passes = await firestoreService.fetchUserPasses(currentUser.id);
+      const [passes, studioPolicy] = await Promise.all([
+        firestoreService.fetchUserPasses(currentUser.id),
+        firestoreService.fetchStudioCurrencyPolicy(studioId),
+      ]);
+
+      let effectiveClass = cls;
+      if (!cls.currencyAcceptancePolicyMode && studioPolicy?.policyMode === 'custom_override') {
+        effectiveClass = {
+          ...cls,
+          currencyAcceptancePolicyMode: 'customSelected',
+          acceptedCurrencyIds: studioPolicy.acceptedCurrencyIds || [],
+        };
+      }
+
       const validPasses = passes.filter(
         (p) => p.status === 'active' && (p.tierType === 'unlimited' || (p.creditsRemaining && p.creditsRemaining > 0))
       );
 
       if (validPasses.length > 0) {
         setUserWalletPasses(validPasses);
-        setBookingPassTargetClass(cls);
+        setBookingPassTargetClass(effectiveClass);
       } else {
-        setBookingPassTargetClass(cls);
+        setBookingPassTargetClass(effectiveClass);
         setShowNoPassModal(true);
       }
     } catch {

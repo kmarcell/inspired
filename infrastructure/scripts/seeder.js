@@ -206,6 +206,7 @@ async function run() {
     await seedCollection('studio_currency_policies', 'studio_currency_policies.json');
     await seedCollection('user_passes', 'user_passes.json');
     await seedCollection('company_class_templates', 'company_class_templates.json');
+    await seedCollection('studioClaims', 'studio_claims.json');
 
     // Seed studio class schedule & member subcollections (seeds/studio_classes.json, seeds/studio_members.json)
     console.log('🧘 Seeding studio classes & members subcollections...');

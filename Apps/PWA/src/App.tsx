@@ -463,6 +463,7 @@ const MainRouter: React.FC = () => {
               {activeTab === 'profile' && (
                 <ProfileView
                   onBack={() => navigateTab('feed')}
+                  onViewPublicProfile={() => user && handleOpenUserProfile(user.id)}
                   onNavigateToStudios={() => {
                     setPreviousTab('profile');
                     navigateTab('studios');

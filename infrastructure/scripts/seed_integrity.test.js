@@ -12,12 +12,14 @@ const currencies = load('company_currencies.json');
 const policies = load('studio_currency_policies.json');
 const studioClasses = load('studio_classes.json');
 const studioMembers = load('studio_members.json');
+const userPasses = load('user_passes.json');
+const studioClaims = load('studio_claims.json');
 const { getEmulatorConfig, assertEmulatorOnly } = require('./lib/emulator');
 
 const byId = (list, id) => list.find((x) => x.id === id);
 
 test('seed ids are unique per collection', () => {
-  for (const list of [users, studios, communities, currencies, policies]) {
+  for (const list of [users, studios, communities, currencies, policies, userPasses, studioClaims]) {
     const ids = list.map((x) => x.id);
     assert.equal(new Set(ids).size, ids.length);
   }
@@ -105,4 +107,59 @@ test('shoreditch studio community is linked and joined by the owner', () => {
   const community = byId(communities, 'comm_studio_studio_shoreditch_006');
   assert.equal(community.linkedStudioId, 'studio_shoreditch_006');
   assert.ok(byId(users, 'user_owner_noteach').joinedCommunities.includes(community.id));
+});
+
+test('expired pass seed (pass_sarah_expired_pack) belongs to user_sarah and is expired', () => {
+  const pass = byId(userPasses, 'pass_sarah_expired_pack');
+  assert.ok(pass, 'expired pass exists');
+  assert.equal(pass.userId, 'user_sarah');
+  assert.equal(pass.status, 'expired');
+  assert.ok(new Date(pass.expiresAt) < new Date(), 'expiresAt is in the past');
+});
+
+test('full class seed (class_full_waitlist) is at maximum capacity with empty waitlist', () => {
+  const cls = byId(studioClasses, 'class_full_waitlist');
+  assert.ok(cls, 'full class exists');
+  assert.equal(cls.capacity, 1);
+  assert.equal(cls.bookedCount, 1);
+  assert.deepEqual(cls.waitlist, []);
+  assert.ok(byId(studios, cls.studioId), 'studio exists');
+});
+
+test('temporarily closed studio seed (studio_temp_closed) has temp_closed status and statusNote', () => {
+  const studio = byId(studios, 'studio_temp_closed');
+  assert.ok(studio, 'temp closed studio exists');
+  assert.equal(studio.status, 'temp_closed');
+  assert.ok(studio.statusNote && studio.statusNote.length > 0, 'statusNote is present');
+  assert.equal(studio.ownerId, 'user_sophia_vane');
+});
+
+test('unclaimed shadow studio seed (studio_shadow_kew) has isClaimed=false and no owner', () => {
+  const studio = byId(studios, 'studio_shadow_kew');
+  assert.ok(studio, 'shadow studio exists');
+  assert.equal(studio.isClaimed, false);
+  assert.equal(studio.ownerId, '');
+});
+
+test('private teacher persona (user_teacher_private) has isProfilePublic=false and is a teacher', () => {
+  const teacher = byId(users, 'user_teacher_private');
+  assert.ok(teacher, 'private teacher persona exists');
+  assert.equal(teacher.isTeacher, true);
+  assert.equal(teacher.privacySettings.isProfilePublic, false);
+});
+
+test('zero-schedule teacher persona (user_teacher_zerosched) has no scheduled studio classes', () => {
+  const teacher = byId(users, 'user_teacher_zerosched');
+  assert.ok(teacher, 'zero-sched teacher persona exists');
+  assert.equal(teacher.isTeacher, true);
+  const classes = studioClasses.filter((c) => c.teacherId === teacher.id);
+  assert.equal(classes.length, 0, 'teacher has zero scheduled classes');
+});
+
+test('pending claim seed (claim_pending_seed) references shadow studio and has pending status', () => {
+  const claim = byId(studioClaims, 'claim_pending_seed');
+  assert.ok(claim, 'pending claim exists');
+  assert.equal(claim.status, 'pending');
+  assert.equal(claim.studioId, 'studio_shadow_kew');
+  assert.equal(claim.userId, 'user_newbie');
 });

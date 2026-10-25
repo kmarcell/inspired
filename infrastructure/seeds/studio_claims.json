@@ -1,0 +1,13 @@
+[
+  {
+    "id": "claim_pending_seed",
+    "studioId": "studio_shadow_kew",
+    "studioName": "Kew Gardens Yoga Sanctuary",
+    "userId": "user_newbie",
+    "userEmail": "user_newbie@inspired.test",
+    "verificationMethod": "domain_email",
+    "documentFileName": null,
+    "status": "pending",
+    "createdAt": "2026-01-01T10:00:00Z"
+  }
+]

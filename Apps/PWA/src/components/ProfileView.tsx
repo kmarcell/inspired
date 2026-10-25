@@ -6,11 +6,12 @@ import { PrivacySettings } from '../types';
 
 interface ProfileViewProps {
   onBack?: () => void;
+  onViewPublicProfile?: () => void;
   onNavigateToStudios?: () => void;
   onNavigateToAdmin?: () => void;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onNavigateToStudios, onNavigateToAdmin }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onViewPublicProfile, onNavigateToStudios, onNavigateToAdmin }) => {
   const { user, logout, refreshUserProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -140,6 +141,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onNavigateToSt
             </p>
           </div>
         </div>
+
+        {onViewPublicProfile && (
+          <button
+            type="button"
+            onClick={onViewPublicProfile}
+            data-testid="view-public-profile-btn"
+            className="w-full py-2.5 px-4 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-xs font-bold text-indigo-600 dark:text-indigo-400 transition-all flex items-center justify-center space-x-2"
+          >
+            <span>🧘</span>
+            <span>View Public Profile ➔</span>
+          </button>
+        )}
       </div>
 
       {/* Studio & Company Management Action Card */}

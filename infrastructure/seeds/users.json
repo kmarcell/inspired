@@ -287,5 +287,47 @@
     },
     "createdAt": "2026-01-01T10:00:00Z",
     "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_teacher_private",
+    "username": "priya_nair#555",
+    "email": "user_teacher_private@inspired.test",
+    "displayName": "Priya Nair",
+    "bio": "Private holistic yoga and somatic movement therapist.",
+    "isTeacher": true,
+    "teachingStudios": [],
+    "lastSearchArea": "Askew",
+    "location_prefix": "W12",
+    "joinedCommunities": [],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": false,
+      "avatarPrivacy": "members-only",
+      "showJoinedGroups": "members-only"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_teacher_zerosched",
+    "username": "liam_chen#777",
+    "email": "user_teacher_zerosched@inspired.test",
+    "displayName": "Liam Chen",
+    "bio": "Newly certified instructor currently taking time off schedule.",
+    "isTeacher": true,
+    "teachingStudios": [],
+    "lastSearchArea": "Askew",
+    "location_prefix": "W12",
+    "joinedCommunities": [],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
   }
 ]

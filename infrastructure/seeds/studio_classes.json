@@ -228,5 +228,24 @@
     "roomClimate": "air_conditioned",
     "skillLevel": "Intermediate",
     "equipmentNeeded": "Grip Socks & Water"
+  },
+  {
+    "id": "class_full_waitlist",
+    "studioId": "studio_askew_001",
+    "className": "Intimate Sound Bath & Nidra",
+    "styleName": "Restorative Yin",
+    "classTypeDescription": "Exclusive 1-on-1 sound healing and meditation with Tibetan bowls.",
+    "teacherId": "user_maryia",
+    "teacherName": "Maryia Sharma",
+    "dayOfWeek": 1,
+    "dateString": "{{today}}",
+    "startTime": "08:00 PM",
+    "endTime": "09:00 PM",
+    "capacity": 1,
+    "bookedCount": 1,
+    "waitlist": [],
+    "roomClimate": "natural_ambient",
+    "skillLevel": "All Levels Welcome",
+    "equipmentNeeded": "Yoga Mat"
   }
 ]

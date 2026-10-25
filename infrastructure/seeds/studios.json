@@ -186,5 +186,66 @@
     "assignedTeachers": [
       { "id": "user_brand_founder", "displayName": "Marcus Vance", "specialty": "Vinyasa & Yin", "isPublic": true }
     ]
+  },
+  {
+    "id": "studio_temp_closed",
+    "name": "Notting Hill Zen Sanctuary",
+    "address": "45 Portobello Road, London W11 3DB",
+    "about": "Temporarily closed for comprehensive studio floor restoration.",
+    "rating": 4.7,
+    "isClaimed": true,
+    "status": "temp_closed",
+    "statusNote": "Flooring renovation in progress. Reopening November 1st.",
+    "ownerId": "user_sophia_vane",
+    "companyId": "company_zen_collective",
+    "parentBrandName": "The Zen Collective",
+    "parentBrandCommunityId": null,
+    "reviewCount": 18,
+    "membersCount": 55,
+    "location_prefix": "W11",
+    "engagementScore": 510,
+    "contactEmail": "nottinghill@zencollective.co.uk",
+    "contactPhone": "+44 20 7229 1100",
+    "websiteUrl": "https://zencollective.co.uk/notting-hill",
+    "moderationSettings": {
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": true
+    },
+    "location": {
+      "lat": 51.5175,
+      "lng": -0.2055
+    },
+    "assignedTeachers": [
+      { "id": "user_sophia_vane", "displayName": "Sophia Vane", "specialty": "Kundalini & Sound Healing", "isPublic": true }
+    ]
+  },
+  {
+    "id": "studio_shadow_kew",
+    "name": "Kew Gardens Yoga Sanctuary",
+    "address": "15 Kew Green, Richmond TW9 3AA",
+    "about": "Serene riverside yoga space near the royal botanic gardens.",
+    "rating": 4.6,
+    "isClaimed": false,
+    "status": "active",
+    "ownerId": "",
+    "companyId": null,
+    "parentBrandName": null,
+    "parentBrandCommunityId": null,
+    "reviewCount": 14,
+    "membersCount": 28,
+    "location_prefix": "TW9",
+    "engagementScore": 320,
+    "contactEmail": "info@kewgardensyoga.co.uk",
+    "contactPhone": "+44 20 8940 5522",
+    "websiteUrl": "https://kewgardensyoga.co.uk",
+    "moderationSettings": {
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": true
+    },
+    "location": {
+      "lat": 51.4816,
+      "lng": -0.2877
+    },
+    "assignedTeachers": []
   }
 ]

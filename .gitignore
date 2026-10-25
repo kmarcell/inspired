@@ -64,6 +64,10 @@ dev-dist/
 **/dev-dist/
 *.tsbuildinfo
 **/tsconfig.tsbuildinfo
+test-results/
+**/test-results/
+playwright-report/
+**/playwright-report/
 
 # Screenshots & Debug Captures
 Screenshot_*.png

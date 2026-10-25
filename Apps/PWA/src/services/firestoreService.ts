@@ -1647,8 +1647,21 @@ export const firestoreService = {
     userId: string, 
     classDateISO: string
   ): Promise<{ refunded: boolean; creditsRestored?: number }> {
-    const bookingRef = doc(db, 'class_bookings', bookingId);
-    const bookingSnap = await getDoc(bookingRef);
+    let bookingRef = doc(db, 'class_bookings', bookingId);
+    let bookingSnap = await getDoc(bookingRef);
+    
+    if (!bookingSnap.exists()) {
+      const q = query(
+        collection(db, 'class_bookings'),
+        where('classId', '==', bookingId),
+        where('userId', '==', userId)
+      );
+      const querySnap = await getDocs(q);
+      if (!querySnap.empty) {
+        bookingRef = querySnap.docs[0].ref;
+        bookingSnap = querySnap.docs[0];
+      }
+    }
     
     let creditsRestored = 0;
     let refunded = false;
@@ -1951,6 +1964,19 @@ export const firestoreService = {
       createdClasses.push(instance);
     }
 
+    // Recursively strip undefined values to ensure Firestore batch.set never throws
+    const stripUndefinedDeep = (obj: any): any => {
+      if (Array.isArray(obj)) return obj.map(stripUndefinedDeep);
+      if (obj !== null && typeof obj === 'object') {
+        return Object.fromEntries(
+          Object.entries(obj)
+            .filter(([, val]) => val !== undefined)
+            .map(([k, val]) => [k, stripUndefinedDeep(val)])
+        );
+      }
+      return obj;
+    };
+
     // Atomically persist classes in batches of 400 (Firestore limit is 500)
     const BATCH_CHUNK_SIZE = 400;
     for (let i = 0; i < createdClasses.length; i += BATCH_CHUNK_SIZE) {
@@ -1958,9 +1984,7 @@ export const firestoreService = {
       const batch = writeBatch(db);
       for (const inst of chunk) {
         const cRef = doc(db, 'studios', inst.studioId, 'classes', inst.id);
-        const cleanedData = Object.fromEntries(
-          Object.entries(inst).filter(([, val]) => val !== undefined)
-        );
+        const cleanedData = stripUndefinedDeep(inst);
         batch.set(cRef, cleanedData);
       }
       await batch.commit();

@@ -248,7 +248,8 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
   - [ ] **Teacher Schedule Modal Booking Handler:** `UnifiedProfileView.tsx` lacks `onBookClass` wiring for `TeacherScheduleModal.tsx`, causing in-modal booking button to be a no-op; wire pass selector or redirect. (E2E scenario `yogi-book-class-from-teacher-schedule-modal` skipped pending fix).
   - [ ] **Class Calendar Window Consistency:** Clarify and align rolling 7-day feed in `UnifiedProfileView.tsx` vs fixed Monday–Sunday calendar week in `StudioScheduleView.tsx`.
 - [x] **Scenario Catalogue Prioritisation & Seed Gap Report (Phases 0–5):** Full scenario catalogue (111 active scenarios across smoke, regression, extended), coverage matrix, seed gap report, and `docs/e2e_testing_guide.md` completed.
-- [ ] **Playwright Test Authoring (Phase 6):** Build Playwright specs mapped 1:1 to prioritised catalogue.
+- [x] **Seed Hydration & Smoke Suite Authoring (Phase 6 Stage 1):** 6 seed extensions implemented, 17/17 seed integrity tests passing, and all 40 P0 Smoke scenarios authored across `yogi_smoke.spec.ts` (19), `teacher_smoke.spec.ts` (7), and `studio_owner_smoke.spec.ts` (14). Full 50-test Playwright suite passes in ~22s.
+- [ ] **Regression & Extended Suites Authoring (Phase 6 Stage 2):** Build remaining 60 regression (P1) and 11 extended (P2) Playwright specs.
 
 ---
 

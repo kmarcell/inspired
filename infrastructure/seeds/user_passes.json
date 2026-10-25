@@ -27,5 +27,20 @@
     "expiresAt": "2026-12-31T23:59:59Z",
     "status": "active",
     "grantNote": "Teacher & Manager Pass"
+  },
+  {
+    "id": "pass_sarah_expired_pack",
+    "userId": "user_sarah",
+    "currencyId": "curr_brand_5pack",
+    "currencyTitle": "5-Class Pack (Expired)",
+    "companyId": "company_affordable_london",
+    "tierType": "credit_pack",
+    "totalCredits": 5,
+    "creditsRemaining": 5,
+    "validityDays": 30,
+    "purchasedAt": "2025-01-01T10:00:00Z",
+    "expiresAt": "2025-02-01T10:00:00Z",
+    "status": "expired",
+    "grantNote": "Expired promotional pack"
   }
 ]
