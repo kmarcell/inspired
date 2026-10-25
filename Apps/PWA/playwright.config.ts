@@ -1,4 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Centralized .env loading for all Playwright E2E tests
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+const PORT = process.env.VITE_PORT || 5173;
+const BASE_URL = process.env.TEST_BASE_URL || `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: './src/test/e2e',
@@ -6,9 +19,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
-  reporter: 'list',
+  reporter: 'line',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: BASE_URL,
     trace: 'on-first-retry',
   },
   projects: [
@@ -19,7 +32,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm run dev',
-    port: 5173,
+    port: Number(PORT),
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },

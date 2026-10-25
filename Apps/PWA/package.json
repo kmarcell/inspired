@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:playwright": "playwright test",
-    "test:e2e": "node scripts/run_ui_regression_suite.js"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "firebase": "^11.3.0",
@@ -30,7 +30,6 @@
     "@vitejs/plugin-react": "^4.3.4",
     "dotenv": "^17.4.2",
     "jsdom": "^30.0.1",
-    "puppeteer": "^25.10.0",
     "tailwindcss": "^4.0.7",
     "typescript": "~5.7.2",
     "vite": "^6.1.0",
