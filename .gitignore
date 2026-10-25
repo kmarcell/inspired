@@ -68,3 +68,10 @@ dev-dist/
 # Screenshots & Debug Captures
 Screenshot_*.png
 *.png.tmp
+
+# Python Cache & Temporary E2E Discovery Drafts
+__pycache__/
+**/__pycache__/
+*.pyc
+docs/e2e/drafts/
+

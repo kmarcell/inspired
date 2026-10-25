@@ -37,6 +37,7 @@
 
 - **`@SWIFT.md`:** (Load for: Swift/SwiftUI logic, TCA Reducers, Data Models, App Navigation).
 - **`@TESTING.md`:** (Load for: Writing tests, diagnosing test failures, Fastlane/CI issues, Accessibility verification).
+- **`docs/e2e_testing_guide.md`:** (Load for: Web & PWA E2E Playwright architecture, scenario catalogue, clone-per-test fixtures, coverage matrix, and scenario lifecycle).
 - **`@FEATURES.md`:** (Load for: New feature requirements, UI states, Mockup-driven development, NoSQL schemas).
 - **`@ARCHITECTURE.md`:** (Load for: Firebase Rules, Cloud Functions, Security logic, Infrastructure, Cost limits).
 - **`@PERSONAL_MANDATES.md`:** Local, user-specific rules (never committed).

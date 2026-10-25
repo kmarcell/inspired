@@ -59,3 +59,17 @@ To prevent context window exhaustion from verbose `xcodebuild` logs, the Gemini 
 4. **Structured Reading:** Instead, the subagent must read the structured JUnit XML report generated at `Apps/iOS/InspiredYogaPlatform/fastlane/test_output/report.junit`.
    - Use `grep` or standard search tools on the `.junit` file to locate `<failure>` nodes. This provides the exact file, line number, and error message for the failing test using minimal tokens.
 5. **Build Errors:** If the failure occurred during compilation (before tests started), the subagent should read the raw log located at `Apps/iOS/InspiredYogaPlatform/fastlane/test_output/logs/Inspired-Inspired (Local).log`, using `grep -A 5 -B 5 "error:"` to extract only the relevant compiler errors.
+
+---
+
+## 8. Web & PWA End-to-End (E2E) Testing (Playwright)
+
+For universal web and PWA regression testing, the repository maintains an isolated parallel Playwright architecture.
+
+- **Primary Guide:** **[`docs/e2e_testing_guide.md`](./docs/e2e_testing_guide.md)** (Single source of truth for test authoring, cloning fixtures, and lifecycle maintenance).
+- **Canonical Scenarios & Runbook:** **[`docs/e2e/scenario_catalogue.md`](./docs/e2e/scenario_catalogue.md)** (111 prioritised scenarios: smoke, regression, extended).
+- **Feature Coverage Matrix:** **[`docs/e2e/coverage_matrix.md`](./docs/e2e/coverage_matrix.md)** (Feature-by-feature automation status).
+- **Persona & Seed Gap Report:** **[`docs/e2e/seed_gap_report.md`](./docs/e2e/seed_gap_report.md)** (Parallel isolation rules and required test personas).
+- **Run Command:** `pnpm --filter inspired-pwa run test:e2e` (uses `reporter: 'line'` to minimize token consumption).
+- **Test Isolation:** Mutating tests must use the `clonedPersona(personaId)` fixture from `Apps/PWA/src/test/e2e/fixtures.ts` to guarantee zero state leakage across parallel workers.
+

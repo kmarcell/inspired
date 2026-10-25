@@ -236,13 +236,19 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 > **Current Seeding State:** Assigned teachers (e.g., `studio.assignedTeachers` in `studios.json`) are currently populated via database seed scripts (`seeder.js`), enabling immediate teacher selection in `CreateClassView.tsx`.
 - [ ] **Teacher Invitation & Assignment Flow:** Define specification and UI for studio owners to search, invite, and assign registered teachers (`isTeacher: true`) to a studio branch via handle/email.
 - [ ] **Teacher Acceptance & Roster Tab:** Studio "Teachers & Staff" management sub-tab, invitation response state machine (pending/accepted/declined), and teacher permissions.
-- [ ] **SVG Mockups & Specification:** High-fidelity mockups for Studio Staff Management and Teacher Invitation Modal.
+- [ ] **Front-Desk Pass Granting Permissions for Assigned Teachers:** Grant assigned studio teachers the capability to record walk-in cash payments and deposit class passes/credits via `grantUserPass` / `AdminGrantPassModalView` for their host studio.
+- [ ] **SVG Mockups & Specification:** High-fidelity mockups for Studio Staff Management, Teacher Invitation Modal, and Teacher Front-Desk Cash Grant modal.
 
-### Phase 14: E2E Regression Scenario Catalogue & Playwright Suite (Planned)
-- [ ] **Scenario discovery plan:** `docs/e2e_regression_scenario_plan.md`. This covers the baseline inventory, independent Feature Analyst, SDET and Product Owner scenario drafts, merge and de-duplication, impact/coverage prioritisation, and user review.
-- [x] **Non-teaching studio owner persona:** `user_owner_noteach` and Shoreditch Stillpoint Studio were seeded, with seed integrity tests.
-- [ ] **Clone-per-test and cleanup tooling (`_testClone`):** Persona manifests, `clonePersona`, ownership-based cleanup and sweep, and tooling tests, built before any Playwright test (plan §3.1, Phase 6).
-- [ ] **Playwright implementation:** Planned only after the catalogue is approved. It includes migrating off Puppeteer.
+### Phase 14: E2E Regression Scenario Catalogue & Playwright Suite (In Progress)
+- [x] **Scenario discovery plan:** `docs/e2e_regression_scenario_plan.md` approved. Phase 0 baseline inventory, Phase 1 scenario generation (9 drafts), Phase 2 normalise, Phase 3 de-duplicate and merge completed.
+- [x] **Non-teaching studio owner persona:** `user_owner_noteach` and Shoreditch Stillpoint Studio seeded with seed integrity tests.
+- [x] **Clone-per-test and cleanup tooling (`_testClone`):** Persona manifests, `clonePersona`, ownership-based cleanup and sweep, and tooling tests passing.
+- [x] **Playwright migration:** Legacy Puppeteer suite migrated to Playwright (`regression_suite.spec.ts`) running 10 parallel tests in ~4s.
+- [ ] **Known Production Gap Remediation:**
+  - [ ] **Teacher Schedule Modal Booking Handler:** `UnifiedProfileView.tsx` lacks `onBookClass` wiring for `TeacherScheduleModal.tsx`, causing in-modal booking button to be a no-op; wire pass selector or redirect. (E2E scenario `yogi-book-class-from-teacher-schedule-modal` skipped pending fix).
+  - [ ] **Class Calendar Window Consistency:** Clarify and align rolling 7-day feed in `UnifiedProfileView.tsx` vs fixed Monday–Sunday calendar week in `StudioScheduleView.tsx`.
+- [x] **Scenario Catalogue Prioritisation & Seed Gap Report (Phases 0–5):** Full scenario catalogue (111 active scenarios across smoke, regression, extended), coverage matrix, seed gap report, and `docs/e2e_testing_guide.md` completed.
+- [ ] **Playwright Test Authoring (Phase 6):** Build Playwright specs mapped 1:1 to prioritised catalogue.
 
 ---
 
