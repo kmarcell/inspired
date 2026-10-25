@@ -7,7 +7,8 @@
     "seed:local": "node infrastructure/scripts/seeder.js local",
     "seed:staging": "node infrastructure/scripts/seeder.js staging",
     "test:rules": "node infrastructure/scripts/test-rules.js",
-    "test:seeds": "node --test infrastructure/scripts/seed_integrity.test.js"
+    "test:seeds": "node --test infrastructure/scripts/seed_integrity.test.js",
+    "test:cloner": "node --test infrastructure/scripts/clone_persona.test.js"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
