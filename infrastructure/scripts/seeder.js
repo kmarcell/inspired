@@ -2,16 +2,17 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
+const { getEmulatorConfig, applyEmulatorEnv } = require('./lib/emulator');
 
 // 1. Initialize Firebase Admin
-// If local, use the Emulator. If staging, use default credentials.
+// If local, use the Emulator (hosts/ports come from firebase.json). If staging, use default credentials.
 const environment = process.argv[2] || 'local';
+const emulatorConfig = getEmulatorConfig();
 
 if (environment === 'local') {
-  process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8081';
-  process.env.FIREBASE_AUTH_EMULATOR_HOST = 'localhost:9099';
+  applyEmulatorEnv(emulatorConfig);
   admin.initializeApp({
-    projectId: 'inspired-yoga-app-staging'
+    projectId: emulatorConfig.projectId
   });
   console.log('🌱 Seeding LOCAL Emulator...');
 } else {
@@ -145,7 +146,7 @@ async function seedAuth(users) {
 
   console.log('🧹 Clearing Auth Emulator accounts...');
   try {
-    await fetch(`http://localhost:9099/emulator/v1/projects/inspired-yoga-app-staging/accounts`, {
+    await fetch(`http://${emulatorConfig.authHost}/emulator/v1/projects/${emulatorConfig.projectId}/accounts`, {
       method: 'DELETE'
     });
     console.log('✅ Auth Emulator cleared.');
@@ -206,263 +207,23 @@ async function run() {
     await seedCollection('user_passes', 'user_passes.json');
     await seedCollection('company_class_templates', 'company_class_templates.json');
 
-    // Seed studio class schedule & member subcollections
+    // Seed studio class schedule & member subcollections (seeds/studio_classes.json, seeds/studio_members.json)
     console.log('🧘 Seeding studio classes & members subcollections...');
     const todayStr = new Date().toISOString().split('T')[0];
 
-    const classesSeed = [
-      // Askew Road Zen Den (studio_askew_001)
-      {
-        id: 'class_askew_1',
-        studioId: 'studio_askew_001',
-        className: 'Vinyasa Flow',
-        styleName: 'Dynamic Vinyasa',
-        classTypeDescription: 'A fluid, breath-synchronized sequence designed to build core strength and endurance while calming the mind.',
-        teacherId: 'user_maryia',
-        teacherName: 'Maryia Sharma',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '10:00 AM',
-        endTime: '11:00 AM',
-        capacity: 24,
-        bookedCount: 10,
-        waitlist: [],
-        roomClimate: 'natural_ambient',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Yoga Mat & Towel',
-      },
-      {
-        id: 'class_askew_2',
-        studioId: 'studio_askew_001',
-        className: 'Hot Ashtanga Primary',
-        styleName: 'Ashtanga Primary Series',
-        classTypeDescription: 'Structured, traditional Ashtanga primary series in a warm studio environment for deep flexibility and detox.',
-        teacherId: 'user_elena',
-        teacherName: 'Elena Rostova',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '05:30 PM',
-        endTime: '06:30 PM',
-        capacity: 20,
-        bookedCount: 20,
-        waitlist: ['user_waitlist_1', 'user_waitlist_2'],
-        roomClimate: 'hot_studio',
-        temperatureCelsius: 35,
-        skillLevel: 'Intermediate / Advanced',
-        equipmentNeeded: 'Yoga Mat, Sweat Towel & Water',
-      },
-      {
-        id: 'class_askew_3',
-        studioId: 'studio_askew_001',
-        className: 'Yin & Sound Bath',
-        styleName: 'Restorative Yin',
-        classTypeDescription: 'Gentle, long-held floor postures accompanied by Tibetan singing bowls for deep relaxation.',
-        teacherId: 'user_maryia',
-        teacherName: 'Maryia Sharma',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '07:00 PM',
-        endTime: '08:00 PM',
-        capacity: 15,
-        bookedCount: 8,
-        waitlist: [],
-        roomClimate: 'air_conditioned',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Yoga Mat & Warm Socks',
-      },
-      // Chiswick Hot Yoga Studio (studio_chiswick_002)
-      {
-        id: 'class_chiswick_1',
-        studioId: 'studio_chiswick_002',
-        className: 'Vinyasa Flow',
-        styleName: 'Dynamic Vinyasa',
-        classTypeDescription: 'A fluid, breath-synchronized sequence designed to build core strength and endurance while calming the mind.',
-        teacherId: 'user_maryia',
-        teacherName: 'Maryia Sharma',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '10:00 AM',
-        endTime: '11:00 AM',
-        capacity: 24,
-        bookedCount: 10,
-        waitlist: [],
-        roomClimate: 'natural_ambient',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Yoga Mat & Towel',
-      },
-      {
-        id: 'class_chiswick_2',
-        studioId: 'studio_chiswick_002',
-        className: 'Hot Ashtanga Primary',
-        styleName: 'Ashtanga Primary Series',
-        classTypeDescription: 'Structured, traditional Ashtanga primary series in a warm studio environment for deep flexibility and detox.',
-        teacherId: 'user_elena',
-        teacherName: 'Elena Rostova',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '05:30 PM',
-        endTime: '06:30 PM',
-        capacity: 20,
-        bookedCount: 20,
-        waitlist: ['user_waitlist_1', 'user_waitlist_2'],
-        roomClimate: 'hot_studio',
-        temperatureCelsius: 35,
-        skillLevel: 'Intermediate / Advanced',
-        equipmentNeeded: 'Yoga Mat, Sweat Towel & Water',
-      },
-      {
-        id: 'class_chiswick_3',
-        studioId: 'studio_chiswick_002',
-        className: 'Yin & Sound Bath',
-        styleName: 'Restorative Yin',
-        classTypeDescription: 'Gentle, long-held floor postures accompanied by Tibetan singing bowls for deep relaxation.',
-        teacherId: 'user_maryia',
-        teacherName: 'Maryia Sharma',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '07:00 PM',
-        endTime: '08:00 PM',
-        capacity: 15,
-        bookedCount: 8,
-        waitlist: [],
-        roomClimate: 'air_conditioned',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Yoga Mat & Warm Socks',
-      },
-      // Ravenscourt Park Zen Pavilion (studio_ravenscourt_003)
-      {
-        id: 'class_ravenscourt_1',
-        studioId: 'studio_ravenscourt_003',
-        className: 'Park Vinyasa & Tree Flow',
-        styleName: 'Outdoor Vinyasa',
-        classTypeDescription: 'Refresh your practice with a mindful open-air Vinyasa flow under the trees in Ravenscourt Park.',
-        teacherId: 'user_david_kim',
-        teacherName: 'David Kim',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '09:00 AM',
-        endTime: '10:15 AM',
-        capacity: 30,
-        bookedCount: 14,
-        waitlist: [],
-        roomClimate: 'natural_ambient',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Outdoor Yoga Mat & Sunscreen',
-      },
-      {
-        id: 'class_ravenscourt_2',
-        studioId: 'studio_ravenscourt_003',
-        className: 'Mindfulness & Breathwork Walk',
-        styleName: 'Pranayama & Meditation',
-        classTypeDescription: 'Guided outdoor breathwork and walking meditation session around the park glasshouse.',
-        teacherId: 'user_teacher_001',
-        teacherName: 'Maya Sharma',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '04:00 PM',
-        endTime: '05:15 PM',
-        capacity: 20,
-        bookedCount: 18,
-        waitlist: [],
-        roomClimate: 'natural_ambient',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Comfortable Walking Shoes & Water',
-      },
-      // Chelsea Sanctuary Studio (studio_chelsea_004)
-      {
-        id: 'class_chelsea_1',
-        studioId: 'studio_chelsea_004',
-        className: 'Kundalini & Sound Healing',
-        styleName: 'Kundalini Yoga',
-        classTypeDescription: 'Transformative kriya practice combining pranayama breathwork, mantra chanting, and gong bath vibrations.',
-        teacherId: 'user_sophia_vane',
-        teacherName: 'Sophia Vane',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '08:00 AM',
-        endTime: '09:15 AM',
-        capacity: 18,
-        bookedCount: 12,
-        waitlist: [],
-        roomClimate: 'air_conditioned',
-        skillLevel: 'All Levels Welcome',
-        equipmentNeeded: 'Yoga Mat & White Clothing (Optional)',
-      },
-      {
-        id: 'class_chelsea_2',
-        studioId: 'studio_chelsea_004',
-        className: 'Reformer Pilates Vinyasa',
-        styleName: 'Pilates Flow',
-        classTypeDescription: 'High-energy hybrid session blending Pilates core alignment with dynamic yoga flow.',
-        teacherId: 'user_sarah',
-        teacherName: 'Sarah Jenkins',
-        dayOfWeek: 1,
-        dateString: todayStr,
-        startTime: '06:00 PM',
-        endTime: '07:15 PM',
-        capacity: 12,
-        bookedCount: 12,
-        waitlist: ['user_waitlist_3'],
-        roomClimate: 'air_conditioned',
-        skillLevel: 'Intermediate',
-        equipmentNeeded: 'Grip Socks & Water',
-      },
-    ];
-
+    const classesSeed = JSON.parse(fs.readFileSync(path.join(__dirname, '../seeds/studio_classes.json'), 'utf8'));
     for (const cls of classesSeed) {
       await db.collection('studios').doc(cls.studioId).collection('classes').doc(cls.id).set({
         ...cls,
+        // "{{today}}" is replaced so seeded classes are always scheduled for the current day
+        dateString: cls.dateString === '{{today}}' ? todayStr : cls.dateString,
         status: cls.status || 'published',
       });
     }
 
-    const askewMembersSeed = [
-      { id: 'user_maryia', displayName: 'Maryia Sharma', isProfilePublic: true, joinedAt: '2026-01-15T10:00:00Z' },
-      { id: 'user_elena', displayName: 'Elena Rostova', isProfilePublic: true, joinedAt: '2026-02-01T14:30:00Z' },
-      { id: 'user_private_1', displayName: 'Anonymous Yogi #42', isProfilePublic: false, joinedAt: '2026-02-10T09:15:00Z' },
-      { id: 'user_private_2', displayName: 'Zen Practitioner', isProfilePublic: false, joinedAt: '2026-02-20T16:45:00Z' },
-      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-03-01T11:20:00Z' },
-    ];
-
-    for (const m of askewMembersSeed) {
-      await db.collection('studios').doc('studio_askew_001').collection('members').doc(m.id).set(m);
-    }
-
-    const chiswickMembersSeed = [
-      { id: 'user_elena', displayName: 'Elena Rostova', isProfilePublic: true, privacyLevel: 'public', joinedAt: '2026-01-10T08:00:00Z' },
-      { id: 'user_groups_only', displayName: 'Groups-Only Practitioner', isProfilePublic: false, privacyLevel: 'groups-only', joinedAt: '2026-01-20T11:30:00Z' },
-      { id: 'user_members_only', displayName: 'Members-Only Yogi', isProfilePublic: false, privacyLevel: 'members-only', joinedAt: '2026-02-05T15:10:00Z' },
-    ];
-
-    for (const m of chiswickMembersSeed) {
-      await db.collection('studios').doc('studio_chiswick_002').collection('members').doc(m.id).set(m);
-    }
-
-    const ravenscourtMembersSeed = [
-      { id: 'user_david_kim', displayName: 'David Kim', isProfilePublic: true, joinedAt: '2026-01-05T09:00:00Z' },
-      { id: 'user_teacher_001', displayName: 'Maya Sharma', isProfilePublic: true, joinedAt: '2026-01-12T10:00:00Z' },
-      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-02-15T14:00:00Z' },
-    ];
-
-    for (const m of ravenscourtMembersSeed) {
-      await db.collection('studios').doc('studio_ravenscourt_003').collection('members').doc(m.id).set(m);
-    }
-
-    const chelseaMembersSeed = [
-      { id: 'user_sophia_vane', displayName: 'Sophia Vane', isProfilePublic: true, joinedAt: '2026-01-02T10:00:00Z' },
-      { id: 'user_sarah', displayName: 'Sarah Jenkins', isProfilePublic: true, joinedAt: '2026-02-28T16:00:00Z' },
-    ];
-
-    for (const m of chelseaMembersSeed) {
-      await db.collection('studios').doc('studio_chelsea_004').collection('members').doc(m.id).set(m);
-    }
-
-    const fulhamMembersSeed = [
-      { id: 'user_brand_founder', displayName: 'Marcus Vance', isProfilePublic: true, joinedAt: '2026-03-01T10:00:00Z' },
-    ];
-
-    for (const m of fulhamMembersSeed) {
-      await db.collection('studios').doc('studio_fulham_005').collection('members').doc(m.id).set(m);
+    const membersSeed = JSON.parse(fs.readFileSync(path.join(__dirname, '../seeds/studio_members.json'), 'utf8'));
+    for (const { studioId, ...member } of membersSeed) {
+      await db.collection('studios').doc(studioId).collection('members').doc(member.id).set(member);
     }
 
     // Check for dynamic ADMIN_EMAIL environment variable or --admin-email flag

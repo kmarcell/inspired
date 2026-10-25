@@ -21,9 +21,10 @@ This document defines the seeded test user accounts for the Inspired Yoga Platfo
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `user_sarah` | `user_sarah@inspired.test` | Sarah Jenkins | Yogi / Student | **Active Pass Holder** | None | Holds active 5-class pack pass (`pass_sarah_brand_5pack`) |
 | `user_newbie` | `user_newbie@inspired.test` | Yoga Newbie | Yogi / Student | **Zero State** (Clean Slate) | None | No passes, no bookings |
-| `user_teacher_001` | `user_teacher_001@inspired.test` | Maya Sharma | Freelance Teacher (`isTeacher: true`) | **Teacher Only** (No Studio) | None | Teaches at Askew & Ravenscourt studios |
+| `user_teacher_001` | `user_teacher_001@inspired.test` | Maya Sharma | Freelance Teacher (`isTeacher: true`) | **Teacher Only** (No Studio) | None | Teaches at Askew, Ravenscourt & Shoreditch studios |
 | `user_david_kim` | `user_david_kim@inspired.test` | David Kim | Independent Studio Owner & Teacher | **Studio Setup, No Currencies** | Studio: Ravenscourt Park Zen Pavilion (`studio_ravenscourt_003`) | Brand: None<br>Currencies: None setup<br>Schedule: 2 outdoor classes |
 | `user_sophia_vane` | `user_sophia_vane@inspired.test` | Sophia Vane | Independent Studio Owner & Teacher | **Studio with Custom Currencies** | Studio: Chelsea Sanctuary Studio (`studio_chelsea_004`) | Brand: None<br>Currencies: £22 drop-in, £190 10-pack<br>Policy: `custom_override`<br>Schedule: 2 classes |
+| `user_owner_noteach` | `user_owner_noteach@inspired.test` | Omar Haddad | Independent Studio Owner, **does not teach** (`isTeacher: false`) | **Non-Teaching Owner** (Studio with Custom Currencies, visiting teacher) | Studio: Shoreditch Stillpoint Studio (`studio_shoreditch_006`) | Brand: None<br>Currencies: £18 drop-in, £80 5-pack<br>Policy: `custom_override`<br>Schedule: 2 classes taught by Maya Sharma |
 | `user_elena` | `user_elena@inspired.test` | Elena Rostova | Teacher & Brand Branch Studio Owner | **Brand Branch Manager** | Studio: Chiswick Hot Yoga Studio (`studio_chiswick_002`) | Parent Brand: Affordable London Yoga<br>Policy: `follow_brand`<br>Pass: Staff Unlimited Pass<br>Schedule: 3 hot yoga classes |
 | `user_brand_founder` | `user_brand_founder@inspired.test` | Marcus Vance | Brand Founder & Teacher | **Brand Zero State** (Brand + Studio, No Currencies) | Brand: The Zen Collective (`company_zen_collective`)<br>Studio: Fulham Flow (`studio_fulham_005`) | Currencies: None setup<br>Schedule: None setup |
 | `user_maryia` | `user_maryia@inspired.test` | Maryia Sharma | Brand Founder, Studio Owner & Platform Admin (`isAdmin: true`) | **100% Feature-Complete** | Brand: Affordable London Yoga (`company_affordable_london`)<br>Studio: Askew Road Zen Den (`studio_askew_001`) | Currencies: £15 drop-in, £65 5-pack, £120/mo unlimited<br>Policy: `follow_brand`<br>Templates: 2 brand class templates<br>Schedule: 3 daily classes |
@@ -142,6 +143,21 @@ This document defines the seeded test user accounts for the Inspired Yoga Platfo
   - Full administrative suite: Brand Settings, Branch Studio Management, Currency Editor, Class Template Manager.
   - Staging Admin Claim Review and Pass Granting.
   - End-to-end regression validation for brand networks.
+
+---
+
+### 3.8 `user_owner_noteach` — Studio Owner Who Does Not Teach
+- **Profile**: Omar Haddad (`user_owner_noteach@inspired.test`)
+- **Capabilities**:
+  - Owner of Shoreditch Stillpoint Studio (`studio_shoreditch_006`). Not a teacher (`isTeacher: false`) and not in the studio's `assignedTeachers`.
+  - Classes (`class_shoreditch_1`, `class_shoreditch_2`) are taught by the visiting teacher Maya Sharma (`user_teacher_001`), who lists the studio in `teachingStudios`.
+  - Custom studio currencies: `curr_shoreditch_dropin` (£18) and `curr_shoreditch_5pack` (£80), with `custom_override` policy.
+  - Not affiliated with any parent brand.
+- **Testing Scenarios**:
+  - Owner-only management: pricing, class templates and schedule, with no teacher privileges.
+  - Verifying that owner and teacher roles are independent (owner does not appear as a teacher in class creation).
+  - Visiting-teacher view: Maya sees the studio in her teaching schedule without owning it.
+- **Seed integrity tests**: `node --test infrastructure/scripts/seed_integrity.test.js`.
 
 ---
 

@@ -42,6 +42,34 @@
     "updatedAt": "2026-01-01T10:00:00Z"
   },
   {
+    "id": "curr_shoreditch_dropin",
+    "studioId": "studio_shoreditch_006",
+    "title": "Stillpoint Drop-in",
+    "description": "Access to 1 class at Shoreditch Stillpoint Studio.",
+    "tierType": "dropin",
+    "creditCount": 1,
+    "basePriceAmount": 18,
+    "currencySymbol": "£",
+    "validityDays": 30,
+    "allowedStudioIds": ["studio_shoreditch_006"],
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "curr_shoreditch_5pack",
+    "studioId": "studio_shoreditch_006",
+    "title": "Stillpoint 5-Class Pack",
+    "description": "5 classes at Shoreditch Stillpoint Studio.",
+    "tierType": "credit_pack",
+    "creditCount": 5,
+    "basePriceAmount": 80,
+    "currencySymbol": "£",
+    "validityDays": 90,
+    "allowedStudioIds": ["studio_shoreditch_006"],
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
     "id": "curr_chelsea_dropin",
     "studioId": "studio_chelsea_004",
     "title": "Sanctuary Drop-in",

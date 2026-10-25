@@ -69,7 +69,7 @@
     "displayName": "Maya Sharma",
     "bio": "Certified Vinyasa teacher. Finding peace in movement.",
     "isTeacher": true,
-    "teachingStudios": ["studio_askew_001", "studio_ravenscourt_003"],
+    "teachingStudios": ["studio_askew_001", "studio_ravenscourt_003", "studio_shoreditch_006"],
     "lastSearchArea": "Askew",
     "joinedCommunities": ["area_askew", "comm_ravenscourt_yoga", "comm_studio_studio_askew_001"],
     "profilePictureUrl": "https://storage.googleapis.com/inspired-yoga-app.appspot.com/avatars/maya_std.jpg",
@@ -147,6 +147,25 @@
     "teachingStudios": ["studio_ravenscourt_003"],
     "lastSearchArea": "Hammersmith",
     "joinedCommunities": ["area_hammersmith", "comm_ravenscourt_yoga", "comm_studio_studio_ravenscourt_003"],
+    "profilePictureUrl": null,
+    "thumbnailUrl": null,
+    "privacySettings": {
+      "isProfilePublic": true,
+      "avatarPrivacy": "public",
+      "showJoinedGroups": "public"
+    },
+    "createdAt": "2026-01-01T10:00:00Z",
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": "user_owner_noteach",
+    "username": "omar_haddad#2026",
+    "email": "user_owner_noteach@inspired.test",
+    "displayName": "Omar Haddad",
+    "bio": "Owner of Shoreditch Stillpoint Studio. Runs the business, does not teach.",
+    "isTeacher": false,
+    "lastSearchArea": "Shoreditch",
+    "joinedCommunities": ["comm_studio_studio_shoreditch_006"],
     "profilePictureUrl": null,
     "thumbnailUrl": null,
     "privacySettings": {

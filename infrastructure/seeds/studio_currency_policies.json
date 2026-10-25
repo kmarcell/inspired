@@ -16,6 +16,13 @@
     "updatedAt": "2026-01-01T10:00:00Z"
   },
   {
+    "id": "studio_shoreditch_006",
+    "studioId": "studio_shoreditch_006",
+    "policyMode": "custom_override",
+    "acceptedCurrencyIds": ["curr_shoreditch_dropin", "curr_shoreditch_5pack"],
+    "updatedAt": "2026-01-01T10:00:00Z"
+  },
+  {
     "id": "studio_chelsea_004",
     "studioId": "studio_chelsea_004",
     "policyMode": "custom_override",

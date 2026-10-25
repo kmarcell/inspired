@@ -4,15 +4,17 @@ const {
   assertFails,
 } = require('@firebase/rules-unit-testing');
 const fs = require('fs');
+const { getEmulatorConfig } = require('./lib/emulator');
 
 async function runTests() {
   const rules = fs.readFileSync('infrastructure/backend/firestore.rules', 'utf8');
+  const [emulatorHost, emulatorPort] = getEmulatorConfig().firestoreHost.split(':');
   const testEnv = await initializeTestEnvironment({
     projectId: `rules-test-${Date.now()}`,
     firestore: {
       rules: rules,
-      host: 'localhost',
-      port: 8081,
+      host: emulatorHost,
+      port: Number(emulatorPort),
     },
   });
 

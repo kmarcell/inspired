@@ -238,6 +238,12 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
 - [ ] **Teacher Acceptance & Roster Tab:** Studio "Teachers & Staff" management sub-tab, invitation response state machine (pending/accepted/declined), and teacher permissions.
 - [ ] **SVG Mockups & Specification:** High-fidelity mockups for Studio Staff Management and Teacher Invitation Modal.
 
+### Phase 14: E2E Regression Scenario Catalogue & Playwright Suite (Planned)
+- [ ] **Scenario discovery plan:** `docs/e2e_regression_scenario_plan.md`. This covers the baseline inventory, independent Feature Analyst, SDET and Product Owner scenario drafts, merge and de-duplication, impact/coverage prioritisation, and user review.
+- [x] **Non-teaching studio owner persona:** `user_owner_noteach` and Shoreditch Stillpoint Studio were seeded, with seed integrity tests.
+- [ ] **Clone-per-test and cleanup tooling (`_testClone`):** Persona manifests, `clonePersona`, ownership-based cleanup and sweep, and tooling tests, built before any Playwright test (plan §3.1, Phase 6).
+- [ ] **Playwright implementation:** Planned only after the catalogue is approved. It includes migrating off Puppeteer.
+
 ---
 
 ## 3. Project Milestones

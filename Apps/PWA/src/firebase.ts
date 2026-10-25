@@ -15,9 +15,13 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Connect to local Firebase Emulators if running locally or requested
+// Connect to local Firebase Emulators if running locally or requested.
+// Ports default to those in firebase.json and can be overridden (e.g. by the e2e harness) via env.
 if (import.meta.env.VITE_USE_EMULATORS === 'true' || window.location.hostname === 'localhost') {
-  console.log('⚡ Connecting PWA to local Firebase Emulators (Auth: 9099, Firestore: 8081)...');
-  connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-  connectFirestoreEmulator(db, 'localhost', 8081);
+  const emulatorHost = import.meta.env.VITE_EMULATOR_HOST || 'localhost';
+  const authPort = Number(import.meta.env.VITE_AUTH_EMULATOR_PORT) || 9099;
+  const firestorePort = Number(import.meta.env.VITE_FIRESTORE_EMULATOR_PORT) || 8081;
+  console.log(`⚡ Connecting PWA to local Firebase Emulators (Auth: ${authPort}, Firestore: ${firestorePort})...`);
+  connectAuthEmulator(auth, `http://${emulatorHost}:${authPort}`, { disableWarnings: true });
+  connectFirestoreEmulator(db, emulatorHost, firestorePort);
 }

@@ -1,0 +1,17 @@
+[
+  { "studioId": "studio_askew_001", "id": "user_maryia", "displayName": "Maryia Sharma", "isProfilePublic": true, "joinedAt": "2026-01-15T10:00:00Z" },
+  { "studioId": "studio_askew_001", "id": "user_elena", "displayName": "Elena Rostova", "isProfilePublic": true, "joinedAt": "2026-02-01T14:30:00Z" },
+  { "studioId": "studio_askew_001", "id": "user_private_1", "displayName": "Anonymous Yogi #42", "isProfilePublic": false, "joinedAt": "2026-02-10T09:15:00Z" },
+  { "studioId": "studio_askew_001", "id": "user_private_2", "displayName": "Zen Practitioner", "isProfilePublic": false, "joinedAt": "2026-02-20T16:45:00Z" },
+  { "studioId": "studio_askew_001", "id": "user_sarah", "displayName": "Sarah Jenkins", "isProfilePublic": true, "joinedAt": "2026-03-01T11:20:00Z" },
+  { "studioId": "studio_chiswick_002", "id": "user_elena", "displayName": "Elena Rostova", "isProfilePublic": true, "privacyLevel": "public", "joinedAt": "2026-01-10T08:00:00Z" },
+  { "studioId": "studio_chiswick_002", "id": "user_groups_only", "displayName": "Groups-Only Practitioner", "isProfilePublic": false, "privacyLevel": "groups-only", "joinedAt": "2026-01-20T11:30:00Z" },
+  { "studioId": "studio_chiswick_002", "id": "user_members_only", "displayName": "Members-Only Yogi", "isProfilePublic": false, "privacyLevel": "members-only", "joinedAt": "2026-02-05T15:10:00Z" },
+  { "studioId": "studio_ravenscourt_003", "id": "user_david_kim", "displayName": "David Kim", "isProfilePublic": true, "joinedAt": "2026-01-05T09:00:00Z" },
+  { "studioId": "studio_ravenscourt_003", "id": "user_teacher_001", "displayName": "Maya Sharma", "isProfilePublic": true, "joinedAt": "2026-01-12T10:00:00Z" },
+  { "studioId": "studio_ravenscourt_003", "id": "user_sarah", "displayName": "Sarah Jenkins", "isProfilePublic": true, "joinedAt": "2026-02-15T14:00:00Z" },
+  { "studioId": "studio_chelsea_004", "id": "user_sophia_vane", "displayName": "Sophia Vane", "isProfilePublic": true, "joinedAt": "2026-01-02T10:00:00Z" },
+  { "studioId": "studio_chelsea_004", "id": "user_sarah", "displayName": "Sarah Jenkins", "isProfilePublic": true, "joinedAt": "2026-02-28T16:00:00Z" },
+  { "studioId": "studio_shoreditch_006", "id": "user_owner_noteach", "displayName": "Omar Haddad", "isProfilePublic": true, "joinedAt": "2026-01-02T10:00:00Z" },
+  { "studioId": "studio_fulham_005", "id": "user_brand_founder", "displayName": "Marcus Vance", "isProfilePublic": true, "joinedAt": "2026-03-01T10:00:00Z" }
+]

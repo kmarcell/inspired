@@ -97,6 +97,36 @@
     ]
   },
   {
+    "id": "studio_shoreditch_006",
+    "name": "Shoreditch Stillpoint Studio",
+    "address": "88 Redchurch Street, London E2 7DP",
+    "about": "Urban studio in Shoreditch offering Vinyasa and Yin classes, run by an owner who does not teach and relies on visiting teachers.",
+    "rating": 4.7,
+    "isClaimed": true,
+    "status": "active",
+    "ownerId": "user_owner_noteach",
+    "parentBrandName": null,
+    "parentBrandCommunityId": null,
+    "reviewCount": 21,
+    "membersCount": 64,
+    "location_prefix": "E2",
+    "engagementScore": 500,
+    "contactEmail": "hello@shoreditchstillpoint.co.uk",
+    "contactPhone": "+44 20 7729 1200",
+    "websiteUrl": "https://shoreditchstillpoint.co.uk",
+    "moderationSettings": {
+      "autoApproveMemberComments": true,
+      "guestCommentsEnabled": true
+    },
+    "location": {
+      "lat": 51.5246,
+      "lng": -0.0745
+    },
+    "assignedTeachers": [
+      { "id": "user_teacher_001", "displayName": "Maya Sharma", "specialty": "Vinyasa Flow", "isPublic": true }
+    ]
+  },
+  {
     "id": "studio_chelsea_004",
     "name": "Chelsea Sanctuary Studio",
     "address": "45 King's Road, London SW3 4ND",

@@ -182,6 +182,19 @@
     }
   },
   {
+    "id": "comm_studio_studio_shoreditch_006",
+    "name": "Shoreditch Stillpoint Studio Official",
+    "description": "Automatic studio branch community for Shoreditch Stillpoint Studio (E2).",
+    "location_prefix": "E2",
+    "communityType": "studio",
+    "linkedStudioId": "studio_shoreditch_006",
+    "engagementScore": 500,
+    "privacySettings": {
+      "isPublic": true,
+      "membersCanPost": true
+    }
+  },
+  {
     "id": "comm_studio_studio_chelsea_004",
     "name": "Chelsea Sanctuary Studio Official",
     "description": "Automatic studio branch community for Chelsea Sanctuary Studio (SW3).",
