@@ -22,7 +22,7 @@
   },
   "functions": {
     "source": "infrastructure/backend/functions",
-    "runtime": "nodejs20"
+    "runtime": "nodejs22"
   },
   "emulators": {
     "auth": {
