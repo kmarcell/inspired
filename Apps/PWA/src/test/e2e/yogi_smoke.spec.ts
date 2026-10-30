@@ -171,56 +171,60 @@ test.describe('Yogi Smoke E2E Suite (19 Scenarios)', () => {
 
     const db = admin.firestore();
     const classId = `class_cancel_test_${clone.userId}`;
-    await db.collection('studios').doc('studio_askew_001').collection('classes').doc(classId).set({
-      id: classId,
-      studioId: 'studio_askew_001',
-      className: 'Refund Test Flow',
-      teacherId: 'user_maryia',
-      teacherName: 'Maryia Sharma',
-      dateString: nextWedISO,
-      startTime: '10:00 AM',
-      endTime: '11:00 AM',
-      capacity: 15,
-      bookedCount: 0,
-      waitlist: [],
-      roomClimate: 'natural_ambient',
-      status: 'published',
-    });
+    try {
+      await db.collection('studios').doc('studio_askew_001').collection('classes').doc(classId).set({
+        id: classId,
+        studioId: 'studio_askew_001',
+        className: 'Refund Test Flow',
+        teacherId: 'user_maryia',
+        teacherName: 'Maryia Sharma',
+        dateString: nextWedISO,
+        startTime: '10:00 AM',
+        endTime: '11:00 AM',
+        capacity: 15,
+        bookedCount: 0,
+        waitlist: [],
+        roomClimate: 'natural_ambient',
+        status: 'published',
+      });
 
-    await devLogin(page, clone.email, clone.password);
-    await expect(page.locator('text=Sarah').first()).toBeVisible({ timeout: 10000 });
+      await devLogin(page, clone.email, clone.password);
+      await expect(page.locator('text=Sarah').first()).toBeVisible({ timeout: 10000 });
 
-    // Open Askew studio
-    await openAskewStudio(page);
+      // Open Askew studio
+      await openAskewStudio(page);
 
-    // Click "Next Week ▶"
-    await page.click('button:has-text("Next Week ▶")');
+      // Click "Next Week ▶"
+      await page.click('button:has-text("Next Week ▶")');
 
-    // Click Wednesday day pill (nth(2))
-    const wednesdayPill = page.locator('.grid.grid-cols-7 button').nth(2);
-    await expect(wednesdayPill).toBeVisible({ timeout: 5000 });
-    await wednesdayPill.click();
+      // Click Wednesday day pill (nth(2))
+      const wednesdayPill = page.locator('.grid.grid-cols-7 button').nth(2);
+      await expect(wednesdayPill).toBeVisible({ timeout: 5000 });
+      await wednesdayPill.click();
 
-    // Verify Wednesday schedule loaded
-    await expect(page.locator('h4:has-text("Classes for Wednesday")')).toBeVisible({ timeout: 5000 });
+      // Verify Wednesday schedule loaded
+      await expect(page.locator('h4:has-text("Classes for Wednesday")')).toBeVisible({ timeout: 5000 });
 
-    // Book the class
-    const bookBtn = page.locator('button:has-text("Book")').first();
-    await expect(bookBtn).toBeVisible({ timeout: 5000 });
-    await bookBtn.click();
+      // Book the class
+      const bookBtn = page.locator('button:has-text("Book")').first();
+      await expect(bookBtn).toBeVisible({ timeout: 5000 });
+      await bookBtn.click();
 
-    const modalBookBtn = page.locator('role=dialog >> role=button[name="Book"]');
-    await modalBookBtn.click();
+      const modalBookBtn = page.locator('role=dialog >> role=button[name="Book"]');
+      await modalBookBtn.click();
 
-    // Button updates to "✓ Booked"
-    const bookedBtn = page.locator('button:has-text("✓ Booked")').first();
-    await expect(bookedBtn).toBeVisible({ timeout: 5000 });
+      // Button updates to "✓ Booked"
+      const bookedBtn = page.locator('button:has-text("✓ Booked")').first();
+      await expect(bookedBtn).toBeVisible({ timeout: 5000 });
 
-    // Cancel booking
-    await bookedBtn.click();
+      // Cancel booking
+      await bookedBtn.click();
 
-    // Button updates back to "Book"
-    await expect(page.locator('button:has-text("Book")').first()).toBeVisible({ timeout: 5000 });
+      // Button updates back to "Book"
+      await expect(page.locator('button:has-text("Book")').first()).toBeVisible({ timeout: 5000 });
+    } finally {
+      await db.collection('studios').doc('studio_askew_001').collection('classes').doc(classId).delete().catch(() => {});
+    }
   });
 
   // 7. yogi-cold-start-session-restore

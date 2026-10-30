@@ -319,6 +319,7 @@ async function cleanupClone(cloneInfo) {
     { col: 'user_passes', queryField: 'userId', value: userId },
     { col: 'class_bookings', queryField: 'userId', value: userId },
     { col: 'posts', queryField: 'author.id', value: userId },
+    { col: 'studioClaims', queryField: 'userId', value: userId },
     { col: 'studioClaims', queryField: 'claimantId', value: userId },
   ];
 
@@ -333,6 +334,16 @@ async function cleanupClone(cloneInfo) {
         await batch.commit();
       }
     }
+  }
+
+  // 4. Clean dynamically created studios and companies (including subcollections)
+  const dynStudios = await db.collection('studios').where('ownerId', '==', userId).get();
+  for (const doc of dynStudios.docs) {
+    await admin.firestore().recursiveDelete(doc.ref).catch(() => {});
+  }
+  const dynCompanies = await db.collection('companies').where('ownerId', '==', userId).get();
+  for (const doc of dynCompanies.docs) {
+    await admin.firestore().recursiveDelete(doc.ref).catch(() => {});
   }
 
   // Also remove standalone currencies, policies, templates, communities

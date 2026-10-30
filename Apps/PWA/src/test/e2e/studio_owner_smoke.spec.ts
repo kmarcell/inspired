@@ -383,6 +383,7 @@ test.describe('Studio Owner Smoke Suite', () => {
     clonedPersona,
   }) => {
     const clone = await clonedPersona('user_sophia_vane');
+    const recipient = await clonedPersona('user_newbie');
     await loginAs(page, clone.email, clone.password);
     await expect(page.locator('text=Sophia').first()).toBeVisible({ timeout: 10000 });
 
@@ -393,8 +394,8 @@ test.describe('Studio Owner Smoke Suite', () => {
     await page.click('button:has-text("Grant Pass")');
     await expect(page.locator('text=Grant Pass & Credits to Member')).toBeVisible({ timeout: 5000 });
 
-    // Enter recipient member
-    await page.fill('input[placeholder*="elena@inspiredyoga.app"]', 'user_sarah@inspired.test');
+    // Enter recipient member (cloned recipient prevents shared user_sarah wallet contamination)
+    await page.fill('input[placeholder*="elena@inspiredyoga.app"]', recipient.email);
 
     // Increment stepper from 1 to 2 credits
     await page.click('button:has-text("＋")');

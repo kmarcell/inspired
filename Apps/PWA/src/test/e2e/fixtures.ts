@@ -35,9 +35,7 @@ export const test = baseTest.extend<{
     await use(spawner);
 
     // Teardown
-    for (const clone of activeClones) {
-      await cleanupClone(clone);
-    }
+    await Promise.allSettled(activeClones.map((clone) => cleanupClone(clone)));
   },
 });
 

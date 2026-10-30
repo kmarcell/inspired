@@ -91,15 +91,11 @@ test.describe('Teacher Actor — P0 Smoke Scenarios', () => {
     await shoreditchPill.click();
 
     // Then only classes at Shoreditch are listed and classes at Askew and Ravenscourt are excluded
-    const classCards = page.locator('div.bg-slate-800\\/80');
-    const classCount = await classCards.count();
-    for (let i = 0; i < classCount; i++) {
-      const card = classCards.nth(i);
-      if (await card.isVisible()) {
-        await expect(card.locator('text=Askew Road Zen Den')).not.toBeVisible();
-        await expect(card.locator('text=Ravenscourt Park Zen Pavilion')).not.toBeVisible();
-      }
-    }
+    const classCards = page.locator('[data-testid="teacher-schedule-card"]');
+    await expect(classCards.first()).toBeVisible({ timeout: 5000 });
+    await expect(classCards.first().locator('text=Shoreditch Stillpoint Studio')).toBeVisible();
+    await expect(page.locator('[data-testid="teacher-schedule-card"]:has-text("Askew Road Zen Den")')).not.toBeVisible();
+    await expect(page.locator('[data-testid="teacher-schedule-card"]:has-text("Ravenscourt Park Zen Pavilion")')).not.toBeVisible();
   });
 
   // 3. teacher-open-multistudio-schedule-modal

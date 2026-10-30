@@ -26,8 +26,12 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
   classes,
   onBookClass,
 }) => {
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 is Sun
+  const todayDayIndex = currentDay === 0 ? 6 : currentDay - 1;
+
   const [selectedStudioId, setSelectedStudioId] = useState<string>('all');
-  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
+  const [selectedDayIndex, setSelectedDayIndex] = useState<number>(todayDayIndex);
 
   if (!isOpen) return null;
 
@@ -39,8 +43,6 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
 
   // Calculate day labels for current week (Mon-Sun)
   const daysOfWeek = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-  const today = new Date();
-  const currentDay = today.getDay(); // 0 is Sun
   const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
   const monday = new Date(today);
   monday.setDate(today.getDate() + mondayOffset);
@@ -173,6 +175,7 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
               selectedDay.classes.map((cls) => (
                 <div
                   key={cls.id}
+                  data-testid="teacher-schedule-card"
                   className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-2 hover:border-slate-600 transition"
                 >
                   <div className="flex items-center justify-between text-xs font-bold text-white">
@@ -185,8 +188,10 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
                   </div>
 
                   <div>
-                    <h5 className="text-sm font-extrabold text-slate-100">{cls.title}</h5>
-                    <p className="text-xs text-indigo-300 font-semibold">🏢 {cls.studioName}</p>
+                    <h5 className="text-sm font-extrabold text-slate-100">{cls.title || cls.className}</h5>
+                    <p className="text-xs text-indigo-300 font-semibold">
+                      🏢 {cls.studioName || teachingStudios.find((st) => st.id === cls.studioId)?.name || 'Studio'}
+                    </p>
                   </div>
 
                   <button

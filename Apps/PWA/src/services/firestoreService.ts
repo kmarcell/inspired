@@ -1642,24 +1642,27 @@ export const firestoreService = {
 
   /** Cancel booking with transaction reversal refund (credits restored if >= 12h prior) */
   async cancelClassBooking(
-    bookingId: string, 
-    classId: string, 
+    bookingOrClassId: string, 
+    studioIdOrClassId: string, 
     userId: string, 
     classDateISO: string
   ): Promise<{ refunded: boolean; creditsRestored?: number }> {
-    let bookingRef = doc(db, 'class_bookings', bookingId);
+    let bookingRef = doc(db, 'class_bookings', bookingOrClassId);
     let bookingSnap = await getDoc(bookingRef);
     
     if (!bookingSnap.exists()) {
       const q = query(
         collection(db, 'class_bookings'),
-        where('classId', '==', bookingId),
+        where('classId', '==', bookingOrClassId),
         where('userId', '==', userId)
       );
       const querySnap = await getDocs(q);
       if (!querySnap.empty) {
-        bookingRef = querySnap.docs[0].ref;
-        bookingSnap = querySnap.docs[0];
+        // Pick the active/confirmed booking if available, else first document
+        const confirmedDoc = querySnap.docs.find(d => (d.data() as ClassBooking).status === 'confirmed');
+        const selectedDoc = confirmedDoc || querySnap.docs[0];
+        bookingRef = selectedDoc.ref;
+        bookingSnap = selectedDoc;
       }
     }
     
@@ -1694,10 +1697,11 @@ export const firestoreService = {
 
       await deleteDoc(bookingRef);
 
-      // Decrement class bookedCount
-      const effectiveStudioId = booking.studioId;
-      if (effectiveStudioId) {
-        const classRef = doc(db, 'studios', effectiveStudioId, 'classes', classId);
+      // Decrement class bookedCount accurately using the booking's own studioId and classId
+      const effectiveStudioId = booking.studioId || studioIdOrClassId;
+      const effectiveClassId = booking.classId || bookingOrClassId;
+      if (effectiveStudioId && effectiveClassId) {
+        const classRef = doc(db, 'studios', effectiveStudioId, 'classes', effectiveClassId);
         const classSnap = await getDoc(classRef);
         if (classSnap.exists()) {
           const classData = classSnap.data() as StudioClass;
