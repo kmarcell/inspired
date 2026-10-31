@@ -40,7 +40,7 @@ export const CommunityFeedView: React.FC<CommunityFeedViewProps> = ({ filterArea
         setArea(filterArea.replace('comm_studio_', '').replace('comm_brand_', ''));
       } else {
         // Standard Area & Joined Communities 3-Tier Feed
-        const detectedArea = await firestoreService.detectNearestArea();
+        const detectedArea = user?.lastSearchArea || (await firestoreService.detectNearestArea());
         setArea(detectedArea);
 
         const joinedCommunities = user?.joinedCommunities || [];

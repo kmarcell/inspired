@@ -191,6 +191,7 @@ export interface StudioClass {
   equipmentNeeded?: string;    // e.g. "Yoga Mat & Towel"
   skillLevel?: string;         // e.g. "All Levels Welcome"
   styleName?: string;          // e.g. "Dynamic Vinyasa"
+  isPast?: boolean;
   // Step 16 Properties
   status?: ClassSaveStatus;
   companyId?: string;
@@ -237,7 +238,7 @@ export interface ClassBooking {
   bookedAt: string; // ISO Timestamp
   status: 'confirmed' | 'waitlisted';
   waitlistPosition?: number;
-  passIdUsed?: string;
+  passIdUsed?: string | null;
   creditsRedeemed?: number;
 }
 

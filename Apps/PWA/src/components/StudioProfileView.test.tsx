@@ -48,6 +48,10 @@ const mockStudio: YogaStudio = {
   websiteUrl: 'https://askewzen.com',
   moderationSettings: { autoApproveMemberComments: true, guestCommentsEnabled: true },
   location: { lat: 51.5033, lng: -0.2277 },
+  assignedTeachers: [
+    { id: 'user_maryia', displayName: 'Maryia Sharma', specialty: 'Vinyasa & Yin', isPublic: true },
+    { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Ashtanga Lead', isPublic: true },
+  ],
 };
 
 const mockUser: UserProfile = {

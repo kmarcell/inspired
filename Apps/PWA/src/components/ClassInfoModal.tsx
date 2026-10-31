@@ -16,6 +16,14 @@ export const ClassInfoModal: React.FC<ClassInfoModalProps> = ({
   onBook,
   onSelectTeacher,
 }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   if (!selectedClass) return null;
 
   const renderClimateBadge = () => {
@@ -70,6 +78,9 @@ export const ClassInfoModal: React.FC<ClassInfoModalProps> = ({
       data-testid="class-info-modal-backdrop"
     >
       <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="class-info-modal-title"
         className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-500/30 p-6 text-slate-900 dark:text-slate-100 shadow-2xl shadow-indigo-950/50 transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
@@ -79,7 +90,7 @@ export const ClassInfoModal: React.FC<ClassInfoModalProps> = ({
             <span className="inline-block px-2.5 py-0.5 mb-2 text-xs font-bold rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
               ℹ️ Class Information
             </span>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white">{selectedClass.className}</h3>
+            <h3 id="class-info-modal-title" className="text-xl font-black text-slate-900 dark:text-white">{selectedClass.className}</h3>
           </div>
           <button
             onClick={onClose}

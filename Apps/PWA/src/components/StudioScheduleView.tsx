@@ -124,6 +124,36 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
     }
   };
 
+  const handleJoinWaitlist = async (cls: StudioClass) => {
+    if (!currentUser) return;
+    if (!isJoined) {
+      setShowJoinPromptModal(true);
+      return;
+    }
+    try {
+      const res = await firestoreService.bookClassWithPass(
+        cls.id,
+        studioId,
+        currentUser.id,
+        currentUser.displayName || 'Yogi Member'
+      );
+      setUserBookings((prev) => ({ ...prev, [cls.id]: res.status }));
+      setClasses((prev) =>
+        prev.map((item) => {
+          if (item.id === cls.id) {
+            return {
+              ...item,
+              waitlist: [...item.waitlist, currentUser.id],
+            };
+          }
+          return item;
+        })
+      );
+    } catch (e) {
+      console.error('Join waitlist failed:', e);
+    }
+  };
+
   const executeConfirmBookWithPass = async (selectedPassId: string) => {
     if (!currentUser || !bookingPassTargetClass) return;
 
@@ -297,8 +327,8 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                   </p>
                   {cls.currencyAcceptancePolicyMode === 'customSelected' && (
                     <div className="pt-0.5">
-                      <span className="px-2 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-300 text-[10px] font-extrabold border border-purple-500/20 inline-flex items-center gap-1">
-                        <span>💳</span> Accepts Custom Passes
+                      <span data-testid="custom-currency-badge" className="px-2 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-300 text-[10px] font-extrabold border border-purple-500/20 inline-flex items-center gap-1">
+                        <span>💳</span> Custom Currency Only
                       </span>
                     </div>
                   )}
@@ -310,6 +340,7 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setInfoModalClass(cls)}
+                    data-testid={`class-info-btn-${cls.id}`}
                     className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-white transition shrink-0 shadow-sm"
                     title="Class Details"
                     aria-label="View class details"
@@ -323,6 +354,7 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                   {isTempClosed ? (
                     <button
                       disabled
+                      data-testid="paused-class-button"
                       className="flex flex-col items-center justify-center px-3.5 py-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-extrabold text-xs opacity-80 cursor-not-allowed"
                     >
                       <span>⏸️ Paused</span>
@@ -335,6 +367,15 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                     >
                       <span>🔴 Closed</span>
                       <span className="text-[9px] font-normal">Bookings Closed</span>
+                    </button>
+                  ) : cls.isPast || (cls.dateString && cls.endTime && new Date(`${cls.dateString}T${cls.endTime}`).getTime() < Date.now()) ? (
+                    <button
+                      disabled
+                      data-testid="past-class-button"
+                      className="flex flex-col items-center justify-center px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-800 font-extrabold text-xs cursor-not-allowed"
+                    >
+                      <span>Class Finished</span>
+                      <span className="text-[9px] font-normal">Past Session</span>
                     </button>
                   ) : isBooked ? (
                     <button
@@ -363,7 +404,7 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                     >
                       <span className="flex items-center space-x-1">
                         <span>🔒</span>
-                        <span>{isFull ? 'Waitlist' : 'Book'}</span>
+                        <span>{isFull ? 'Join Waitlist' : 'Book'}</span>
                       </span>
                       <span className="text-[9px] font-normal text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
                         Join to {isFull ? 'Waitlist' : 'Book'}
@@ -371,14 +412,15 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
                     </button>
                   ) : (
                     <button
-                      onClick={() => handleBook(cls)}
+                      onClick={() => (isFull ? handleJoinWaitlist(cls) : handleBook(cls))}
+                      data-testid={isFull ? 'join-waitlist-button' : 'book-class-button'}
                       className={`flex flex-col items-center justify-center px-4 py-2 rounded-xl text-white font-bold transition text-xs shadow-md ${
                         isFull
                           ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-950/40'
                           : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-950/40'
                       }`}
                     >
-                      <span>{isFull ? 'Waitlist' : 'Book'}</span>
+                      <span>{isFull ? 'Join Waitlist' : 'Book'}</span>
                       <span className={`text-[9px] font-normal ${isFull ? 'text-amber-200' : 'text-emerald-200'}`}>
                         {isFull ? 'Waitlist open' : `${openSlots} of ${cls.capacity} open`}
                       </span>
@@ -459,7 +501,12 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
           classNameTitle={bookingPassTargetClass.className}
           onPurchasePassClick={async () => {
             setShowNoPassModal(false);
-            const currencies = await firestoreService.fetchCompanyCurrencies(studioId);
+            const st = await firestoreService.fetchStudioById(studioId);
+            const targetId = st?.companyId || studioId;
+            let currencies = await firestoreService.fetchCompanyCurrencies(targetId);
+            if (currencies.length === 0 && targetId !== studioId) {
+              currencies = await firestoreService.fetchCompanyCurrencies(studioId);
+            }
             setStudioStoreCurrencies(currencies);
             setShowStoreModal(true);
           }}

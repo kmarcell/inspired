@@ -33,6 +33,15 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
   const [selectedStudioId, setSelectedStudioId] = useState<string>('all');
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(todayDayIndex);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   // Filter classes by studio
@@ -62,18 +71,27 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
     };
   });
 
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const weekRangeLabel = `${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
   const selectedDay = weekDays[selectedDayIndex] || weekDays[0];
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-sm p-0 sm:p-4">
-      <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-200">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="teacher-schedule-modal-title"
+        className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-200"
+      >
         {/* Handle bar indicator for mobile */}
         <div className="w-12 h-1.5 bg-slate-700 rounded-full mx-auto mt-3 sm:hidden" />
 
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 pt-4 pb-3 border-b border-slate-800">
           <div>
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <h3 id="teacher-schedule-modal-title" className="text-lg font-bold text-white flex items-center gap-2">
               <span>📅</span> {teacherName} — Schedule
             </h3>
             <p className="text-xs text-slate-400">
@@ -129,7 +147,7 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
           {/* Week Switcher Header */}
           <div className="flex items-center justify-between bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-2 text-xs font-bold text-slate-200">
             <button className="text-indigo-400 hover:text-indigo-300">◀</button>
-            <span>Aug 31 – Sep 6, 2026</span>
+            <span data-testid="teacher-schedule-week-range">{weekRangeLabel}</span>
             <button className="text-indigo-400 hover:text-indigo-300">▶</button>
           </div>
 

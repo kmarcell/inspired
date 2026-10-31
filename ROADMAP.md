@@ -249,7 +249,8 @@ This document outlines the strategic plan for the "Inspired Yoga Platform," iden
   - [ ] **Class Calendar Window Consistency:** Clarify and align rolling 7-day feed in `UnifiedProfileView.tsx` vs fixed Monday–Sunday calendar week in `StudioScheduleView.tsx`.
 - [x] **Scenario Catalogue Prioritisation & Seed Gap Report (Phases 0–5):** Full scenario catalogue (111 active scenarios across smoke, regression, extended), coverage matrix, seed gap report, and `docs/e2e_testing_guide.md` completed.
 - [x] **Seed Hydration & Smoke Suite Authoring (Phase 6 Stage 1):** 6 seed extensions implemented, 17/17 seed integrity tests passing, and all 40 P0 Smoke scenarios authored across `yogi_smoke.spec.ts` (19), `teacher_smoke.spec.ts` (7), and `studio_owner_smoke.spec.ts` (14). Rigorous SDET & Senior Engineer dual code review completed and all 4 P0 architectural/isolation blockers remediated. Full 50-test Playwright suite passes in ~19.5s with zero flakiness.
-- [ ] **Regression & Extended Suites Authoring (Phase 6 Stage 2):** Build remaining 60 regression (P1) and 11 extended (P2) Playwright specs.
+- [x] **P1 Regression Suite Authoring & Hardening (Phase 6 Stage 2 - 100% Complete):** All 60 P1 Regression scenarios authored and passing across `yogi_regression.spec.ts` (27), `teacher_regression.spec.ts` (12), and `studio_owner_regression.spec.ts` (21). Full 6-persona code review (Senior SDET, Architect, Security Engineer, Senior iOS Engineer, Product Person, Senior Web Developer) completed with unanimous approval. All hardening items remediated (purged mock fallbacks, eliminated defensive conditionals and sleeps, prevented parallel worker races, enforced WCAG 2.1 AA dialog accessibility, added DB assertions). Full 110-test Playwright suite passes concurrently in ~48s with 100% pass rate.
+- [ ] **Extended Suite Authoring (Phase 6 Stage 3):** Build remaining 11 extended (P2) Playwright specs.
 
 ---
 

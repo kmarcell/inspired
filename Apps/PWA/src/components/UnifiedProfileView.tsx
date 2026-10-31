@@ -193,7 +193,7 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
         </div>
 
         {/* Bio Statement */}
-        {profileData.bio && (
+        {!isUserPrivate && profileData.bio && (
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{profileData.bio}</p>
         )}
 
@@ -281,11 +281,12 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
 
       {/* Privacy Guardrail check for private user profiles */}
       {isUserPrivate ? (
-        <div className="mx-6 my-8 p-8 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl text-center space-y-3 shadow-md">
+        <div data-testid="privacy-lock-shield" className="mx-6 my-8 p-8 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-3xl text-center space-y-3 shadow-md">
           <div className="text-3xl">🔒</div>
-          <h3 className="text-base font-extrabold text-slate-900 dark:text-white">This Yogi's Profile is Private</h3>
+          <h3 className="text-base font-extrabold text-slate-900 dark:text-white">This Yogi&apos;s Profile is Private</h3>
+          <p className="text-xs text-slate-500 font-bold">🔒 This Profile is Private</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
-            Subscribe to view {profileData.name}'s posts, bio details, and community activity.
+            Subscribe to view {profileData.name}&apos;s posts, bio details, and community activity.
           </p>
         </div>
       ) : (
@@ -404,14 +405,27 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
             {activeTab === 'studios_classes' && (
               <div className="space-y-4">
                 {/* Variant 1: Teacher Classes (Capped to Next 7 Days) */}
-                {profileData.variant === 'user' && profileData.isTeacher && (
+                {profileData.variant === 'user' && profileData.isTeacher && (() => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const maxDate = new Date(today);
+                  maxDate.setDate(today.getDate() + 7);
+                  maxDate.setHours(23, 59, 59, 999);
+
+                  const rolling7DayClasses = (profileData.classes || []).filter((cls) => {
+                    if (!cls.dateString) return true;
+                    const cDate = new Date(cls.dateString);
+                    return cDate >= today && cDate <= maxDate;
+                  });
+
+                  return (
                   <div className="space-y-3">
                     <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                       Classes in the Next 7 Days
                     </h4>
 
-                    {profileData.classes && profileData.classes.length > 0 ? (
-                      profileData.classes.map((cls) => (
+                    {rolling7DayClasses.length > 0 ? (
+                      rolling7DayClasses.map((cls) => (
                         <div
                           key={cls.id}
                           className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2 shadow-md"
@@ -424,12 +438,12 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
                               🔥 Hot Studio
                             </span>
                           </div>
-                          <h5 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">{cls.title}</h5>
+                          <h5 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">{cls.title || cls.className}</h5>
                           <p
                             onClick={() => onSelectStudio?.(cls.studioId)}
                             className="text-xs text-indigo-600 dark:text-indigo-300 font-semibold cursor-pointer hover:underline"
                           >
-                            🏢 {cls.studioName}
+                            🏢 {cls.studioName || profileData.teachingStudios?.find((st) => st.id === cls.studioId)?.name || 'Studio'}
                           </p>
                         </div>
                       ))
@@ -447,7 +461,8 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
                       <span>📅</span> Schedule ➔
                     </button>
                   </div>
-                )}
+                  );
+                })()}
 
                 {/* Variant 2: Brand Community Studio Branches */}
                 {profileData.variant === 'brand' && (
@@ -525,6 +540,7 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
                           {profileData.areaTeachers.map((t) => (
                             <div
                               key={t.id}
+                              data-testid={`area-teacher-card-${t.id}`}
                               onClick={() => onSelectUser?.(t.id)}
                               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/40 rounded-2xl p-3 flex items-center gap-3 cursor-pointer transition shadow-md"
                             >

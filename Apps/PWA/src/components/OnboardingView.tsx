@@ -105,8 +105,13 @@ export const OnboardingView: React.FC = () => {
               type="text"
               value={displayName}
               onChange={(e) => {
-                setDisplayName(e.target.value);
-                if (error) setError(null);
+                const val = e.target.value;
+                setDisplayName(val);
+                if (val.trim().length > 0 && val.trim().length < 2) {
+                  setError('Display name must be at least 2 characters.');
+                } else if (error) {
+                  setError(null);
+                }
               }}
               placeholder="e.g. Jane Doe"
               disabled={isLoading}

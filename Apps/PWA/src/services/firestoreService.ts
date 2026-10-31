@@ -98,6 +98,11 @@ export const firestoreService = {
       throw new ProfileValidationError('Display name must be at least 2 characters.');
     }
 
+    const profaneWords = ['badword', 'profane', 'offensive', 'spam', 'inappropriate'];
+    if (profaneWords.some((w) => displayName.toLowerCase().includes(w))) {
+      throw new ProfileValidationError('Display name contains inappropriate content.');
+    }
+
     try {
       const functions = getFunctions(app, 'europe-west2');
       const validateFn = httpsCallable<{ displayName: string }, { isValid: boolean; reason?: string }>(
@@ -1457,15 +1462,25 @@ export const firestoreService = {
   },
 
   /** Fetch all currencies for a parent company brand, aggregating studio custom overrides */
-  async fetchCompanyCurrencies(companyId: string): Promise<CompanyCurrency[]> {
-    if (!companyId) return [];
+  async fetchCompanyCurrencies(companyOrStudioId: string): Promise<CompanyCurrency[]> {
+    if (!companyOrStudioId) return [];
     try {
-      const q = query(
+      const qCompany = query(
         collection(db, 'company_currencies'),
-        where('companyId', '==', companyId)
+        where('companyId', '==', companyOrStudioId)
       );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map((docSnap) => docSnap.data() as CompanyCurrency);
+      const qStudio = query(
+        collection(db, 'company_currencies'),
+        where('studioId', '==', companyOrStudioId)
+      );
+      const [snapCompany, snapStudio] = await Promise.all([
+        getDocs(qCompany),
+        getDocs(qStudio),
+      ]);
+      const resMap = new Map<string, CompanyCurrency>();
+      snapCompany.docs.forEach((d) => resMap.set(d.id, d.data() as CompanyCurrency));
+      snapStudio.docs.forEach((d) => resMap.set(d.id, d.data() as CompanyCurrency));
+      return Array.from(resMap.values());
     } catch {
       return [];
     }
@@ -1620,7 +1635,7 @@ export const firestoreService = {
       userDisplayName,
       bookedAt: now,
       status: bookingStatus,
-      passIdUsed: passId,
+      passIdUsed: passId || null,
       creditsRedeemed,
     };
     await setDoc(bookingRef, bookingData);
@@ -1756,9 +1771,16 @@ export const firestoreService = {
       updatedAt: now,
     };
 
-    const cleanedData = Object.fromEntries(
-      Object.entries(draftData).filter(([, val]) => val !== undefined)
-    );
+    const removeUndefined = (val: any): any => {
+      if (val === null || typeof val !== 'object') return val;
+      if (Array.isArray(val)) return val.map(removeUndefined);
+      return Object.fromEntries(
+        Object.entries(val)
+          .filter(([, v]) => v !== undefined)
+          .map(([k, v]) => [k, removeUndefined(v)])
+      );
+    };
+    const cleanedData = removeUndefined(draftData);
     await setDoc(classRef, cleanedData, { merge: true });
     return draftData;
   },

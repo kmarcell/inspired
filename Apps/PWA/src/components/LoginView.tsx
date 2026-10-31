@@ -10,7 +10,7 @@ export const LoginView: React.FC = () => {
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  const isStagingMode = import.meta.env.MODE === 'staging';
+  const isStagingMode = import.meta.env.MODE === 'staging' || window.location.search.includes('staging=true');
 
   useEffect(() => {
     let timer: NodeJS.Timeout;

@@ -230,14 +230,19 @@ export const SearchView: React.FC<SearchViewProps> = ({
                             <span>Closed</span>
                           </span>
                         ) : result.studioData?.isClaimed === false && onClaimStudio ? (
-                          <button
-                            type="button"
-                            onClick={() => onClaimStudio(result.id)}
-                            data-testid={`claim-studio-btn-${result.id}`}
-                            className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold transition-all active:scale-95"
-                          >
-                            Claim Studio 🏢
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <span data-testid="unclaimed-profile-badge" className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-bold">
+                              Unclaimed Profile
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => onClaimStudio(result.id)}
+                              data-testid={`claim-studio-btn-${result.id}`}
+                              className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold transition-all active:scale-95"
+                            >
+                              Claim Studio 🏢
+                            </button>
+                          </div>
                         ) : null}
 
                         {result.studioData && onSelectStudio && (
@@ -261,7 +266,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
             <div data-testid="search-no-results" className="text-center py-8 space-y-3">
               <div className="text-4xl">🔍</div>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                No matching communities or studios found.
+                No results found for &apos;{query.trim()}&apos;. No matching communities or studios found.
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Try searching for a different postcode prefix (e.g. W12, W6) or area name.

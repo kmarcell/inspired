@@ -27,6 +27,37 @@ command_prefix = "xcodebuild -showBuildSettings"
 decision = "allow"
 auto_approve = true
 
+# --- Web & PWA Test Automation & Build Rules ---
+
+[[rules.command_execution]]
+command_prefix = [
+    "pnpm --filter inspired-pwa run test:e2e",
+    "pnpm --filter inspired-pwa run test:e2e:staging",
+    "pnpm --filter inspired-pwa run test:e2e:ui",
+    "pnpm --filter inspired-pwa run check",
+    "pnpm --filter inspired-pwa run build",
+    "pnpm --filter inspired-pwa run build:staging",
+    "pnpm --filter inspired-pwa run test",
+    "pnpm --filter inspired-pwa run test:unit",
+    "pnpm --filter inspired-pwa test",
+    "pnpm run test:e2e",
+    "pnpm run check",
+    "pnpm run build",
+    "pnpm run test",
+    "pnpm test",
+    "pnpm run test:seeds",
+    "pnpm run test:cloner",
+    "npm run test:seeds",
+    "npm run test:cloner",
+    "npx playwright test",
+    "npx vitest",
+    "ps",
+    "grep",
+    "ls",
+]
+decision = "allow"
+auto_approve = true
+
 # --- Emulator & Infrastructure Guards ---
 
 [[rules.command_execution]]
@@ -112,6 +143,7 @@ commands = [
     "mv",
     "cp",
     "open",
+    "ps",
 
     # --- Git Operations ---
     "git status",
@@ -135,6 +167,13 @@ commands = [
     "brew list",
     "log show",
     "sw_vers",
+
+    # --- Web, PWA & Test Automation ---
+    "pnpm",
+    "npx playwright",
+    "npx vitest",
+    "npm run test:seeds",
+    "npm run test:cloner",
 ]
 
 [rules.patterns]

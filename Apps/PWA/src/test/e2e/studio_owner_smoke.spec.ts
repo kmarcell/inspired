@@ -156,7 +156,7 @@ test.describe('Studio Owner Smoke Suite', () => {
 
     // Verify visiting teacher Maya Sharma appears and can be selected
     await expect(teacherSelect.locator('option:has-text("Maya Sharma")')).toHaveCount(1);
-    await teacherSelect.selectOption({ index: 0 });
+    await teacherSelect.selectOption({ index: 1 });
 
     // Fill Title and Publish
     await page.fill('#class-title-input', 'Morning Flow w/ Maya');

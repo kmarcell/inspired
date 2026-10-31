@@ -29,6 +29,7 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
 
   const activeValidPasses = userPasses.filter((p) => {
     if (p.status !== 'active') return false;
+    if (p.expiresAt && new Date(p.expiresAt).getTime() < Date.now()) return false;
     if (p.tierType !== 'unlimited' && (!p.creditsRemaining || p.creditsRemaining <= 0)) return false;
     return true;
   });
@@ -152,6 +153,7 @@ export const BookingPassSelectionModalView: React.FC<BookingPassSelectionModalVi
           <button
             disabled={!selectedPassId || !isSelectedPassEligible}
             onClick={() => onConfirmBook(selectedPassId)}
+            data-testid="confirm-booking-pass-button"
             className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-lg transition"
           >
             Book

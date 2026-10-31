@@ -34,11 +34,12 @@ export const FeedPostTile: React.FC<FeedPostTileProps> = ({ post, onLikeToggle, 
             <img
               src={post.author.thumbnailUrl}
               alt={post.author.username}
+              data-testid="post-author-avatar-img"
               onError={() => setImgError(true)}
               className="w-10 h-10 rounded-2xl object-cover ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition"
             />
           ) : (
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center font-bold text-white text-sm shadow-md ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition">
+            <div data-testid="post-author-avatar-fallback" className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center font-bold text-white text-sm shadow-md ring-2 ring-indigo-500/20 group-hover:ring-indigo-500 transition">
               {initialLetter}
             </div>
           )}

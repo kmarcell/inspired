@@ -177,7 +177,7 @@ export const CreateStudioView: React.FC<CreateStudioViewProps> = ({ onClose, onS
       )}
 
       {/* Create Studio Form */}
-      <form onSubmit={handleSubmit} className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-6">
+      <form onSubmit={handleSubmit} noValidate className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-6">
         {/* Step 1: Company Affiliation */}
         <div className="space-y-3">
           <label className="block text-xs font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">

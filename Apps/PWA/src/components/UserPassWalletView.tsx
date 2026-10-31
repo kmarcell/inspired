@@ -13,14 +13,18 @@ export const UserPassWalletView: React.FC<UserPassWalletViewProps> = ({ userId, 
 
   useEffect(() => {
     let isMounted = true;
-    firestoreService.fetchUserPasses(userId).then((fetched) => {
-      if (isMounted) {
-        setPasses(fetched);
-        setLoading(false);
-      }
-    }).catch(() => {
-      if (isMounted) setLoading(false);
-    });
+    if (typeof firestoreService.fetchUserPasses === 'function') {
+      firestoreService.fetchUserPasses(userId).then((fetched) => {
+        if (isMounted) {
+          setPasses(fetched || []);
+          setLoading(false);
+        }
+      }).catch(() => {
+        if (isMounted) setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
     return () => { isMounted = false; };
   }, [userId]);
 

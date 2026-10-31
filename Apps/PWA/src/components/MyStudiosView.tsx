@@ -14,6 +14,7 @@ interface MyStudiosViewProps {
 
 export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel }) => {
   const { user } = useAuth();
+  const isMountedRef = React.useRef(true);
 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [studios, setStudios] = useState<YogaStudio[]>([]);
@@ -129,17 +130,22 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
         if (fetchedStudios.length === 0) fetchedStudios = allStudios;
       }
 
+      if (!isMountedRef.current) return;
       setCompanies(fetchedCompanies || []);
       setStudios(fetchedStudios || []);
     } catch (err: unknown) {
+      if (!isMountedRef.current) return;
       console.error('[MyStudiosView] Failed to load owned studios:', err);
       setError(err instanceof Error ? err.message : 'Failed to load owned studios and brands.');
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 
   useEffect(() => {
+    isMountedRef.current = true;
     loadOwnedEntities();
 
     const handleFocus = () => {
@@ -148,6 +154,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
     window.addEventListener('focus', handleFocus);
     return () => {
+      isMountedRef.current = false;
       window.removeEventListener('focus', handleFocus);
     };
   }, [user]);
@@ -161,8 +168,10 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
       // 1. Fetch policy
       try {
         const policy = await firestoreService.fetchStudioCurrencyPolicy(managingStudio.id);
+        if (!isMountedRef.current) return;
         setStudioPolicy(policy);
       } catch {
+        if (!isMountedRef.current) return;
         setStudioPolicy(null);
       }
 
@@ -171,16 +180,20 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
       if (compId) {
         try {
           const currencies = await firestoreService.fetchCompanyCurrencies(compId);
+          if (!isMountedRef.current) return;
           setCompanyCurrencies(currencies);
         } catch (err) {
+          if (!isMountedRef.current) return;
           console.error('[MyStudiosView] Failed to fetch company currencies for studio:', err);
           setCompanyCurrencies([]);
         }
       } else {
         try {
           const studioCurrencies = await firestoreService.fetchStudioCurrencies(managingStudio.id);
+          if (!isMountedRef.current) return;
           setCompanyCurrencies(studioCurrencies);
         } catch (err) {
+          if (!isMountedRef.current) return;
           console.error('[MyStudiosView] Failed to fetch studio currencies:', err);
           setCompanyCurrencies([]);
         }
@@ -206,8 +219,8 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
     setIsSavingBio(true);
     try {
       await firestoreService.updateStudioBio(managingStudio.id, bioText);
+      await loadOwnedEntities();
       setManagingStudio(null);
-      loadOwnedEntities();
     } catch (err: unknown) {
       console.error('[MyStudiosView] Failed to update bio:', err);
     } finally {
@@ -397,11 +410,13 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                 onChange={(e) => setBioText(e.target.value)}
                 placeholder="Heated flows, dynamic Vinyasa, sound baths..."
                 rows={3}
+                data-testid="studio-bio-textarea"
                 className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:border-indigo-500 transition"
               />
               <button
                 type="submit"
                 disabled={isSavingBio}
+                data-testid="save-studio-bio-button"
                 className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs shadow-md transition disabled:opacity-50"
               >
                 {isSavingBio ? 'Saving...' : 'Save Studio Bio'}
@@ -413,6 +428,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Parent Brand Assignment</label>
               <select
                 value={managingStudio.companyId || ''}
+                data-testid="select-parent-brand"
                 onChange={async (e) => {
                   const compId = e.target.value;
                   await firestoreService.assignStudioToCompany(managingStudio.id, compId || null);
@@ -444,6 +460,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button
                   type="button"
+                  data-testid="studio-status-active-button"
                   onClick={async () => {
                     await firestoreService.updateStudioStatus(managingStudio.id, 'active', statusNoteText);
                     setManagingStudio({ ...managingStudio, status: 'active', isClosed: false, statusNote: statusNoteText });
@@ -463,6 +480,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
                 <button
                   type="button"
+                  data-testid="studio-status-temp-closed-button"
                   onClick={async () => {
                     await firestoreService.updateStudioStatus(managingStudio.id, 'temp_closed', statusNoteText);
                     setManagingStudio({ ...managingStudio, status: 'temp_closed', isClosed: false, statusNote: statusNoteText });
@@ -482,6 +500,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
                 <button
                   type="button"
+                  data-testid="studio-status-closed-button"
                   onClick={async () => {
                     await firestoreService.updateStudioStatus(managingStudio.id, 'closed', statusNoteText);
                     setManagingStudio({ ...managingStudio, status: 'closed', isClosed: true, statusNote: statusNoteText });
@@ -535,6 +554,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                       <div className="relative flex-1">
                         <input
                           type="text"
+                          data-testid="input-status-note"
                           value={statusNoteText}
                           onChange={(e) => setStatusNoteText(e.target.value)}
                           placeholder={
@@ -561,6 +581,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
                       <button
                         type="button"
+                        data-testid="save-status-note-button"
                         disabled={isSavingStatusNote || !isStatusNoteDirty}
                         onClick={async () => {
                           setIsSavingStatusNote(true);
@@ -630,6 +651,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <button
                     type="button"
+                    data-testid="policy-follow-brand-button"
                     onClick={async () => {
                       const compId = managingStudio.companyId;
                       const newPolicy: StudioCurrencyPolicy = {
@@ -656,6 +678,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
 
                   <button
                     type="button"
+                    data-testid="policy-custom-override-button"
                     onClick={async () => {
                       const compId = managingStudio.companyId;
                       const initialAccepted = studioPolicy?.acceptedCurrencyIds?.length
@@ -716,6 +739,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                 </div>
                 <button
                   type="button"
+                  data-testid="create-currency-button"
                   onClick={() => setIsAddingCurrency(true)}
                   className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center space-x-1"
                 >
@@ -732,6 +756,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                   </h3>
                   <input
                     type="text"
+                    data-testid="input-new-currency-title"
                     placeholder="Pass Title e.g. Single Drop-In or 5-Class Pack"
                     value={newCurrTitle}
                     onChange={(e) => setNewCurrTitle(e.target.value)}
@@ -748,6 +773,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                     <div>
                       <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Tier Type</label>
                       <select
+                        data-testid="select-new-currency-tier"
                         value={newCurrTier}
                         onChange={(e) => setNewCurrTier(e.target.value as CurrencyTierType)}
                         className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
@@ -761,6 +787,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                       <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Base Price (£)</label>
                       <input
                         type="number"
+                        data-testid="input-new-currency-price"
                         value={newCurrPrice}
                         onChange={(e) => setNewCurrPrice(Number(e.target.value))}
                         className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
@@ -773,6 +800,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                       <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Credit Count</label>
                       <input
                         type="number"
+                        data-testid="input-new-currency-credits"
                         value={newCurrCredits}
                         onChange={(e) => setNewCurrCredits(Number(e.target.value))}
                         disabled={newCurrTier === 'unlimited'}
@@ -783,6 +811,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                       <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Lifespan (Days)</label>
                       <input
                         type="number"
+                        data-testid="input-new-currency-validity"
                         value={newCurrValidity}
                         onChange={(e) => setNewCurrValidity(Number(e.target.value))}
                         className="w-full p-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
@@ -913,6 +942,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                               <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Base Price (£)</label>
                               <input
                                 type="number"
+                                data-testid="input-edit-currency-price"
                                 value={editCurrPrice}
                                 onChange={(e) => setEditCurrPrice(Number(e.target.value))}
                                 className="w-full p-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
@@ -952,6 +982,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                             </button>
                             <button
                               type="button"
+                              data-testid="save-edit-currency-button"
                               onClick={() => handleSaveEditCurrency(curr.id)}
                               className="w-1/2 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition shadow-md"
                             >
@@ -1395,6 +1426,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                               <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">Base Price (£)</label>
                               <input
                                 type="number"
+                                data-testid="input-edit-currency-price"
                                 value={editCurrPrice}
                                 onChange={(e) => setEditCurrPrice(Number(e.target.value))}
                                 className="w-full p-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white text-xs"
@@ -1434,6 +1466,7 @@ export const MyStudiosView: React.FC<MyStudiosViewProps> = ({ onBack, backLabel 
                             </button>
                             <button
                               type="button"
+                              data-testid="save-edit-currency-button"
                               onClick={() => handleSaveEditCurrency(curr.id)}
                               className="w-1/2 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition shadow-md"
                             >

@@ -34,15 +34,9 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
 
   const isJoined = localCommunities.includes(studioCommunityId);
 
-  const defaultTeachers: StudioTeacher[] = [
-    { id: 'user_maryia', displayName: 'Maryia Sharma', specialty: 'Vinyasa & Yin', isPublic: true },
-    { id: 'user_elena', displayName: 'Elena Rostova', specialty: 'Ashtanga Lead', isPublic: true },
-    { id: 'user_sarah', displayName: 'Sarah Jenkins', specialty: 'Restorative & Breath', isPublic: true },
-  ];
-
   const initialTeachers = studio.assignedTeachers && studio.assignedTeachers.length > 0
     ? studio.assignedTeachers
-    : defaultTeachers;
+    : [];
 
   const [displayedTeachers, setDisplayedTeachers] = useState<StudioTeacher[]>(initialTeachers);
 
@@ -60,8 +54,11 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
 
       const teacherMap = new Map<string, StudioTeacher>();
       const baseList = studio.assignedTeachers && studio.assignedTeachers.length > 0
-        ? studio.assignedTeachers
-        : defaultTeachers;
+        ? studio.assignedTeachers.map((t) => ({
+            ...t,
+            displayName: t.displayName || (t as any).name || t.id || 'Teacher',
+          }))
+        : [];
 
       baseList.forEach((t) => teacherMap.set(t.id, t));
 
@@ -252,6 +249,7 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
               )}
 
               <button
+                data-testid="studio-members-modal-button"
                 onClick={() => setShowMembersModal(true)}
                 className="px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition"
               >
@@ -325,24 +323,40 @@ export const StudioProfileView: React.FC<StudioProfileViewProps> = ({
         </h3>
 
         <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none snap-x">
-          {displayedTeachers.map((teacher) => (
-            <div
-              key={teacher.id}
-              onClick={() => {
+          {displayedTeachers.length === 0 ? (
+            <p className="text-xs text-slate-500 py-1">No teachers currently listed for this studio.</p>
+          ) : (
+            displayedTeachers.map((teacher) => {
+              const teacherName = teacher.displayName || (teacher as any).name || teacher.id || 'Teacher';
+              const handleTeacherClick = () => {
                 if (onSelectTeacher) onSelectTeacher(teacher.id);
                 else if (onSelectUserProfile) onSelectUserProfile(teacher.id);
-              }}
-              className="flex-shrink-0 snap-start flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 cursor-pointer transition min-w-[170px]"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-xs text-white">
-                {teacher.displayName.charAt(0)}
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 underline truncate">{teacher.displayName}</p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{teacher.specialty || 'Yoga Instructor'}</p>
-              </div>
-            </div>
-          ))}
+              };
+              return (
+                <div
+                  key={teacher.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={handleTeacherClick}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleTeacherClick();
+                    }
+                  }}
+                  className="flex-shrink-0 snap-start flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 cursor-pointer transition min-w-[170px]"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-xs text-white">
+                    {teacherName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 underline truncate">{teacherName}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{teacher.specialty || 'Yoga Instructor'}</p>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

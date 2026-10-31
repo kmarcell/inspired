@@ -201,6 +201,7 @@ export const CurrencyStoreCheckoutModalView: React.FC<CurrencyStoreCheckoutModal
           </button>
           <button
             disabled={!selectedCurrency || isProcessing}
+            data-testid="simulate-purchase-button"
             onClick={handlePayAndActivate}
             className="w-2/3 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2"
           >

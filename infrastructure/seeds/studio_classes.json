@@ -230,6 +230,25 @@
     "equipmentNeeded": "Grip Socks & Water"
   },
   {
+    "id": "class_chelsea_priya",
+    "studioId": "studio_chelsea_004",
+    "className": "Private Mindful Meditation",
+    "styleName": "Pranayama & Meditation",
+    "classTypeDescription": "Mindful meditation and breathing techniques with Priya Nair.",
+    "teacherId": "user_teacher_private",
+    "teacherName": "Priya Nair",
+    "dayOfWeek": 1,
+    "dateString": "{{today}}",
+    "startTime": "07:00 AM",
+    "endTime": "08:00 AM",
+    "capacity": 15,
+    "bookedCount": 2,
+    "waitlist": [],
+    "roomClimate": "natural_ambient",
+    "skillLevel": "All Levels Welcome",
+    "equipmentNeeded": "Meditation Cushion & Water"
+  },
+  {
     "id": "class_full_waitlist",
     "studioId": "studio_askew_001",
     "className": "Intimate Sound Bath & Nidra",

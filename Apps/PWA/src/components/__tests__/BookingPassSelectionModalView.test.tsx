@@ -15,7 +15,7 @@ describe('BookingPassSelectionModalView Component', () => {
       creditsRemaining: 4,
       validityDays: 60,
       purchasedAt: '2026-06-01T10:00:00Z',
-      expiresAt: '2026-08-01T10:00:00Z',
+      expiresAt: '2028-08-01T10:00:00Z',
       status: 'active',
     },
   ];

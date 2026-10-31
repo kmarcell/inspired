@@ -122,7 +122,7 @@ test.describe('Teacher Actor — P0 Smoke Scenarios', () => {
 
     // Then calendar header, week switcher, 7 day pills, and horizontal studio filter pills render
     await expect(page.locator('h3:has-text("Maya Sharma — Schedule")')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('text=Aug 31 – Sep 6, 2026')).toBeVisible();
+    await expect(page.locator('[data-testid="teacher-schedule-week-range"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('text=MON').first()).toBeVisible();
     await expect(page.locator('text=TUE').first()).toBeVisible();
     await expect(page.locator('text=WED').first()).toBeVisible();

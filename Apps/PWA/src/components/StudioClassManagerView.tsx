@@ -213,6 +213,7 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
       {/* Tab Selector */}
       <div className={`flex items-center space-x-2 ${colorTokens.borders.dividerBottom} pb-2`}>
         <button
+          data-testid="class-manager-tab-templates"
           onClick={() => setActiveTab('templates')}
           className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'templates'
@@ -227,6 +228,7 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
         </button>
 
         <button
+          data-testid="class-manager-tab-drafts"
           onClick={() => setActiveTab('drafts')}
           className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
             activeTab === 'drafts'

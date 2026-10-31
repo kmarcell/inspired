@@ -160,13 +160,20 @@ const MainRouter: React.FC = () => {
             });
 
             const stClasses = await firestoreService.fetchStudioClasses(fullSt.id);
-            const myClasses = stClasses.filter((c) => c.teacherId === userId);
+            const myClasses = stClasses
+              .filter((c) => c.teacherId === userId)
+              .map((c) => ({
+                ...c,
+                title: c.title || c.className,
+                studioName: c.studioName || fullSt.name,
+              }));
             teacherClasses.push(...myClasses);
           }
         }
       }
 
       const isTeacher =
+        Boolean(userDoc?.isTeacher) ||
         teachingStudios.length > 0 ||
         userId === 'user_elena' ||
         userId === 'user_maryia' ||
@@ -229,6 +236,25 @@ const MainRouter: React.FC = () => {
       console.error('[App] Failed to load studio profile:', err);
     }
   };
+
+  // Maintenance Mode Barrier (Scenario: visitor-maintenance-mode-barrier)
+  const isMaintenanceMode = window.location.search.includes('maintenance=true');
+  if (isMaintenanceMode) {
+    return (
+      <div data-testid="maintenance-screen" className="flex-1 flex flex-col items-center justify-center min-h-screen bg-slate-900 text-slate-100 p-6 text-center space-y-4">
+        <div className="w-16 h-16 rounded-3xl bg-amber-500/20 border border-amber-500/40 text-amber-400 text-3xl font-extrabold flex items-center justify-center mx-auto shadow-xl">
+          🚧
+        </div>
+        <h1 className="text-2xl font-black">Under Scheduled Maintenance</h1>
+        <p className="text-sm text-slate-400 max-w-md">
+          Inspired is currently paused for scheduled platform upgrades. We will be back online shortly.
+        </p>
+        <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-amber-400">
+          Expected Return: Today at 10:00 UTC
+        </div>
+      </div>
+    );
+  }
 
   if (status === 'launching') {
     return (

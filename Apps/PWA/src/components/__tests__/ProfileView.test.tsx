@@ -30,6 +30,7 @@ vi.mock('../../context/AuthContext', () => ({
 vi.mock('../../services/firestoreService', () => ({
   firestoreService: {
     updateUserProfile: vi.fn().mockResolvedValue(undefined),
+    fetchUserPasses: vi.fn().mockResolvedValue([]),
   },
 }));
 

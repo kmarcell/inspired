@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { firestoreService } from '../services/firestoreService';
 import { PrivacySettings } from '../types';
+import { UserPassWalletView } from './UserPassWalletView';
 
 interface ProfileViewProps {
   onBack?: () => void;
@@ -326,6 +327,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onViewPublicPr
           </button>
         </div>
       </form>
+
+      {/* Digital Pass Wallet Section */}
+      <div data-testid="profile-wallet-section">
+        <UserPassWalletView userId={user.id} />
+      </div>
 
       {/* Appearance & Theme Toggle Section */}
       <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-4 backdrop-blur-md transition-colors">

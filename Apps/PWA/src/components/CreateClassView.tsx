@@ -193,8 +193,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           frequency,
           daysOfWeek: selectedDays,
           endCondition,
-          endAfterOccurrences: endCondition === 'occurrences' ? endAfterOccurrences : undefined,
-          endDate: endCondition === 'date' ? endDate : undefined,
+          ...(endCondition === 'occurrences' ? { endAfterOccurrences } : {}),
+          ...(endCondition === 'date' && endDate ? { endDate } : {}),
         },
       });
       onSaveSuccess('draft');
@@ -249,6 +249,10 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
       setErrorMsg('Please assign a teacher to publish this class.');
       return;
     }
+    if (endCondition === 'date' && endDate && dateString && endDate < dateString) {
+      setErrorMsg('End date must be after first session date.');
+      return;
+    }
     setIsSubmitting(true);
     setErrorMsg(null);
     try {
@@ -277,8 +281,8 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
           frequency,
           daysOfWeek: selectedDays,
           endCondition,
-          endAfterOccurrences: endCondition === 'occurrences' ? endAfterOccurrences : undefined,
-          endDate: endCondition === 'date' ? endDate : undefined,
+          ...(endCondition === 'occurrences' ? { endAfterOccurrences } : {}),
+          ...(endCondition === 'date' && endDate ? { endDate } : {}),
         },
       });
 
@@ -324,7 +328,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
       </div>
 
       {errorMsg && (
-        <div className={`mb-6 p-4 rounded-xl ${colorTokens.surfaces.roseNotice} text-sm flex items-center justify-between`}>
+        <div data-testid="class-creator-error" className={`mb-6 p-4 rounded-xl ${colorTokens.surfaces.roseNotice} text-sm flex items-center justify-between`}>
           <span>⚠️ {errorMsg}</span>
           <button onClick={() => setErrorMsg(null)} className="text-red-700 dark:text-red-400 hover:opacity-80">✕</button>
         </div>
@@ -383,6 +387,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               onChange={(e) => setTeacherId(e.target.value)}
               className={colorTokens.inputs.select}
             >
+              <option value="">-- Select Assigned Teacher --</option>
               {studioTeachers.map((t) => (
                 <option key={t.id} value={t.id}>
                   🧘 {t.displayName} {t.specialty ? `(${t.specialty})` : ''}
@@ -708,6 +713,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                   <input
                     type="radio"
                     name="endCond"
+                    data-testid="recurrence-occurrences-radio"
                     checked={endCondition === 'occurrences'}
                     onChange={() => setEndCondition('occurrences')}
                     className="accent-cyan-500"
@@ -718,6 +724,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                       type="number"
                       min="1"
                       max="52"
+                      data-testid="recurrence-occurrences-input"
                       value={endAfterOccurrences}
                       onChange={(e) => setEndAfterOccurrences(parseInt(e.target.value, 10) || 12)}
                       className={`w-20 px-3 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500`}
@@ -729,6 +736,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                   <input
                     type="radio"
                     name="endCond"
+                    data-testid="recurrence-date-radio"
                     checked={endCondition === 'date'}
                     onChange={() => setEndCondition('date')}
                     className="accent-cyan-500"
@@ -737,6 +745,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
                   {endCondition === 'date' && (
                     <input
                       type="date"
+                      data-testid="recurrence-date-input"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                       className={`px-3 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500`}
@@ -759,6 +768,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               <input
                 type="radio"
                 name="currencyPolicy"
+                data-testid="currency-policy-accept-all"
                 checked={currencyPolicyMode === 'acceptAll'}
                 onChange={() => setCurrencyPolicyMode('acceptAll')}
                 className="mt-1 accent-purple-500"
@@ -775,6 +785,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
               <input
                 type="radio"
                 name="currencyPolicy"
+                data-testid="currency-policy-custom"
                 checked={currencyPolicyMode === 'customSelected'}
                 onChange={() => setCurrencyPolicyMode('customSelected')}
                 className="mt-1 accent-purple-500"
@@ -846,6 +857,7 @@ export const CreateClassView: React.FC<CreateClassViewProps> = ({
             <button
               type="button"
               disabled={isSubmitting}
+              data-testid="save-draft-button"
               onClick={handleSaveDraft}
               className={`w-full sm:w-auto px-5 py-3 rounded-xl ${colorTokens.badges.neutral} text-sm font-semibold transition-all hover:scale-[1.02] flex items-center justify-center gap-2`}
             >

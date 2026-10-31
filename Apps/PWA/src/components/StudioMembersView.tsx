@@ -28,10 +28,17 @@ export const StudioMembersView: React.FC<StudioMembersViewProps> = ({
         setLoading(false);
       }
     });
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [studioId]);
+  }, [studioId, onClose]);
 
   return (
     <div 
@@ -40,6 +47,9 @@ export const StudioMembersView: React.FC<StudioMembersViewProps> = ({
       data-testid="studio-members-modal-backdrop"
     >
       <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="studio-members-title"
         className="relative w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 text-slate-900 dark:text-slate-100 shadow-2xl transition-colors"
         onClick={(e) => e.stopPropagation()}
       >
@@ -49,7 +59,7 @@ export const StudioMembersView: React.FC<StudioMembersViewProps> = ({
             <span className="inline-block px-2.5 py-0.5 mb-1 text-xs font-bold rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
               👥 Members Directory
             </span>
-            <h3 className="text-lg font-black text-slate-900 dark:text-white">{studioName}</h3>
+            <h3 id="studio-members-title" className="text-lg font-black text-slate-900 dark:text-white">{studioName}</h3>
           </div>
           <button
             onClick={onClose}

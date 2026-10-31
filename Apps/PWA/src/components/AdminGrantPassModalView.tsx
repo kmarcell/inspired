@@ -203,8 +203,9 @@ export const AdminGrantPassModalView: React.FC<AdminGrantPassModalViewProps> = (
                   <div className="flex items-center bg-slate-950 border border-slate-700 rounded-xl px-2 py-1">
                     <button
                       type="button"
+                      disabled={creditCount <= 1}
                       onClick={() => setCreditCount((prev) => Math.max(1, prev - 1))}
-                      className="w-7 h-7 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-sm rounded-lg transition"
+                      className="w-7 h-7 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-800 text-white font-extrabold text-sm rounded-lg transition"
                     >
                       −
                     </button>
@@ -243,6 +244,7 @@ export const AdminGrantPassModalView: React.FC<AdminGrantPassModalViewProps> = (
               </button>
               <button
                 disabled={isSubmitting}
+                data-testid="submit-grant-pass-button"
                 onClick={handleGrant}
                 className="w-2/3 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-extrabold text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2"
               >
