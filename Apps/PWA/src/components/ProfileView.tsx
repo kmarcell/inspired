@@ -361,6 +361,32 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onBack, onViewPublicPr
         </div>
       </div>
 
+      {/* Support & Issue Reporting Section (FEATURES.md §5.6) */}
+      <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-4 backdrop-blur-md transition-colors">
+        <div>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+            <span aria-hidden="true">💬</span>
+            <span>Support &amp; Feedback</span>
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Encountered a bug or have product feedback? Report it to our engineering team.
+          </p>
+        </div>
+
+        <a
+          href={`https://docs.google.com/forms/d/e/1FAIpQLSc_INSPIRED_SUPPORT_FEEDBACK/viewform?usp=pp_url&entry.1045781293=${encodeURIComponent(user.id)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Report an Issue (opens in a new tab)"
+          data-testid="report-issue-link"
+          className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all shadow-sm active:scale-95"
+        >
+          <span aria-hidden="true">🐛</span>
+          <span>Report an Issue</span>
+          <span className="text-[10px] opacity-60" aria-hidden="true">↗</span>
+        </a>
+      </div>
+
       {/* Account Actions Section */}
       <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800/80 shadow-xl space-y-4 backdrop-blur-md transition-colors">
         <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Account Session</h3>

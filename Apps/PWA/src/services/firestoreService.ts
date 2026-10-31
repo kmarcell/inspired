@@ -13,6 +13,7 @@ import {
   getDocs, 
   deleteDoc, 
   writeBatch,
+  arrayRemove,
   Timestamp 
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -1723,6 +1724,10 @@ export const firestoreService = {
           if (booking.status === 'confirmed' && classData.bookedCount > 0) {
             await updateDoc(classRef, {
               bookedCount: classData.bookedCount - 1,
+            });
+          } else if (booking.status === 'waitlisted') {
+            await updateDoc(classRef, {
+              waitlist: arrayRemove(userId),
             });
           }
         }

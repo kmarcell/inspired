@@ -1078,7 +1078,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown resets post like counter.
 - **Platforms:** both
-- **Automation status:** none
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### yogi-joined-communities-empty-state — Clean-slate yogi with 0 communities views empty state with join recommendations
 - **ID:** yogi-joined-communities-empty-state
@@ -1097,10 +1097,10 @@
   - When view renders
   - Then notice "You haven't joined any communities yet" appears
   - And recommendations list with "Join" buttons is displayed
-- **Isolation:** `shared`
-- **Data / reset notes:** None.
+- **Isolation:** `clone`
+- **Data / reset notes:** Reset joined communities to empty.
 - **Platforms:** both
-- **Automation status:** unit-only (JoinedCommunitiesView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### yogi-leave-class-waitlist — Yogi leaves class waitlist updating button back to Join Waitlist
 - **ID:** yogi-leave-class-waitlist
@@ -1122,7 +1122,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown resets state.
 - **Platforms:** both
-- **Automation status:** none
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### yogi-pass-wallet-view-empty-state — Yogi with no passes views clean empty state in Digital Pass Wallet
 - **ID:** yogi-pass-wallet-view-empty-state
@@ -1143,7 +1143,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (UserPassWalletView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### yogi-profile-issue-reporting-link — Tapping Report an Issue generates pre-filled Google Form link with user ID
 - **ID:** yogi-profile-issue-reporting-link
@@ -1164,7 +1164,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (ProfileView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### yogi-profile-switch-theme — Yogi toggles Light and Dark theme preference with immediate DOM class update
 - **ID:** yogi-profile-switch-theme
@@ -1186,7 +1186,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (ThemeContext.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### yogi-search-operating-status-badges — Search result studio tiles display accurate operating status badges
 - **ID:** yogi-search-operating-status-badges
@@ -1207,7 +1207,7 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only (SearchView.test.tsx)
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 ### Actor: TEACHER (20 Scenarios)
 
@@ -1638,7 +1638,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown resets subscription.
 - **Platforms:** both
-- **Automation status:** unit-only
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 ### Actor: STUDIO-OWNER (38 Scenarios)
 
@@ -2424,7 +2424,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### studio-owner-delete-class-template — Studio owner deletes class template blueprint with confirmation dialog
 - **ID:** studio-owner-delete-class-template
@@ -2445,7 +2445,7 @@
 - **Isolation:** `clone`
 - **Data / reset notes:** Teardown restores template.
 - **Platforms:** both
-- **Automation status:** unit-only
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 
 #### studio-owner-discard-currency-changes-safeguard — Studio owner cancels in-progress currency edits and uncommitted modifications are discarded
 - **ID:** studio-owner-discard-currency-changes-safeguard
@@ -2466,5 +2466,5 @@
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
 - **Platforms:** both
-- **Automation status:** unit-only
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/extended_suite.spec.ts)
 

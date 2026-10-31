@@ -278,6 +278,7 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
               {templates.map((tpl) => (
                 <div
                   key={tpl.id}
+                  data-testid={`template-card-${tpl.id}`}
                   className={`${colorTokens.surfaces.cardInteractive} p-5 space-y-3 flex flex-col justify-between`}
                 >
                   <div className="space-y-2">
@@ -335,6 +336,8 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
                         onClick={() => handleDeleteTemplate(tpl.id)}
                         className={colorTokens.buttons.danger}
                         title="Delete Template Blueprint"
+                        aria-label="Delete Template Blueprint"
+                        data-testid={`delete-template-btn-${tpl.id}`}
                       >
                         🗑️
                       </button>
@@ -415,6 +418,8 @@ export const StudioClassManagerView: React.FC<StudioClassManagerViewProps> = ({
                         onClick={() => handleDeleteDraft(dft.id)}
                         className={colorTokens.buttons.danger}
                         title="Delete Draft"
+                        aria-label="Delete Draft"
+                        data-testid={`delete-draft-btn-${dft.id}`}
                       >
                         🗑️
                       </button>

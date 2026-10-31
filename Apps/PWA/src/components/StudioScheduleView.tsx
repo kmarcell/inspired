@@ -194,6 +194,7 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
     try {
       const cls = classes.find((c) => c.id === clsId);
       const classDateISO = cls ? cls.dateString : new Date().toISOString();
+      const previousBookingStatus = userBookings[clsId];
       await firestoreService.cancelClassBooking(clsId, studioId, currentUser.id, classDateISO);
 
       setUserBookings((prev) => {
@@ -207,7 +208,7 @@ export const StudioScheduleView: React.FC<StudioScheduleViewProps> = ({
           if (item.id === clsId) {
             return {
               ...item,
-              bookedCount: Math.max(0, item.bookedCount - 1),
+              bookedCount: previousBookingStatus === 'confirmed' ? Math.max(0, item.bookedCount - 1) : item.bookedCount,
               waitlist: item.waitlist.filter((id) => id !== currentUser.id),
             };
           }
