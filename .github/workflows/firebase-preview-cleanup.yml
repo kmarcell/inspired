@@ -1,0 +1,30 @@
+name: Delete Ephemeral Firebase Preview Channel
+
+on:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: pr-cleanup-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup-preview:
+    name: Tear Down Preview Channel
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    if: github.repository == 'kmarcell/inspired'
+    steps:
+      - name: Authenticate Firebase Service Account
+        run: echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > /tmp/firebase-key.json
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}
+
+      - name: Delete Preview Channel
+        run: |
+          npx firebase-tools hosting:channel:delete pr-${{ github.event.number }} --force --project inspired-yoga-app-staging
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json

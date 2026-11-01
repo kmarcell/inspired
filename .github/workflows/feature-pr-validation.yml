@@ -1,0 +1,116 @@
+name: Feature PR Validation & Ephemeral Preview
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+
+concurrency:
+  group: pr-validation-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  pwa-lint-unit:
+    name: PWA TypeScript & Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.repository == 'kmarcell/inspired' && (github.actor == 'kmarcell' || github.event.pull_request.head.repo.full_name == github.repository)
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ./Apps/PWA
+
+      - name: Run TypeScript, Unit Tests & Staging Build
+        run: pnpm --filter inspired-pwa run check
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_STAGING }}
+
+  backend-validation:
+    name: Firebase Rules & Seed Integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.repository == 'kmarcell/inspired' && (github.actor == 'kmarcell' || github.event.pull_request.head.repo.full_name == github.repository)
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java (for Firebase Emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Root Dependencies
+        run: npm ci
+
+      - name: Run Seed Integrity Suite
+        run: npm run test:seeds
+
+      - name: Run Persona Cloner Suite
+        run: npm run test:cloner
+
+      - name: Run Firestore Rules Suite
+        run: npm run test:rules
+
+  deploy-ephemeral-preview:
+    name: Deploy Ephemeral Firebase Hosting Preview
+    needs: [pwa-lint-unit, backend-validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install PWA Dependencies & Build Staging
+        run: |
+          pnpm --filter inspired-pwa install --frozen-lockfile
+          pnpm --filter inspired-pwa run build:staging
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_STAGING }}
+
+      - name: Deploy Preview Channel to Firebase Staging
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}'
+          projectId: inspired-yoga-app-staging
+          channelId: pr-${{ github.event.number }}
+          expires: 3d
