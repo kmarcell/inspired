@@ -97,7 +97,7 @@ jobs:
           4. Run 'pnpm --filter inspired-pwa run check' before finishing to ensure 0 TypeScript errors and passing unit tests."
 
           if command -v agy &> /dev/null; then
-            agy -p "$PROMPT" --model "${ANTIGRAVITY_MODEL:-gemini-3.8-flash}" --effort "${ANTIGRAVITY_EFFORT:-medium}"
+            agy -p "$PROMPT" --model "${ANTIGRAVITY_MODEL:-gemini-3.8-flash}" --effort "${ANTIGRAVITY_EFFORT:-medium}" --dangerously-skip-permissions
           elif command -v gemini &> /dev/null; then
             gemini -p "$PROMPT" --model "${GEMINI_MODEL:-gemini-2.5-flash}" --yolo --skip-trust
           else

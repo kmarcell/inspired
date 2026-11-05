@@ -15,10 +15,13 @@ runs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
         fi
 
-        # Configure headless API key authentication for CI
+        # Configure headless API key authentication and permissions for CI
         mkdir -p "$HOME/.gemini/antigravity-cli"
         cat << 'EOF' > "$HOME/.gemini/antigravity-cli/settings.json"
         {
-          "modelProvider": "gemini"
+          "modelProvider": "gemini",
+          "permissions": {
+            "allow": ["*"]
+          }
         }
         EOF
