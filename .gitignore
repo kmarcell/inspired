@@ -31,6 +31,7 @@ firestore-debug.log
 ui-debug.log
 
 # Scripts and Temporary Data
+.context/
 scripts/local-config.json
 *.log
 node_modules/

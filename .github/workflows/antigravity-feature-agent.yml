@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.PAT_OR_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -58,9 +58,11 @@ jobs:
 
       - name: Prepare Feature Branch
         id: branch
+        env:
+          RAW_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
         run: |
-          ISSUE_NUM="${{ github.event.issue.number }}"
-          TITLE_SLUG=$(echo "${{ github.event.issue.title }}" | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9]/-/g' -e 's/--*/-/g' | cut -c1-30)
+          TITLE_SLUG=$(echo "$RAW_TITLE" | tr '[:upper:]' '[:lower:]' | sed -e 's/[^a-z0-9]/-/g' -e 's/--*/-/g' | cut -c1-30)
           BRANCH_NAME="feature/issue-${ISSUE_NUM}-${TITLE_SLUG}"
           git checkout -b "$BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
@@ -69,15 +71,30 @@ jobs:
         run: |
           npm install -g @google-antigravity/cli || npm install -g @google/gemini-cli || true
 
+      - name: Prepare Issue Context & Assets
+        run: |
+          node scripts/fetch-issue-context.mjs
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GH_TOKEN: ${{ secrets.PAT_OR_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
       - name: Run Antigravity Autonomous Agent
         run: |
-          PROMPT="Implement the feature described in Issue #${{ github.event.issue.number }}:
-          Title: ${{ github.event.issue.title }}
-          Description:
-          ${{ github.event.issue.body }}
-          
-          Adhere strictly to GEMINI.md mandates, zero mock data fallbacks in production code, and run 'pnpm --filter inspired-pwa run check' before finishing."
-          
+          PROMPT="Implement the feature specified in .context/target/issue.md for Issue #${{ github.event.issue.number }}.
+
+          CONTEXT & ASSET LOCATIONS:
+          - Target Specification: .context/target/issue.md
+          - UI Mockups & Screenshots: .context/target/images/ (if present, match visual styling and layout)
+          - Scope Boundaries & Sibling Tasks: .context/epic/summary.md
+          - Related Dependency Issues: .context/linked/ (if present)
+
+          CRITICAL MANDATES:
+          1. Implement ONLY the scope requested in .context/target/issue.md. DO NOT implement tasks tracked in sibling tickets from .context/epic/summary.md.
+          2. Adhere strictly to GEMINI.md mandates: zero mock data fallbacks in production code. Production services must query Firestore directly.
+          3. Ensure all visual UI aligns 1:1 with any provided mockups or screenshots in .context/target/images/.
+          4. Run 'pnpm --filter inspired-pwa run check' before finishing to ensure 0 TypeScript errors and passing unit tests."
+
           if command -v agy &> /dev/null; then
             agy run "$PROMPT"
           elif command -v gemini &> /dev/null; then
@@ -95,18 +112,35 @@ jobs:
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY_STAGING }}
 
+      - name: Commit Agent Changes
+        env:
+          ISSUE_NUM: ${{ github.event.issue.number }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "feat: implement issue #${ISSUE_NUM} via Antigravity agent"
+          fi
+          if [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]; then
+            echo "Error: No code changes were produced by the agent. Aborting PR creation."
+            exit 1
+          fi
+
       - name: Push Branch & Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.PAT_OR_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
         run: |
           BRANCH="${{ steps.branch.outputs.branch_name }}"
-          git push -u origin "$BRANCH"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" "$BRANCH"
           
           PR_URL=$(gh pr create \
             --base main \
             --head "$BRANCH" \
-            --title "feat: ${{ github.event.issue.title }} (Issue #${{ github.event.issue.number }})" \
-            --body "Automated Pull Request created by Antigravity Agent for Issue #${{ github.event.issue.number }}.
+            --title "feat: ${ISSUE_TITLE} (Issue #${ISSUE_NUM})" \
+            --body "Automated Pull Request created by Antigravity Agent for Issue #${ISSUE_NUM}.
 
-          Closes #${{ github.event.issue.number }}
+          Closes #${ISSUE_NUM}
 
           ### Verification:
           - TypeScript check passed (\`tsc -b\`)
@@ -114,6 +148,4 @@ jobs:
           - Vite staging build succeeded
           - Ephemeral preview will deploy automatically on this PR.")
           
-          gh issue comment ${{ github.event.issue.number }} --body "🚀 **Antigravity Agent** completed implementation and opened Pull Request: ${PR_URL}"
-        env:
-          GH_TOKEN: ${{ secrets.PAT_OR_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          gh issue comment "$ISSUE_NUM" --body "🚀 **Antigravity Agent** completed implementation and opened Pull Request: ${PR_URL}"
