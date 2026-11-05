@@ -107,6 +107,7 @@ jobs:
         env:
           ANTIGRAVITY_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY || secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY || secrets.GEMINI_API_KEY }}
+          AGY_MODEL_PROVIDER: "gemini"
           ANTIGRAVITY_MODEL: "gemini-3.8-flash"
           ANTIGRAVITY_EFFORT: "medium"
           GEMINI_MODEL: "gemini-2.5-flash"

@@ -14,3 +14,11 @@ runs:
         if [ -d "$HOME/.local/bin" ]; then
           echo "$HOME/.local/bin" >> $GITHUB_PATH
         fi
+
+        # Configure headless API key authentication for CI
+        mkdir -p "$HOME/.gemini/antigravity-cli"
+        cat << 'EOF' > "$HOME/.gemini/antigravity-cli/settings.json"
+        {
+          "modelProvider": "gemini"
+        }
+        EOF
