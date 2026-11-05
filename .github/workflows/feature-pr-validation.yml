@@ -57,10 +57,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'pnpm'
 
       - name: Setup Java (for Firebase Emulator)
         uses: actions/setup-java@v4
@@ -68,17 +74,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Root Dependencies
-        run: npm ci
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run Seed Integrity Suite
-        run: npm run test:seeds
+        run: pnpm run test:seeds
 
-      - name: Run Persona Cloner Suite
-        run: npm run test:cloner
-
-      - name: Run Firestore Rules Suite
-        run: npm run test:rules
+      - name: Run Emulator Tests (Cloner & Firestore Rules)
+        run: pnpm exec firebase emulators:exec --project inspired-yoga-app-staging --only firestore,auth "pnpm run test:cloner && pnpm run test:rules"
 
   deploy-ephemeral-preview:
     name: Deploy Ephemeral Firebase Hosting Preview
