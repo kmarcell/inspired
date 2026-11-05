@@ -69,9 +69,8 @@ jobs:
           git checkout -b "$BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
-      - name: Install Antigravity CLI / Runner
-        run: |
-          npm install -g @google-antigravity/cli || npm install -g @google/gemini-cli || true
+      - name: Setup Antigravity CLI
+        uses: ./.github/actions/setup-antigravity
 
       - name: Prepare Issue Context & Assets
         run: |
@@ -98,17 +97,19 @@ jobs:
           4. Run 'pnpm --filter inspired-pwa run check' before finishing to ensure 0 TypeScript errors and passing unit tests."
 
           if command -v agy &> /dev/null; then
-            agy run "$PROMPT" --model gemini-3.8-flash --effort medium
+            agy -p "$PROMPT" --model "${ANTIGRAVITY_MODEL:-gemini-3.8-flash}" --effort "${ANTIGRAVITY_EFFORT:-medium}"
           elif command -v gemini &> /dev/null; then
-            gemini run "$PROMPT" --model gemini-3.8-flash --effort medium
+            gemini -p "$PROMPT" --model "${GEMINI_MODEL:-gemini-2.5-flash}" --yolo --skip-trust
           else
-            echo "Antigravity CLI runner initiated with prompt"
+            echo "Error: No AI agent CLI runner found"
+            exit 1
           fi
         env:
           ANTIGRAVITY_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY || secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.ANTIGRAVITY_API_KEY || secrets.GEMINI_API_KEY }}
           ANTIGRAVITY_MODEL: "gemini-3.8-flash"
           ANTIGRAVITY_EFFORT: "medium"
-          GEMINI_MODEL: "gemini-3.8-flash"
+          GEMINI_MODEL: "gemini-2.5-flash"
 
       - name: Verify Quality Gates
         run: |

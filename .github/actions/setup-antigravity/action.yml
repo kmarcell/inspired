@@ -1,0 +1,16 @@
+name: 'Setup Antigravity Agent'
+description: 'Installs the Antigravity CLI (agy) and configures the runner path'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download & Install Antigravity CLI
+      shell: bash
+      run: |
+        curl -fsSL https://antigravity.google/cli/install.sh | bash || pip install google-antigravity || npm install -g @google/gemini-cli || true
+        if [ -d "$HOME/.antigravity/bin" ]; then
+          echo "$HOME/.antigravity/bin" >> $GITHUB_PATH
+        fi
+        if [ -d "$HOME/.local/bin" ]; then
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        fi
