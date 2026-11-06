@@ -1,7 +1,16 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
 import { UnifiedProfileView, UnifiedProfileData } from '../UnifiedProfileView';
 import { UserProfile } from '../../types';
+import { firestoreService } from '../../services/firestoreService';
+
+vi.mock('../../services/firestoreService', () => ({
+  firestoreService: {
+    fetchUserPasses: vi.fn(),
+    fetchStudioCurrencyPolicy: vi.fn(),
+    bookClassWithPass: vi.fn(),
+  },
+}));
 
 const mockCurrentUser: UserProfile = {
   id: 'user_123',
@@ -145,5 +154,108 @@ describe('UnifiedProfileView', () => {
     // Click tapaway backdrop to close
     fireEvent.click(screen.getByTestId('profile-menu-backdrop'));
     expect(screen.queryByTestId('leave-community-btn')).not.toBeInTheDocument();
+  });
+
+  it('triggers the pass selector modal when clicking the booking button in TeacherScheduleModal', async () => {
+    const mockPasses = [
+      {
+        id: 'pass_1',
+        userId: 'user_123',
+        currencyId: 'curr_1',
+        currencyTitle: '5-Class Pack',
+        tierType: 'pack',
+        creditsRemaining: 5,
+        status: 'active',
+        expiresAt: '2026-12-31',
+      },
+    ];
+    vi.mocked(firestoreService.fetchUserPasses).mockResolvedValue(mockPasses as any);
+    vi.mocked(firestoreService.fetchStudioCurrencyPolicy).mockResolvedValue(null);
+
+    render(<UnifiedProfileView profileData={mockTeacherProfile} currentUser={mockCurrentUser} />);
+
+    // Switch to Classes tab
+    fireEvent.click(screen.getByText('🧘 Classes'));
+
+    // Open Schedule modal
+    fireEvent.click(screen.getByText('Schedule ➔'));
+    expect(screen.getByText('Elena Rostova — Schedule')).toBeInTheDocument();
+
+    // Click Book button in modal
+    const bookButton = screen.getByText('Book Class (1 Studio Credit) ➔');
+    fireEvent.click(bookButton);
+
+    // Assert BookingPassSelectionModalView (Redeem Pass & Book) is triggered
+    expect(await screen.findByText('Redeem Pass & Book')).toBeInTheDocument();
+    expect(screen.getByText('5-Class Pack')).toBeInTheDocument();
+  });
+
+  it('completes class booking with pass from TeacherScheduleModal and updates status to Booked', async () => {
+    const mockPasses = [
+      {
+        id: 'pass_1',
+        userId: 'user_123',
+        currencyId: 'curr_1',
+        currencyTitle: '5-Class Pack',
+        tierType: 'pack',
+        creditsRemaining: 5,
+        status: 'active',
+        expiresAt: '2026-12-31',
+      },
+    ];
+    vi.mocked(firestoreService.fetchUserPasses).mockResolvedValue(mockPasses as any);
+    vi.mocked(firestoreService.fetchStudioCurrencyPolicy).mockResolvedValue(null);
+    vi.mocked(firestoreService.bookClassWithPass).mockResolvedValue({ bookingId: 'b_123', status: 'confirmed' });
+
+    render(<UnifiedProfileView profileData={mockTeacherProfile} currentUser={mockCurrentUser} />);
+
+    fireEvent.click(screen.getByText('🧘 Classes'));
+    fireEvent.click(screen.getByText('Schedule ➔'));
+
+    const bookButton = screen.getByText('Book Class (1 Studio Credit) ➔');
+    fireEvent.click(bookButton);
+
+    expect(await screen.findByText('Redeem Pass & Book')).toBeInTheDocument();
+
+    const confirmBookButton = screen.getByTestId('confirm-booking-pass-button');
+    fireEvent.click(confirmBookButton);
+
+    await waitFor(() => {
+      expect(firestoreService.bookClassWithPass).toHaveBeenCalledWith(
+        'cls_1',
+        'st_1',
+        'user_123',
+        'test_yogi',
+        'pass_1'
+      );
+    });
+
+    // Pass selector closes and modal shows ✓ Booked
+    await waitFor(() => {
+      expect(screen.queryByText('Redeem Pass & Book')).not.toBeInTheDocument();
+      expect(screen.getByText('✓ Booked')).toBeInTheDocument();
+    });
+  });
+
+  it('calls onBookClass prop when provided when tapping book in TeacherScheduleModal', async () => {
+    const onBookClassMock = vi.fn();
+    vi.mocked(firestoreService.fetchUserPasses).mockResolvedValue([]);
+    vi.mocked(firestoreService.fetchStudioCurrencyPolicy).mockResolvedValue(null);
+
+    render(
+      <UnifiedProfileView
+        profileData={mockTeacherProfile}
+        currentUser={mockCurrentUser}
+        onBookClass={onBookClassMock}
+      />
+    );
+
+    fireEvent.click(screen.getByText('🧘 Classes'));
+    fireEvent.click(screen.getByText('Schedule ➔'));
+
+    const bookButton = screen.getByText('Book Class (1 Studio Credit) ➔');
+    fireEvent.click(bookButton);
+
+    expect(onBookClassMock).toHaveBeenCalledWith(mockTeacherProfile.classes![0]);
   });
 });

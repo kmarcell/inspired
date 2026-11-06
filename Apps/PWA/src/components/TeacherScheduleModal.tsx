@@ -15,6 +15,7 @@ interface TeacherScheduleModalProps {
   teachingStudios: TeachingStudioSummary[];
   classes: StudioClass[];
   onBookClass?: (classItem: StudioClass) => void;
+  userBookings?: Record<string, 'confirmed' | 'waitlisted'>;
 }
 
 export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
@@ -25,6 +26,7 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
   teachingStudios,
   classes,
   onBookClass,
+  userBookings,
 }) => {
   const today = new Date();
   const currentDay = today.getDay(); // 0 is Sun
@@ -212,12 +214,28 @@ export const TeacherScheduleModal: React.FC<TeacherScheduleModalProps> = ({
                     </p>
                   </div>
 
-                  <button
-                    onClick={() => onBookClass?.(cls)}
-                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-600/20 transition"
-                  >
-                    Book Class (1 Studio Credit) ➔
-                  </button>
+                  {userBookings?.[cls.id] === 'confirmed' ? (
+                    <button
+                      disabled
+                      className="w-full py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs shadow-md shadow-emerald-950/40"
+                    >
+                      ✓ Booked
+                    </button>
+                  ) : userBookings?.[cls.id] === 'waitlisted' ? (
+                    <button
+                      disabled
+                      className="w-full py-2 bg-amber-600 text-white rounded-xl font-bold text-xs shadow-md shadow-amber-950/40"
+                    >
+                      # Waitlisted
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onBookClass?.(cls)}
+                      className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-600/20 transition"
+                    >
+                      Book Class (1 Studio Credit) ➔
+                    </button>
+                  )}
                 </div>
               ))
             )}

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { UserProfile, StudioClass, Post } from '../types';
+import { UserProfile, StudioClass, Post, UserPass } from '../types';
 import { TeacherScheduleModal, TeachingStudioSummary } from './TeacherScheduleModal';
+import { BookingPassSelectionModalView } from './BookingPassSelectionModalView';
+import { NoPassAvailableModalView } from './NoPassAvailableModalView';
+import { firestoreService } from '../services/firestoreService';
 import { formatLocationBadge } from '../utils/locationFormatter';
 
 export type ProfileVariant = 'user' | 'area' | 'brand' | 'studio';
@@ -44,6 +47,7 @@ interface UnifiedProfileViewProps {
   onSelectStudio?: (studioId: string) => void;
   onSelectUser?: (userId: string) => void;
   onToggleSubscription?: (profileId: string) => Promise<void>;
+  onBookClass?: (classItem: StudioClass) => void;
 }
 
 export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
@@ -53,6 +57,7 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
   onSelectStudio,
   onSelectUser,
   onToggleSubscription,
+  onBookClass,
 }) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'studios_classes' | 'about' | 'members'>('feed');
   const [isSubscribed, setIsSubscribed] = useState<boolean>(
@@ -61,6 +66,101 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState<boolean>(false);
   const [loadingAction, setLoadingAction] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+
+  // Class booking and pass selection state
+  const [classes, setClasses] = useState<StudioClass[]>(profileData.classes || []);
+  const [bookingPassTargetClass, setBookingPassTargetClass] = useState<StudioClass | null>(null);
+  const [userWalletPasses, setUserWalletPasses] = useState<UserPass[]>([]);
+  const [showNoPassModal, setShowNoPassModal] = useState<boolean>(false);
+  const [userBookings, setUserBookings] = useState<Record<string, 'confirmed' | 'waitlisted'>>({});
+
+  React.useEffect(() => {
+    setClasses(profileData.classes || []);
+  }, [profileData.classes]);
+
+  React.useEffect(() => {
+    if (!currentUser || !profileData.classes) return;
+    const initialBookings: Record<string, 'confirmed' | 'waitlisted'> = {};
+    profileData.classes.forEach((cls) => {
+      if (cls.waitlist?.includes(currentUser.id)) {
+        initialBookings[cls.id] = 'waitlisted';
+      }
+    });
+    setUserBookings((prev) => ({ ...initialBookings, ...prev }));
+  }, [currentUser, profileData.classes]);
+
+  const handleBookClass = async (cls: StudioClass) => {
+    if (onBookClass) {
+      onBookClass(cls);
+    }
+
+    if (!currentUser) return;
+
+    try {
+      const [passes, studioPolicy] = await Promise.all([
+        firestoreService.fetchUserPasses(currentUser.id),
+        cls.studioId ? firestoreService.fetchStudioCurrencyPolicy(cls.studioId) : Promise.resolve(null),
+      ]);
+
+      let effectiveClass = cls;
+      if (!cls.currencyAcceptancePolicyMode && studioPolicy?.policyMode === 'custom_override') {
+        effectiveClass = {
+          ...cls,
+          currencyAcceptancePolicyMode: 'customSelected',
+          acceptedCurrencyIds: studioPolicy.acceptedCurrencyIds || [],
+        };
+      }
+
+      const validPasses = passes.filter(
+        (p) => p.status === 'active' && (p.tierType === 'unlimited' || (p.creditsRemaining && p.creditsRemaining > 0))
+      );
+
+      if (validPasses.length > 0) {
+        setUserWalletPasses(validPasses);
+        setBookingPassTargetClass(effectiveClass);
+      } else {
+        setBookingPassTargetClass(effectiveClass);
+        setShowNoPassModal(true);
+      }
+    } catch {
+      setBookingPassTargetClass(cls);
+      setShowNoPassModal(true);
+    }
+  };
+
+  const executeConfirmBookWithPass = async (selectedPassId: string) => {
+    if (!currentUser || !bookingPassTargetClass) return;
+
+    try {
+      const res = await firestoreService.bookClassWithPass(
+        bookingPassTargetClass.id,
+        bookingPassTargetClass.studioId,
+        currentUser.id,
+        currentUser.displayName || currentUser.username || 'Yogi Member',
+        selectedPassId
+      );
+
+      setUserBookings((prev) => ({ ...prev, [bookingPassTargetClass.id]: res.status }));
+
+      setClasses((prev) =>
+        prev.map((item) => {
+          if (item.id === bookingPassTargetClass.id) {
+            return {
+              ...item,
+              bookedCount: res.status === 'confirmed' ? item.bookedCount + 1 : item.bookedCount,
+              waitlist: res.status === 'waitlisted' ? [...item.waitlist, currentUser.id] : item.waitlist,
+            };
+          }
+          return item;
+        })
+      );
+
+      setBookingPassTargetClass(null);
+    } catch (e) {
+      console.error('Booking with pass failed:', e);
+      setBookingPassTargetClass(null);
+    }
+  };
 
   React.useEffect(() => {
     setIsSubscribed(currentUser?.joinedCommunities?.includes(profileData.id) ?? false);
@@ -412,7 +512,7 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
                   maxDate.setDate(today.getDate() + 7);
                   maxDate.setHours(23, 59, 59, 999);
 
-                  const rolling7DayClasses = (profileData.classes || []).filter((cls) => {
+                  const rolling7DayClasses = classes.filter((cls) => {
                     if (!cls.dateString) return true;
                     const cDate = new Date(cls.dateString);
                     return cDate >= today && cDate <= maxDate;
@@ -591,7 +691,50 @@ export const UnifiedProfileView: React.FC<UnifiedProfileViewProps> = ({
           teacherName={profileData.name}
           teacherUsername={profileData.username || profileData.id}
           teachingStudios={profileData.teachingStudios || []}
-          classes={profileData.classes || []}
+          classes={classes}
+          onBookClass={handleBookClass}
+          userBookings={userBookings}
+        />
+      )}
+
+      {/* Booking Pass Selection Modal */}
+      {bookingPassTargetClass && userWalletPasses.length > 0 && (
+        <BookingPassSelectionModalView
+          classNameTitle={bookingPassTargetClass.title || bookingPassTargetClass.className}
+          studioName={
+            bookingPassTargetClass.studioName ||
+            profileData.teachingStudios?.find((st) => st.id === bookingPassTargetClass.studioId)?.name ||
+            'Studio'
+          }
+          classDateString={bookingPassTargetClass.dateString}
+          startTime={bookingPassTargetClass.startTime}
+          acceptedCurrencyIds={bookingPassTargetClass.acceptedCurrencyIds}
+          currencyAcceptancePolicyMode={bookingPassTargetClass.currencyAcceptancePolicyMode}
+          userPasses={userWalletPasses}
+          onConfirmBook={executeConfirmBookWithPass}
+          onClose={() => setBookingPassTargetClass(null)}
+        />
+      )}
+
+      {/* No Valid Pass Fallback Modal */}
+      {showNoPassModal && bookingPassTargetClass && (
+        <NoPassAvailableModalView
+          studioName={
+            bookingPassTargetClass.studioName ||
+            profileData.teachingStudios?.find((st) => st.id === bookingPassTargetClass.studioId)?.name ||
+            'Studio'
+          }
+          classNameTitle={bookingPassTargetClass.title || bookingPassTargetClass.className}
+          onPurchasePassClick={() => {
+            setShowNoPassModal(false);
+            if (onSelectStudio && bookingPassTargetClass.studioId) {
+              onSelectStudio(bookingPassTargetClass.studioId);
+            }
+          }}
+          onClose={() => {
+            setShowNoPassModal(false);
+            setBookingPassTargetClass(null);
+          }}
         />
       )}
     </div>

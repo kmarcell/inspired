@@ -10,12 +10,12 @@
 ## 1. Executive Summary & Suite Architecture
 
 - **Suite Tiers:**
-  - **`smoke` (P0 - 40 scenarios):** Run on every pull request. Covers critical paths: Dev auth, cold-start session restore, core postcode search, class booking with pass credit deduction, 12h cancellation credit refund, multi-studio schedule viewing, non-teaching owner class scheduling, and standalone currency management.
-  - **`regression` (P0 + P1 - 100 scenarios):** Run on merge to `main` and pre-release staging deployments. Covers standard user journeys, boundary conditions, custom currency isolation, temporary closures, and shadow studio claims.
+  - **`smoke` (P0 - 41 scenarios):** Run on every pull request. Covers critical paths: Dev auth, cold-start session restore, core postcode search, class booking with pass credit deduction, 12h cancellation credit refund, multi-studio schedule viewing, non-teaching owner class scheduling, and standalone currency management.
+  - **`regression` (P0 + P1 - 101 scenarios):** Run on merge to `main` and pre-release staging deployments. Covers standard user journeys, boundary conditions, custom currency isolation, temporary closures, and shadow studio claims.
   - **`extended` (P2 - 11 scenarios):** Nightly or pre-major release test run. Covers theme toggling, issue reporting link prefill, empty states, and minor edge boundaries.
 
 - **Breakdown by Actor:**
-  - **Yogi (Student / Visitor):** 53 scenarios
+  - **Yogi (Student / Visitor):** 54 scenarios
   - **Teacher:** 20 scenarios
   - **Studio Owner & Admin:** 38 scenarios
 
@@ -33,7 +33,6 @@
 | `teacher-view-classes-tab-empty-state` | `teacher` | **P2** | Low impact (1) and low likelihood (1) edge case already tested in component tests |
 | `teacher-multi-postcode-badge-truncation` | `teacher` | **P2** | Low impact (1) and low likelihood (1) edge case already tested in component tests |
 | `teacher-enforce-bio-charlimit-truncation` | `teacher` | **P2** | Pure HTML5/React input validation fully verified by Vitest unit tests (zero integration risk) |
-| `yogi-book-class-from-teacher-schedule-modal` | `teacher` | **P0** | Skipped pending production code gap remediation (tracked in TODO.md / ROADMAP.md) |
 | `studio-owner-create-currency-empty-title-fails` | `studio-owner` | **P2** | Pure HTML5/React input validation fully verified by Vitest unit tests (zero integration risk) |
 | `studio-owner-grant-pass-empty-recipient-fails` | `studio-owner` | **P2** | Pure HTML5/React input validation fully verified by Vitest unit tests (zero integration risk) |
 | `studio-owner-delete-brand-network-modal-abort` | `studio-owner` | **P2** | Low impact (1) and low likelihood (1) edge case already tested in component tests |
@@ -42,7 +41,7 @@
 
 ## 3. Retained Scenario Catalogue by Actor
 
-### Actor: YOGI (53 Scenarios)
+### Actor: YOGI (54 Scenarios)
 
 #### visitor-login-wrong-password-fails — Visitor attempts login with incorrect password and is blocked with error
 - **ID:** visitor-login-wrong-password-fails
@@ -468,6 +467,28 @@
   - And selecting "Ravenscourt" filters the schedule to display only classes at Ravenscourt
 - **Isolation:** `shared`
 - **Data / reset notes:** None.
+- **Platforms:** both
+- **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
+
+#### yogi-book-class-from-teacher-schedule-modal — Student books class session directly from teacher multi-studio schedule modal
+- **ID:** yogi-book-class-from-teacher-schedule-modal
+- **Actor:** yogi
+- **Suite Tier:** `[SMOKE]` | **Priority:** **P0**
+- **Scoring:** Impact: `3/3` | Likelihood: `3/3` | Gap: `1/2` | Cost: `S`
+- **Feature ref:** FEATURES.md §5.19, §5.20
+- **Type:** happy
+- **Triad Signal:** 3/3 (Full Triad Consensus)
+- **Prerequisites:** Sarah holds active pass; viewing teacher modal.
+- **Suggested test user:** user_sarah (Sarah Jenkins)
+- **Seed gap:** none
+- **Preconditions (Given):** TeacherScheduleModal open on Maya Sharma profile.
+- **Steps:**
+  - Given Sarah views open class session in TeacherScheduleModal
+  - When she taps "Book Class (1 Studio Credit) ➔"
+  - Then BookingPassSelectionModalView opens displaying active user passes
+  - And confirming booking redeems pass credit and updates button to "✓ Booked"
+- **Isolation:** `clone`
+- **Data / reset notes:** Teardown cancels booking.
 - **Platforms:** both
 - **Automation status:** e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts)
 

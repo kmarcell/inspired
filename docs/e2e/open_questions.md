@@ -48,8 +48,7 @@ During Phase 1 independent scenario discovery and Phase 2/3 deduplication and me
 
 ### 2.2 Teacher Schedule Modal Booking Integration Handler
 - **Context:** In `UnifiedProfileView.tsx`, tapping "View Full Schedule" opens `TeacherScheduleModal.tsx`.
-- **Ambiguity:** `TeacherScheduleModal` receives `classes` and renders `[ Book ]` buttons, but currently does not receive an `onBookClass` callback prop from `UnifiedProfileView`. Tapping book inside the modal does not trigger `BookingPassSelectionModalView`.
-- **Proposal:** Connect `onBookClass` from `UnifiedProfileView` to `TeacherScheduleModal` before automating scenario `yogi-book-class-from-teacher-schedule-modal`.
+- **Resolution (Remediated in Issue #9):** Connected `onBookClass` from `UnifiedProfileView` to `TeacherScheduleModal`, triggering `BookingPassSelectionModalView` and executing `bookClassWithPass`. Scenario `yogi-book-class-from-teacher-schedule-modal` is now fully automated and passing in `yogi_smoke.spec.ts`.
 
 ---
 
