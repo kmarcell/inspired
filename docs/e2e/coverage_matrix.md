@@ -5,11 +5,11 @@ This matrix maps every functional capability in `FEATURES.md` to its correspondi
 
 ---
 
-### Coverage Summary (111 Scenarios Automated - 100%)
-- **P0 Smoke Scenarios (40/40 Automated - 100%):** Covered in `yogi_smoke.spec.ts`, `teacher_smoke.spec.ts`, and `studio_owner_smoke.spec.ts`.
+### Coverage Summary (112 Scenarios Automated - 100%)
+- **P0 Smoke Scenarios (41/41 Automated - 100%):** Covered in `yogi_smoke.spec.ts`, `teacher_smoke.spec.ts`, and `studio_owner_smoke.spec.ts`.
 - **P1 Regression Scenarios (60/60 Automated - 100%):** Covered in `yogi_regression.spec.ts` (27), `teacher_regression.spec.ts` (12), and `studio_owner_regression.spec.ts` (21).
 - **P2 Extended Scenarios (11/11 Automated - 100%):** Covered in `extended_suite.spec.ts` (11).
-- **Overall Active Suite:** 111/111 scenarios fully automated with 100% pass rate in concurrent test runs (121 total test cases including 10 legacy baseline tests).
+- **Overall Active Suite:** 112/112 scenarios fully automated with 100% pass rate in concurrent test runs (122 total test cases including 10 legacy baseline tests).
 
 ---
 
@@ -68,6 +68,7 @@ This matrix maps every functional capability in `FEATURES.md` to its correspondi
 | `§5.19` | Teacher profile classes sub-tab caps class listing to rolling 7-day window | `yogi-view-teacher-classes-rolling-7day-cap` | `REGRESSION` | **P1** | `shared` | e2e (Apps/PWA/src/test/e2e/yogi_regression.spec.ts) |
 | `§5.19, §5.8` | Yogi views private teacher profile displaying privacy lock shield while studio classes remain visible | `yogi-view-private-teacher-profile-guard` | `REGRESSION` | **P1** | `shared` | e2e (Apps/PWA/src/test/e2e/yogi_regression.spec.ts) |
 | `§5.19` | Yogi opens Teacher Schedule Modal from teacher profile and filters by partner studio | `yogi-view-teacher-multi-studio-schedule-modal` | `SMOKE` | **P0** | `shared` | e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts) |
+| `§5.19, §5.20` | Student books class session directly from teacher multi-studio schedule modal | `yogi-book-class-from-teacher-schedule-modal` | `SMOKE` | **P0** | `clone` | e2e (Apps/PWA/src/test/e2e/yogi_smoke.spec.ts) |
 | `§5.19` | Teacher views personal profile overview, verified checkmark, handle, and 2-metric bar | `teacher-view-own-profile-overview` | `SMOKE` | **P0** | `shared` | e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts) |
 | `§5.19` | Teacher classes sub-tab displays rolling 7-day classes capped at one week | `teacher-classes-rolling-seven-day-capping` | `REGRESSION` | **P1** | `shared` | e2e (Apps/PWA/src/test/e2e/teacher_regression.spec.ts) |
 | `§5.19` | Teacher opens TeacherScheduleModal calendar overlay across all partner studios | `teacher-open-multistudio-schedule-modal` | `SMOKE` | **P0** | `shared` | e2e (Apps/PWA/src/test/e2e/teacher_smoke.spec.ts) |

@@ -37,7 +37,7 @@ async function openAskewStudio(page: any) {
   await expect(page.locator('text=Askew Road Zen Den').first()).toBeVisible({ timeout: 5000 });
 }
 
-test.describe('Yogi Smoke E2E Suite (19 Scenarios)', () => {
+test.describe('Yogi Smoke E2E Suite (20 Scenarios)', () => {
   // 1. visitor-login-wrong-password-fails
   test('@smoke visitor-login-wrong-password-fails — Visitor attempts login with incorrect password and is blocked with error', async ({ page }) => {
     await page.goto('/');
@@ -499,5 +499,45 @@ test.describe('Yogi Smoke E2E Suite (19 Scenarios)', () => {
     // Close modal
     await page.click('button[aria-label="Close Schedule Modal"]');
     await expect(page.locator('h3:has-text("Maya Sharma — Schedule")')).not.toBeVisible();
+  });
+
+  // 20. yogi-book-class-from-teacher-schedule-modal
+  test('@smoke yogi-book-class-from-teacher-schedule-modal — Student books class session directly from teacher multi-studio schedule modal', async ({ page, clonedPersona }) => {
+    const clone = await clonedPersona('user_sarah');
+
+    await devLogin(page, clone.email, clone.password);
+    await expect(page.locator('text=Sarah').first()).toBeVisible({ timeout: 10000 });
+
+    // Navigate to Maya Sharma profile
+    await openAskewStudio(page);
+    await page.locator('text=Maya Sharma').first().click();
+    await expect(page.locator('h1:has-text("Maya Sharma")')).toBeVisible({ timeout: 5000 });
+
+    // Click Classes sub-tab
+    await page.click('button:has-text("🧘 Classes")');
+
+    // Click Schedule button to open modal
+    const scheduleModalBtn = page.locator('button:has-text("Schedule")');
+    await expect(scheduleModalBtn).toBeVisible({ timeout: 5000 });
+    await scheduleModalBtn.click();
+
+    // TeacherScheduleModal opens
+    await expect(page.locator('h3:has-text("Maya Sharma — Schedule")')).toBeVisible({ timeout: 5000 });
+
+    // In-modal class card has booking button
+    const bookBtn = page.locator('[data-testid="teacher-schedule-card"] button:has-text("Book")').first();
+    await expect(bookBtn).toBeVisible({ timeout: 5000 });
+    await bookBtn.click();
+
+    // BookingPassSelectionModalView opens displaying 5-Class Pack
+    await expect(page.locator('h3:has-text("Redeem Pass & Book")')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('text=5-Class Pack').first()).toBeVisible({ timeout: 5000 });
+
+    // Confirm booking
+    const modalBookBtn = page.locator('role=dialog >> role=button[name="Book"]');
+    await modalBookBtn.click();
+
+    // In-modal class card transitions to "✓ Booked"
+    await expect(page.locator('[data-testid="teacher-schedule-card"] button:has-text("✓ Booked")').first()).toBeVisible({ timeout: 5000 });
   });
 });
