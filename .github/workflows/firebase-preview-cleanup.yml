@@ -3,9 +3,15 @@ name: Delete Ephemeral Firebase Preview Channel
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request number to delete preview channel for (e.g. 20)'
+        required: true
+        type: string
 
 concurrency:
-  group: pr-cleanup-${{ github.event.number }}
+  group: pr-cleanup-${{ inputs.pr_number || github.event.inputs.pr_number || github.event.number }}
   cancel-in-progress: true
 
 permissions:
@@ -18,6 +24,9 @@ jobs:
     timeout-minutes: 3
     if: github.repository == 'kmarcell/inspired'
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Authenticate Firebase Service Account
         run: echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > /tmp/firebase-key.json
         env:
@@ -25,6 +34,25 @@ jobs:
 
       - name: Delete Preview Channel
         run: |
-          npx firebase-tools hosting:channel:delete pr-${{ github.event.number }} --force --project inspired-yoga-app-staging
+          CHANNEL_ID="pr-${{ inputs.pr_number || github.event.inputs.pr_number || github.event.number }}"
+          echo "Attempting to delete preview channel: $CHANNEL_ID"
+
+          set +e
+          OUTPUT=$(npx firebase-tools hosting:channel:delete "$CHANNEL_ID" --force --project inspired-yoga-app-staging 2>&1)
+          EXIT_CODE=$?
+          set -e
+
+          echo "$OUTPUT"
+
+          if [ $EXIT_CODE -ne 0 ]; then
+            if echo "$OUTPUT" | grep -iqE "not found|does not exist|404"; then
+              echo "Preview channel $CHANNEL_ID was already deleted or does not exist. Skipping."
+              exit 0
+            fi
+            echo "Failed to delete preview channel $CHANNEL_ID."
+            exit $EXIT_CODE
+          fi
+
+          echo "Successfully deleted preview channel: $CHANNEL_ID"
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-key.json
