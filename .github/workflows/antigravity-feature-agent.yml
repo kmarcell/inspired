@@ -69,6 +69,15 @@ jobs:
           git checkout -b "$BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
+      # Restore branch-specific memory cache over the committed template
+      - name: Restore Agent Memory Cache
+        uses: actions/cache@v4
+        with:
+          path: .agent-memory/
+          key: agent-memory-${{ steps.branch.outputs.branch_name }}-${{ github.run_id }}
+          restore-keys: |
+            agent-memory-${{ steps.branch.outputs.branch_name }}-
+
       - name: Setup Antigravity CLI
         uses: ./.github/actions/setup-antigravity
 
@@ -89,12 +98,14 @@ jobs:
           - UI Mockups & Screenshots: .context/target/images/ (if present, match visual styling and layout)
           - Scope Boundaries & Sibling Tasks: .context/epic/summary.md
           - Related Dependency Issues: .context/linked/ (if present)
+          - Agent Memory & State: .agent-memory/ (Review TODO.md, DECISIONS.md, and LEARNINGS.md for prior context)
 
           CRITICAL MANDATES:
           1. Implement ONLY the scope requested in .context/target/issue.md. DO NOT implement tasks tracked in sibling tickets from .context/epic/summary.md.
           2. Adhere strictly to GEMINI.md mandates: zero mock data fallbacks in production code. Production services must query Firestore directly.
           3. Ensure all visual UI aligns 1:1 with any provided mockups or screenshots in .context/target/images/.
-          4. Run 'pnpm --filter inspired-pwa run check' before finishing to ensure 0 TypeScript errors and passing unit tests."
+          4. Follow .agent-memory/RULES.md: review prior context, track active sub-tasks in TODO.md, document choices in DECISIONS.md, and record test outcomes before finishing.
+          5. Run 'pnpm --filter inspired-pwa run check' before finishing to ensure 0 TypeScript errors and passing unit tests."
 
           if command -v agy &> /dev/null; then
             agy -p "$PROMPT" --model "${ANTIGRAVITY_MODEL:-gemini-3.8-flash}" --effort "${ANTIGRAVITY_EFFORT:-medium}" --dangerously-skip-permissions
@@ -112,6 +123,14 @@ jobs:
           ANTIGRAVITY_EFFORT: "medium"
           GEMINI_MODEL: "gemini-2.5-flash"
 
+      # Save the updated runtime memory back to GitHub cache (never committed to Git)
+      - name: Save Agent Memory Cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: .agent-memory/
+          key: agent-memory-${{ steps.branch.outputs.branch_name }}-${{ github.run_id }}
+
       - name: Verify Quality Gates
         run: |
           pnpm --filter inspired-pwa install --frozen-lockfile
@@ -123,6 +142,8 @@ jobs:
         env:
           ISSUE_NUM: ${{ github.event.issue.number }}
         run: |
+          # Reset .agent-memory to committed template so runtime memory is never committed
+          git checkout -- .agent-memory/ || true
           if [ -n "$(git status --porcelain)" ]; then
             git add -A
             git commit -m "feat: implement issue #${ISSUE_NUM} via Antigravity agent"

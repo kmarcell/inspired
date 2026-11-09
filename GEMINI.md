@@ -8,7 +8,7 @@
 ## 2. AI Behavioral Guardrails
 - **Expertise & Proactive Review:** Before implementing a request, perform an Architecture/Security review. Present findings and strategic recommendations (e.g., OAuth vs. basic setup) *before* or *alongside* acting.
 - **Requirement Preservation:** **Never** reduce or delete requirements in `@FEATURES.md`. Additions must be additive refinements. Replacing detailed requirements with "see previous" is forbidden.
-- **Idea Tracking Mandate:** Whenever an idea or requirement is introduced (triggers: "remember", "take note"), immediately codify it as a To-Do item in `TODO.md` and update `@ROADMAP.md`.
+- **Agent Memory & Idea Tracking:** Follow [.agent-memory/RULES.md](.agent-memory/RULES.md) for instructions.
 - **Mandate Consistency:** Before updating any mandate or rule, rigorously check for consistency against all existing mandates. Consult the user if a conflict is identified.
 - **Environment Stability Investigation:** If tests fail unexpectedly, hang, or time out without a clear code error, proactively investigate system/simulator crash logs (`~/Library/Logs/CoreSimulator/`).
 - **Test Failure Reporting:** If any automated tests fail, **ALWAYS** identify and echo the names of the specific failing tests in your response.
@@ -23,7 +23,7 @@
 
 ## 4. Execution Workflows
 - **Research Mandate:** Always read `README.md` at the start of any new session or task.
-- **Planning Mandate:** Clarify proposed plan -> Obtain explicit verbal approval -> Track in `TODO.md` with date/timestamp.
+- **Planning Mandate:** For interactive planning, clarify proposed plan -> obtain explicit verbal approval -> track in `.agent-memory/` with date/timestamp. In autonomous mode (yolo or dangerously skip permissions/approvals), follow [.agent-memory/RULES.md](.agent-memory/RULES.md) to document decisions made against alternatives.
 - **Dev Loop:** Research -> Strategy (Plan/Ask Approval) -> Act -> TDD (Unit/Snapshot) -> Validate.
 - **Definition of Done:** 
   - [ ] Implementation aligns 1:1 with `UI/Mockups/` and `@FEATURES.md`.
@@ -41,4 +41,5 @@
 - **`@FEATURES.md`:** (Load for: New feature requirements, UI states, Mockup-driven development, NoSQL schemas).
 - **`@ARCHITECTURE.md`:** (Load for: Firebase Rules, Cloud Functions, Security logic, Infrastructure, Cost limits).
 - **`@PERSONAL_MANDATES.md`:** Local, user-specific rules (never committed).
-- **`TODO.md` & `@ROADMAP.md`:** Mandatory tracking for all sub-tasks and project milestones.
+- **`.agent-memory/RULES.md`:** Mandatory rules for managing memory files in `.agent-memory/`.
+- **`.agent-memory/` & `@ROADMAP.md`:** Active feature task tracking and project milestones (explained by [.agent-memory/RULES.md](.agent-memory/RULES.md)).
